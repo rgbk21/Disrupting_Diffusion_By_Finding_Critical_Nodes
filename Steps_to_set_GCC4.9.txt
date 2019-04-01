@@ -1,0 +1,22 @@
+CentOS 6/7 official support this. You don't need third party repository. And gcc version is 4.9.2 in CentOS's repo.
+
+$ yum install centos-release-scl-rh
+$ yum install devtoolset-3-gcc devtoolset-3-gcc-c++
+
+To use the updated tools, start a new shell using the scl command:
+
+$ scl enable devtoolset-3 bash
+
+you can also check the gcc version here it should be 4.9
+
+also set PATH environment variable to /opt/rh/devtoolset-3/root/usr/bin/:$PATH
+For setting the PATH go to .bash_profile file (you may have to do show hidden files)
+add a line at the end of the file set the PATH variable as /opt/rh/devtoolset-3/root/usr/bin/:$PATH
+
+start a new shell and execute below command 
+$ scl enable devtoolset-3 bash
+
+update the makefile CXX as CXX=g++
+
+now run your project in same shell window
+

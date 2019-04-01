@@ -1,0 +1,204 @@
+
+ Conducting experiments for:
+ Graph: ca-GrQc-processed.txt	 Budget: 10	 Non Target Threshod: 10	 Percentage:  100	 Method: 1	 Nodes removed: 5	 Seed selection case: 0	 Top best outdegree threshold : 100	 Probability: Indegree
+ ******* Running modular approach ******** 
+
+ Generated reverse280210 RR sets
+Elapsed time 1.156 
+ Time per RR Set is 4.12548e-06
+ Total Size is 1533525
+ Average size is 5.47277
+ RRsets done 
+ 
+ Initial Strength is 1533525
+ Number of nodes Already present in seed set = 0
+ Generated reverse280210 RR sets
+Elapsed time 1.015 
+ Time per RR Set is 3.62228e-06
+ Total Size is 1235896
+ Average size is 4.41061
+ 
+ After removing Modular Strength is 1235896
+ Reverse algorithm time in minutes 
+0.0380167
+ 
+ ******* Running Sub Modular approach ******** 
+RR sets are: 280210
+ Generated reverse280210 RR sets
+Elapsed time 41.546 
+ Time per RR Set is 0.000148267
+ Total Size is 1531007
+ Average size is 5.46378
+ 
+ ******* Running Mod Impact approach ********
+ Number of nodes for (mod impact) already present in seed set = 0
+ Reverse submod impact algorithm time in minutes 0.246483
+
+ Generated reverse280210 RR sets
+Elapsed time 0.954 
+ Time per RR Set is 3.40459e-06
+ Total Size is 1190466
+ Average size is 4.24848
+ Number of nodes Already present in seed set = 0
+ Submodular strength = 1190466
+ Reverse submodular algorithm time in minutes 0.833067
+ 
+******* Node removed in all three approaches ******** 
+nodes To remove in mod graph 0 2 4 47 802 
+ nodes To remove in submod graph 4 92 392 802 998 
+ nodes To remove in mod Impact graph 4 15 47 355 802 
+ intersection of mod and submod nodes to remove 2
+ intersection of submod and submodImpact nodes to remove 2
+ intersection of mod and submodImpact nodes to remove 3
+RR sets are: 280210
+
+ Generated reverse280210 RR sets
+Elapsed time 1.11 
+ Time per RR Set is 3.96131e-06
+ Total Size is 1200401
+ Average size is 4.28393
+ 
+ After removing mod Impact Modular Strength is 1200401
+
+ Generated 280210 RR sets
+Elapsed time 1.344 
+ Time per RR Set is 4.7964e-06
+ Total Size is 1540063
+ Average size is 5.4961
+ Generated reverse280210 RR sets
+Elapsed time 1.125 
+ Time per RR Set is 4.01485e-06
+ Total Size is 1539259
+ Average size is 5.49323
+ New Targets activated = 1894
+ Generated 280210 RR sets
+Elapsed time 1.188 
+ Time per RR Set is 4.23968e-06
+ Total Size is 1237025
+ Average size is 4.41464
+ Generated 280210 RR sets
+Elapsed time 1.109 
+ Time per RR Set is 3.95775e-06
+ Total Size is 1192631
+ Average size is 4.2562
+ Generated 280210 RR sets
+Elapsed time 1.11 
+ Time per RR Set is 3.96131e-06
+ Total Size is 1199812
+ Average size is 4.28183
+ 
+ Selected new SeedSet in original graph: 0 4 19 47 92 355 392 510 998 2546 
+ Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.203 
+ Time per RR Set is 4.29321e-06
+ Total Size is 1236990
+ Average size is 4.41451
+ New Targets activated = 1415
+ Sub Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.031 
+ Time per RR Set is 3.67938e-06
+ Total Size is 1192255
+ Average size is 4.25486
+ New Targets activated = 1382
+ Mod Impact Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.187 
+ Time per RR Set is 4.23611e-06
+ Total Size is 1196944
+ Average size is 4.2716
+ New Targets activated = 1262
+ 
+ Selected new SeedSet in original graph: 0 4 19 47 92 355 392 510 998 2546 
+ Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.109 
+ Time per RR Set is 3.95775e-06
+ Total Size is 1236010
+ Average size is 4.41101
+ New Targets activated = 1425
+ Sub Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.094 
+ Time per RR Set is 3.90421e-06
+ Total Size is 1194473
+ Average size is 4.26278
+ New Targets activated = 1393
+ Mod Impact Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.094 
+ Time per RR Set is 3.90421e-06
+ Total Size is 1199539
+ Average size is 4.28086
+ New Targets activated = 1269
+ 
+ Selected new SeedSet in original graph: 0 4 19 47 92 355 392 510 998 2546 
+ Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.125 
+ Time per RR Set is 4.01485e-06
+ Total Size is 1236958
+ Average size is 4.4144
+ New Targets activated = 1420
+ Sub Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.079 
+ Time per RR Set is 3.85068e-06
+ Total Size is 1191321
+ Average size is 4.25153
+ New Targets activated = 1384
+ Mod Impact Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.124 
+ Time per RR Set is 4.01128e-06
+ Total Size is 1200311
+ Average size is 4.28361
+ New Targets activated = 1265
+ 
+ Selected new SeedSet in original graph: 0 4 19 47 92 355 392 510 998 2546 
+ Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.109 
+ Time per RR Set is 3.95775e-06
+ Total Size is 1234027
+ Average size is 4.40394
+ New Targets activated = 1416
+ Sub Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.016 
+ Time per RR Set is 3.62585e-06
+ Total Size is 1187418
+ Average size is 4.2376
+ New Targets activated = 1386
+ Mod Impact Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.125 
+ Time per RR Set is 4.01485e-06
+ Total Size is 1203938
+ Average size is 4.29656
+ New Targets activated = 1270
+ 
+ Selected new SeedSet in original graph: 0 4 19 47 92 355 392 510 998 2546 
+ Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.125 
+ Time per RR Set is 4.01485e-06
+ Total Size is 1239774
+ Average size is 4.42445
+ New Targets activated = 1425
+ Sub Mod Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.109 
+ Time per RR Set is 3.95775e-06
+ Total Size is 1189093
+ Average size is 4.24358
+ New Targets activated = 1381
+ Mod Impact Results: 
+ Generated reverse280210 RR sets
+Elapsed time 1.031 
+ Time per RR Set is 3.67938e-06
+ Total Size is 1199222
+ Average size is 4.27973
+ New Targets activated = 1266
+ Elapsed time in minutes 1.37838

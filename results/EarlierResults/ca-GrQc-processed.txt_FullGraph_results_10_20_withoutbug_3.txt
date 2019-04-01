@@ -1,0 +1,35 @@
+
+10 <-SeedSetSize
+20 <-removeNodes
+1537030 <-InitialStrength
+1076952 <-ModStrength
+0.0382833 <-ModStrengthTime
+0.277933 <-ModImpactTime
+1532484 <-Recalculated Init Strength
+1005392 <-subModStrength
+1.04325 <-SubModTime
+
+nodes To remove in mod graph: 4 0 47 802 2 15 23 9 19 1 92 807 20 3 355 16 510 145 129 6 
+ nodes To remove in mod Impact graph 802 47 4 15 998 92 355 807 392 510 23 9 831 19 557 2223 818 861 620 823 
+ nodes To remove in submod graph 802 4 92 998 392 510 15 557 47 292 145 19 861 2131 2847 38 355 579 277 807 
+intersection of mod and submod nodes to remove: 10
+intersection of submod and submodImpact nodes to remove: 13
+intersection of mod and submodImpact nodes to remove: 11
+1042102 <- ModImpact Strength
+1888 <-MaxInfluence Num
+MaxInfl Seed Set: 
+0 4 19 47 92 392 510 557 861 998 
+Modular Seed Set: 
+5 17 38 100 140 392 817 818 823 998 
+SubModular Seed Set: 
+0 16 17 20 100 129 133 817 823 849 
+ModImpact Seed Set: 
+0 16 17 20 100 109 129 133 579 817 
+MOD	SUBMOD	MOD-IMPACT
+801 823 885
+807 821 882
+795 826 888
+796 823 882
+803 818 882
+-0.0272814 <-subModGain
+-0.104242 <-ModImpactGain

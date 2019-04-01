@@ -1,0 +1,20 @@
+
+10 <-SeedSetSize
+20 <-removeNodes
+1528604 <-InitialStrength
+1077090 <-ModStrength
+0.03515 <-ModStrengthTime
+0.228783 <-ModImpactTime
+1536546 <-Recalculated Init Strength
+1007537 <-subModStrength
+0.946617 <-SubModTime
+1047371 <- ModImpact Strength
+1887 <-MaxInfluence Num
+MOD	SUBMOD	MOD-IMPACT
+800 827 891
+814 836 892
+811 833 889
+808 837 891
+809 834 884
+-0.0309395 <-subModGain
+-0.100236 <-ModImpactGain

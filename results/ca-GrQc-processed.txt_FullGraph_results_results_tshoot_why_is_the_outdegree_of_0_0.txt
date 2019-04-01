@@ -1,0 +1,187 @@
+-----------------------------		ORIGINAL GRAPH ----------------------
+10 <-SeedSetSize
+20 <-removeNodes
+1527638 <-InitialStrength
+1079680 <-ModStrength
+0.0346333 <-ModStrengthTime
+0.242633 <-ModImpactTime
+1538664 <-Recalculated Init Strength
+1005944 <-subModStrength
+0.959367 <-SubModTime
+
+nodes To remove in mod graph: 4 0 47 802 2 15 23 9 19 1 92 807 20 3 355 16 145 510 129 6 
+nodes To remove in mod Impact graph: 802 47 4 15 92 998 355 807 23 9 392 510 831 19 557 2223 823 818 861 2 
+nodes To remove in submod graph: 802 4 92 998 392 510 15 557 47 292 145 19 2131 2847 861 279 355 579 277 807 
+intersection of mod and submod nodes to remove: 10
+intersection of submod and submodImpact nodes to remove: 13
+intersection of mod and submodImpact nodes to remove: 12
+1046439 <- ModImpact Strength
+1880 <-MaxInfluence Num
+MaxInfl Seed Set: 
+0 4 19 47 92 355 392 510 557 998 
+Modular Seed Set: 
+5 17 38 100 133 392 579 817 823 998 
+SubModular Seed Set: 
+0 16 17 20 100 129 133 817 823 849 
+ModImpact Seed Set: 
+0 16 17 20 100 109 129 133 579 817 
+MOD	SUBMOD	MOD-IMPACT
+814 831 897
+810 837 895
+808 832 904
+808 833 906
+807 828 902
+-0.0281767 <-subModGain
+-0.112945 <-ModImpactGain
+
+
+-----------------------------	4 - 0	CHANGED GRAPH 	----------------------
+
+10 <-SeedSetSize
+20 <-removeNodes
+1586426 <-InitialStrength
+1077831 <-ModStrength
+0.0343667 <-ModStrengthTime
+0.310933 <-ModImpactTime
+1589266 <-Recalculated Init Strength
+1000728 <-subModStrength
+1.25103 <-SubModTime
+
+nodes To remove in mod graph: 4 1 0 47 802 2 15 23 9 19 92 807 20 3 355 16 145 510 129 109 
+nodes To remove in mod Impact graph: 4 802 47 15 0 23 92 355 998 807 2 392 510 9 19 831 557 2223 145 818 
+nodes To remove in submod graph: 4 802 92 998 392 510 15 557 47 0 145 292 19 2131 2847 277 355 807 861 38 
+intersection of mod and submod nodes to remove: 11
+intersection of submod and submodImpact nodes to remove: 14
+intersection of mod and submodImpact nodes to remove: 14
+1037248 <- ModImpact Strength
+1881 <-MaxInfluence Num
+MaxInfl Seed Set: 
+0 4 19 47 92 392 510 557 861 998 
+Modular Seed Set: 
+5 6 17 100 133 392 817 818 823 998 
+SubModular Seed Set: 
+5 6 16 17 20 100 129 579 817 823 
+ModImpact Seed Set: 
+5 6 16 17 20 100 129 579 817 861 
+MOD	SUBMOD	MOD-IMPACT
+835 758 786
+846 762 792
+840 764 786
+836 757 795
+837 757 788
+0.0944119 <-subModGain
+0.0588767 <-ModImpactGain
+
+-----------------------------	4 - 0  CHANGED GRAPH 1	----------------------
+
+10 <-SeedSetSize
+20 <-removeNodes
+1587179 <-InitialStrength
+1075037 <-ModStrength
+0.0242 <-ModStrengthTime
+0.215933 <-ModImpactTime
+1594147 <-Recalculated Init Strength
+1001747 <-subModStrength
+0.86875 <-SubModTime
+
+nodes To remove in mod graph: 4 1 0 47 802 2 15 23 9 19 92 807 20 3 355 16 510 145 6 129 
+nodes To remove in mod Impact graph: 4 802 47 15 0 23 92 355 998 807 2 392 510 9 19 831 557 2223 145 818 
+nodes To remove in submod graph: 4 802 92 998 392 510 15 557 47 0 145 292 19 861 2223 355 38 807 2847 277 
+intersection of mod and submod nodes to remove: 11
+intersection of submod and submodImpact nodes to remove: 15
+intersection of mod and submodImpact nodes to remove: 14
+1033608 <- ModImpact Strength
+1880 <-MaxInfluence Num
+MaxInfl Seed Set: 
+0 4 19 47 92 355 392 510 998 2223 
+Modular Seed Set: 
+5 17 38 100 140 392 817 818 823 998 
+SubModular Seed Set: 
+5 6 16 17 20 100 129 579 817 823 
+ModImpact Seed Set: 
+5 6 17 20 100 129 133 579 817 861 
+MOD	SUBMOD	MOD-IMPACT
+810 764 793
+808 764 786
+795 763 789
+807 759 788
+806 759 793
+0.0538579 <-subModGain
+0.0190871 <-ModImpactGain
+
+-----------------------------		ORIGINAL GRAPH 		----------------------
+10 <-SeedSetSize
+20 <-removeNodes
+1534684 <-InitialStrength
+1073037 <-ModStrength
+0.025 <-ModStrengthTime
+0.168517 <-ModImpactTime
+1533560 <-Recalculated Init Strength
+1006992 <-subModStrength
+0.674483 <-SubModTime
+
+nodes To remove in mod graph: 4 0 47 802 2 15 23 9 19 1 92 807 20 3 355 16 510 145 129 6 
+nodes To remove in mod Impact graph: 802 47 4 15 998 92 355 807 23 392 9 510 831 19 557 2223 818 620 2 861 
+nodes To remove in submod graph: 802 4 92 998 392 510 15 557 47 145 292 19 2847 2131 279 861 355 807 579 277 
+intersection of mod and submod nodes to remove: 10
+intersection of submod and submodImpact nodes to remove: 13
+intersection of mod and submodImpact nodes to remove: 12
+1043094 <- ModImpact Strength
+1890 <-MaxInfluence Num
+MaxInfl Seed Set: 
+0 4 19 47 92 392 510 861 998 2546 
+Modular Seed Set: 
+5 17 38 100 133 392 817 818 823 998 
+SubModular Seed Set: 
+0 16 17 20 100 129 133 817 823 849 
+ModImpact Seed Set: 
+0 16 17 20 100 109 129 133 579 817 
+MOD	SUBMOD	MOD-IMPACT
+807 828 879
+798 829 886
+804 835 882
+803 834 883
+802 835 883
+-0.0366358 <-subModGain
+-0.0994268 <-ModImpactGain
+
+-----------------------------	10 - 0  CHANGED GRAPH 2	----------------------
+10 <-SeedSetSize
+20 <-removeNodes
+1682370 <-InitialStrength
+1079853 <-ModStrength
+0.0455667 <-ModStrengthTime
+0.21725 <-ModImpactTime
+1683033 <-Recalculated Init Strength
+1006320 <-subModStrength
+0.908083 <-SubModTime
+
+nodes To remove in mod graph: 4 10 0 1 23 47 802 5 15 2 9 3 19 92 807 20 355 16 510 145 
+nodes To remove in mod Impact graph: 4 802 47 23 0 15 2 9 807 92 998 355 510 392 19 831 818 20 557 145 
+nodes To remove in submod graph: 4 802 998 392 92 0 510 15 557 807 292 145 19 2131 355 279 861 2847 277 2446 
+intersection of mod and submod nodes to remove: 10
+intersection of submod and submodImpact nodes to remove: 13
+intersection of mod and submodImpact nodes to remove: 15
+1039215 <- ModImpact Strength
+1905 <-MaxInfluence Num
+MaxInfl Seed Set: 
+4 10 19 92 355 392 510 557 998 2546 
+Modular Seed Set: 
+6 17 100 129 392 817 818 823 861 998 
+SubModular Seed Set: 
+5 6 17 20 23 100 129 579 817 823 
+ModImpact Seed Set: 
+5 6 16 17 100 129 133 579 817 861 
+MOD	SUBMOD	MOD-IMPACT
+861 802 750
+865 795 754
+872 795 751
+857 801 753
+870 802 758
+0.0762515 <-subModGain
+0.129219 <-ModImpactGain
+
+-----------------------------	10 - 0  CHANGED GRAPH 2	----------------------
+
+
+

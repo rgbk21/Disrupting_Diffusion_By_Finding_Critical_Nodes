@@ -1,0 +1,73 @@
+cmake_minimum_required(VERSION 3.13)
+project(PrettyCode_SeedEffectors_master_changed_sfmt)
+
+set(CMAKE_CXX_STANDARD 14)
+
+include_directories(.)
+include_directories(InfluenceMaximization)
+include_directories(InfluenceMaximization/IMResults)
+include_directories(InfluenceMaximization/sfmt)
+include_directories(InfluenceMaximization/sfmt/jump)
+include_directories(InfluenceMaximization/TIM-Models)
+
+add_executable(PrettyCode_SeedEffectors_master_changed_sfmt
+
+        InfluenceMaximization/IMResults/IMResults.h
+        InfluenceMaximization/sfmt/SFMT-alti.h
+        InfluenceMaximization/sfmt/SFMT-common.h
+        InfluenceMaximization/sfmt/SFMT-neon.h
+        InfluenceMaximization/sfmt/SFMT-params.h
+        InfluenceMaximization/sfmt/SFMT-params11213.h
+        InfluenceMaximization/sfmt/SFMT-params1279.h
+        InfluenceMaximization/sfmt/SFMT-params132049.h
+        InfluenceMaximization/sfmt/SFMT-params19937.h
+        InfluenceMaximization/sfmt/SFMT-params216091.h
+        InfluenceMaximization/sfmt/SFMT-params2281.h
+        InfluenceMaximization/sfmt/SFMT-params4253.h
+        InfluenceMaximization/sfmt/SFMT-params44497.h
+        InfluenceMaximization/sfmt/SFMT-params607.h
+        InfluenceMaximization/sfmt/SFMT-params86243.h
+        InfluenceMaximization/sfmt/SFMT-sse2-msc.h
+        InfluenceMaximization/sfmt/SFMT-sse2.h
+        InfluenceMaximization/sfmt/SFMT.c
+        InfluenceMaximization/sfmt/SFMT.h
+        InfluenceMaximization/TIM-Models/TIMCoverage.cpp
+        InfluenceMaximization/TIM-Models/TIMCoverage.hpp
+        InfluenceMaximization/ApproximationSetting.hpp
+        InfluenceMaximization/BaselineGreedy.cpp
+        InfluenceMaximization/BaselineGreedy.hpp
+        InfluenceMaximization/BaselineGreedyTIM.cpp
+        InfluenceMaximization/BaselineGreedyTIM.hpp
+        InfluenceMaximization/DifferenceApproximator.cpp
+        InfluenceMaximization/DifferenceApproximator.hpp
+        InfluenceMaximization/Diffusion.hpp
+        InfluenceMaximization/Edge.cpp
+        InfluenceMaximization/Edge.hpp
+        InfluenceMaximization/EstimateNonTargets.cpp
+        InfluenceMaximization/EstimateNonTargets.hpp
+        InfluenceMaximization/FunctionEvaluators.cpp
+        InfluenceMaximization/FunctionEvaluators.hpp
+        InfluenceMaximization/GenerateGraphLabels.cpp
+        InfluenceMaximization/GenerateGraphLabels.hpp
+        InfluenceMaximization/Graph.cpp
+        InfluenceMaximization/Graph.hpp
+        InfluenceMaximization/IMTree.cpp
+        InfluenceMaximization/IMTree.hpp
+        InfluenceMaximization/json.hpp
+        InfluenceMaximization/log.h
+        InfluenceMaximization/log1.h
+        InfluenceMaximization/memoryusage.h
+        InfluenceMaximization/Phase2.cpp
+        InfluenceMaximization/Phase2.hpp
+        InfluenceMaximization/RRassociatedGraph.cpp
+        InfluenceMaximization/RRassociatedGraph.hpp
+        InfluenceMaximization/SeedSet.cpp
+        InfluenceMaximization/SeedSet.hpp
+        InfluenceMaximization/TIMInfluenceCalculator.cpp
+        InfluenceMaximization/TIMInfluenceCalculator.hpp
+        InfluenceMaximization/TIMUtility.hpp
+        InfluenceMaximization/vertex.cpp
+        InfluenceMaximization/vertex.hpp
+        cxxopts.hpp
+        differencemain.cpp
+        main.cpp)
