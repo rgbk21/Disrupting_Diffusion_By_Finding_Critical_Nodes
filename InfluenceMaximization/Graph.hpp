@@ -23,6 +23,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <string>
+#include <random>
 #include "RRassociatedGraph.hpp"
 
 using namespace std;
@@ -124,6 +125,8 @@ public:
     void removeNodeFromRRset(int v);
     void removeSetFromASmatrix(int row, int vertex, int rrSetID);
     void addSetintoASmatrix(int row, int vertex, int rrSetID);
+    void print2DVector(const vector <vector<int>> myVector);
+    void assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre, int totalEdgesInTransGraphPre);
 };
 
 #endif /* Graph_hpp */

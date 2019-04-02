@@ -297,6 +297,10 @@ getSeed(Graph *graph, vector<int> activatedSet, set<int> modNodes, set<int> subM
 
 set<int>
 removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector<int> activatedSet, string modular) {
+
+    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
+    bool tshoot1 = true;//Controls the assert statements
+
     //Random RR sets
     set<int> alreadyinSeed = set<int>();
     int n = (int) activatedSet.size();
@@ -340,10 +344,10 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector
 //    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
 
     set<int> nodesToRemove;
-    int i = 0;
+    int count = 0;
     int j = 0;
     while (j < removeNodes && j < SortedNodeidCounts.size()) {
-        int nodeid = SortedNodeidCounts.at(i).first;
+        int nodeid = SortedNodeidCounts.at(count).first;
         if (nodesToRemove.count(nodeid) == 0 /*&& seedSet.count(nodeid)==0*/) {
             nodesToRemove.insert(nodeid);
             //modNodesToRemoveUnsorted: for printing out the nodes that are being removed in the order that they were added
@@ -353,17 +357,44 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector
                 alreadyinSeed.insert(nodeid);
             }
         }
-        i++;
+        count++;
     }
     vector<pair<int, int>>().swap(SortedNodeidCounts);
     cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << flush;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << flush;
 
-    for (int i:nodesToRemove) {
-        influencedGraph->removeOutgoingEdges(i);
-        assert(influencedGraph->graph[i].size() == 0);
-        assert(influencedGraph->graphTranspose[i].size() == 0);
+    for (int nodeToRemove:nodesToRemove) {
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < influencedGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += influencedGraph->graphTranspose[k].size();
+                if(k==nodeToRemove){
+                    numEdgesToDelete += influencedGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < influencedGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += influencedGraph->graph[k].size();
+                if(k==nodeToRemove){
+                    numEdgesToDelete += influencedGraph->graph[k].size();
+                }
+            }
+        }
+
+        influencedGraph->removeOutgoingEdges(nodeToRemove);
+        assert(("Here . .. .", influencedGraph->graph[nodeToRemove].size() == 0));
+        assert(("Here . .. .", influencedGraph->graphTranspose[nodeToRemove].size() == 0));
+        influencedGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
     }
+
+    if(tshoot){
+        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
+        print2DVector(influencedGraph->graphTranspose);
+    }
+
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
     modStrength = 0;
     for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
@@ -380,6 +411,9 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector
 set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, int removeNodes, set<int> seedSet, vector<int> activatedSet, string modular){
 
     bool tshoot = true;
+    bool tshoot1 = true;//Control whether the assert statements are executed
+    bool tshoot2 = false;//Control whether the transposed graph after the nodes have been deleted
+
     set<int> tGraphNodesToRemove;//Stores the nodes that will be removed
     set<int> alreadyInSeed = set<int>();
     int n = (int) activatedSet.size();
@@ -445,12 +479,12 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     }
 
     //Adding nodes to tGraphNodesToRemove
-    int i = 0;
+    int count = 0;
     int j = 0;
     tGraphNodesToRemoveUnsorted = vector<int>();
 
     while (j < removeNodes && j < SortedNodeIdByCount.size()) {
-        int nodeid = SortedNodeIdByCount.at(i).first;
+        int nodeid = SortedNodeIdByCount.at(count).first;
         if (tGraphNodesToRemove.count(nodeid) == 0 /*&& seedSet.count(nodeid)==0*/) {
             tGraphNodesToRemove.insert(nodeid);
             //tGraphNodesToRemoveUnsorted: for printing out the nodes that are being removed in the order that they were added
@@ -460,7 +494,7 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
                 alreadyinSeed.insert(nodeid);
             }
         }
-        i++;
+        count++;
     }
     cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
@@ -471,10 +505,41 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
 
     float percentageTargetsFloat = (float) percentageTargets / (float) 100;
     originalGraphForTGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
-    for (int i:tGraphNodesToRemove) {
-        originalGraphForTGraph->removeOutgoingEdges(i);
-        assert(originalGraphForTGraph->graph[i].size() == 0);
-        assert(originalGraphForTGraph->graphTranspose[i].size() == 0);
+
+    for (int nodeToRemove:tGraphNodesToRemove) {
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < originalGraphForTGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += originalGraphForTGraph->graphTranspose[k].size();
+                if(k==nodeToRemove){
+                    numEdgesToDelete += originalGraphForTGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < originalGraphForTGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += originalGraphForTGraph->graph[k].size();
+                if(k==nodeToRemove){
+                    numEdgesToDelete += originalGraphForTGraph->graph[k].size();
+                }
+            }
+        }
+
+        originalGraphForTGraph->removeOutgoingEdges(nodeToRemove);
+
+        if(tshoot1){
+            assert(("Here 1", originalGraphForTGraph->graph[nodeToRemove].size() == 0));
+            assert(("Here 2", originalGraphForTGraph->graphTranspose[nodeToRemove].size() == 0));
+            originalGraphForTGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
+        }
+
+    }
+
+    if(tshoot2){
+        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
+        print2DVector(originalGraphForTGraph->graphTranspose);
     }
 
     //Calculating the strength of the resulting graph after removing the edges
@@ -483,7 +548,7 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     for (int i = 0; i < originalGraphForTGraph->NodeinRRsetsWithCounts.size(); i++) {
         tGraphStrength += originalGraphForTGraph->NodeinRRsetsWithCounts[i];
     }
-    cout << "\n \n After removing nodes, transposedGraph Strength is " << tGraphStrength;
+    cout << "\n\n After removing nodes, transposedGraph Strength is " << tGraphStrength;
     resultLogFile << "\n \n After removing transposedGraph Strength is " << tGraphStrength;
     myfile << tGraphStrength << " <-transposedGraph Strength\n";
 
@@ -527,14 +592,38 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     //modified don't remove anything from submod impact
     int A = 0;
     for (int i:subModNodes) {
+
+        bool tshoot1 = true;
+
         cout << i << " ";
         resultLogFile << i << " ";
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < subNewGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += subNewGraph->graphTranspose[k].size();
+                if(k==i){
+                    numEdgesToDelete += subNewGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < subNewGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += subNewGraph->graph[k].size();
+                if(k==i){
+                    numEdgesToDelete += subNewGraph->graph[k].size();
+                }
+            }
+        }
 
         if(modNodes.count(i) == 1) A++;
         if(tGraphNodes.count(i) == 1) subModAndTGraph++;
         subNewGraph->removeOutgoingEdges(i);
         assert(subNewGraph->graph[i].size() == 0);
         assert(subNewGraph->graphTranspose[i].size() == 0);
+        subNewGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
+
     }
 
     cout << "\n nodes To remove in mod Impact graph " << flush;
@@ -546,19 +635,65 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     for (int i: *removalModImpact) {
         cout << i << " ";
         resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < modImpactGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += modImpactGraph->graphTranspose[k].size();
+                if(k==i){
+                    numEdgesToDelete += modImpactGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < modImpactGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += modImpactGraph->graph[k].size();
+                if(k==i){
+                    numEdgesToDelete += modImpactGraph->graph[k].size();
+                }
+            }
+        }
+
         if(subModNodes.count(i) == 1) B++;
         if(modNodes.count(i) == 1) C++;
         if(tGraphNodes.count(i)==1) modImpactAndTGraph++;
         modImpactGraph->removeOutgoingEdges(i);
         removalModImpactNodes.insert(i);
+
         assert(modImpactGraph->graph[i].size() == 0);
         assert(modImpactGraph->graphTranspose[i].size() == 0);
+        modImpactGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
     }
 
     for (int i:modNodes) {
+
+        bool tshoot1 = true;
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < newGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += newGraph->graphTranspose[k].size();
+                if(k==i){
+                    numEdgesToDelete += newGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < newGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += newGraph->graph[k].size();
+                if(k==i){
+                    numEdgesToDelete += newGraph->graph[k].size();
+                }
+            }
+        }
+
         newGraph->removeOutgoingEdges(i);
         assert(newGraph->graph[i].size() == 0);
         assert(newGraph->graphTranspose[i].size() == 0);
+        newGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
+
     }
 
     cout << "\nnodes to remove in transposedGraph: ";
@@ -567,9 +702,32 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     for (int i:tGraphNodes) {
         cout << i << " ";
         resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < tGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += tGraph->graphTranspose[k].size();
+                if(k==i){
+                    numEdgesToDelete += tGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < tGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += tGraph->graph[k].size();
+                if(k==i){
+                    numEdgesToDelete += tGraph->graph[k].size();
+                }
+            }
+        }
+
         tGraph->removeOutgoingEdges(i);
         assert(tGraph->graph[i].size() == 0);
         assert(tGraph->graphTranspose[i].size() == 0);
+        tGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
+
     }
 
     if(tshoot){
@@ -902,9 +1060,32 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
 
     vector<vector<int>>().swap(influencedGraph->rrSets);
     for (int i:subModNodesToremove) {
+
+        bool tshoot1 = true;
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if(tshoot1){
+            for (int k = 0; k < influencedGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += influencedGraph->graphTranspose[k].size();
+                if(k==i){
+                    numEdgesToDelete += influencedGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < influencedGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += influencedGraph->graph[k].size();
+                if(k==i){
+                    numEdgesToDelete += influencedGraph->graph[k].size();
+                }
+            }
+        }
+
         influencedGraph->removeOutgoingEdges(i);
         assert(influencedGraph->graph[i].size() == 0);
         assert(influencedGraph->graphTranspose[i].size() == 0);
+        influencedGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
+
     }
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
     int subModStrength = 0;

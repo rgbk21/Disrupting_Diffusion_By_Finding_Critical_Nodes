@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <random>
+#include <climits>
 
 using namespace std;
 
@@ -45,13 +46,20 @@ int Graph::getPropogationProbabilityNumber() {
 }
 
 int Graph::generateRandomNumber(int u, int v) {
+
     int randomNumberLimit;
+
+//    random_device rd; // obtain a random number from hardware
+//    mt19937 eng(rd()); // seed the generator
+//    uniform_int_distribution<> distr(0, INT_MAX); // define the range
+
     if (this->standardProbability) {
         randomNumberLimit = this->propogationProbabilityNumber;
     } else {
         randomNumberLimit = inDegree[v];
     }
     return rand() % randomNumberLimit;
+//    return distr(eng) % randomNumberLimit;
 }
 
 bool Graph::flipCoinOnEdge(int u, int v) {
@@ -472,16 +480,16 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     visitMark = vector<int>(n);
     long totalSize = 0;
 
-    std::random_device rd; // obtain a random number from hardware
-    std::mt19937 eng(rd()); // seed the generator
-    std::uniform_int_distribution<> distr(0, n-1); // define the range
+//    std::random_device rd; // obtain a random number from hardware
+//    std::mt19937 eng(rd()); // seed the generator
+//    std::uniform_int_distribution<> distr(0, n-1); // define the range
 
     this->rrSets = vector<vector<int>>();
     while (rrSets.size() < R) {
         rrSets.push_back(vector<int>());
     }
     //for mod influence
-    if (modular.compare("modular") == 0) {
+    if (modular == "modular") {
         NodeinRRsetsWithCounts = vector<int>(n, 0);
         if (activatedSet.size() == 0) {
             for (int i = 0; i < R; i++) {
@@ -498,8 +506,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
             int t = (int) activatedSet.size();
             for (int i = 0; i < R; i++) {
                 int randomVertex;
-//                randomVertex = activatedSet[rand() % t];
-                randomVertex = distr(eng);
+                randomVertex = activatedSet[rand() % t];
+//                randomVertex = distr(eng);
                 generateRandomRRSetwithCountMod(randomVertex, i);
                 if(i == 10) cout << "Completed " << i << " RR Sets" << endl;
                 if((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
@@ -508,7 +516,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         }
     }
         //for submodular impact
-    else if (modular.compare("submodular") == 0) {
+    else if (modular == "submodular") {
         coverage = vector<int>(n, 0);
         pairAssociatedSet = vector<unordered_map<int, unordered_set<int>>>();
         nodeAS = vector<set<int>>(n);
@@ -539,8 +547,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
                 cout <<"\n" << i << " " << flush;
                 doneRR++;
             }
-//            randomVertex = activatedSet[rand() % t];
-            randomVertex = distr(eng);
+            randomVertex = activatedSet[rand() % t];
+//            randomVertex = distr(eng);
             generateRandomRRSetwithRRgraphs(randomVertex, i);
             totalSize += rrSets[i].size();
 
@@ -800,6 +808,7 @@ void Graph::generateRandomRRSetwithCount(int randomVertex, int rrSetID) {
 
 
 void Graph::generateRandomRRSets(int R, bool label, std::ofstream &resultLogFile) {
+
     this->rrSets = vector<vector<int>>();
     long totalSize = 0;
     clock_t begin = clock();
@@ -807,9 +816,15 @@ void Graph::generateRandomRRSets(int R, bool label, std::ofstream &resultLogFile
         rrSets.push_back(vector<int>());
     }
     //to do... random RR sets from activated nodes in Influenced graph
+
+//    std::random_device rd; // obtain a random number from hardware
+//    std::mt19937 eng(rd()); // seed the generator
+//    std::uniform_int_distribution<> distr(0, n-1); // define the range
+
     for (int i = 0; i < R; i++) {
         int randomVertex;
         randomVertex = rand() % n;
+//        randomVertex = distr(eng);
         while (!labels[randomVertex]) {
             randomVertex = rand() % n;
         }
@@ -919,6 +934,30 @@ void Graph::assertTransposeIsCorrect() {
 
 }
 
+//vertex is the vertex that was removed in this iteration of the loop
+void Graph::assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre, int totalEdgesInTransGraphPre){
+
+    assert(("Failed: TransGraph Size is not n", graphTranspose.size() == n));
+    assert(("Failed: OrigGraph Size is not n", graph.size() == n));
+
+    int totalEdgesInOrigGraphPost = 0;
+    int totalEdgesInTransGraphPost = 0;
+
+    for(int i = 0; i < graphTranspose.size(); i++){
+        //Assert that the removed vertex is not an outgoing edge to any vertex
+        assert(("Failed: Node not deleted in TransGraph",count(graphTranspose[i].begin(), graphTranspose[i].end(), vertex) == 0));
+        totalEdgesInTransGraphPost += graphTranspose[i].size();
+    }
+    assert(("Failed: Mismatch in Edges deleted in TransGraph", totalEdgesInTransGraphPre - totalEdgesInTransGraphPost == numOfEdgesToDelete));
+
+    for(int i = 0; i < graph.size(); i++){
+        //Assert that the removed vertex is not an outgoing edge to any vertex
+        assert(("Failed: Node not deleted in OrigGraph", count(graph[i].begin(), graph[i].end(), vertex) == 0));
+        totalEdgesInOrigGraphPost += graph[i].size();
+    }
+    assert(("Failed: Mismatch in Edges deleted in OrigGraph", totalEdgesInOrigGraphPre - totalEdgesInOrigGraphPost == numOfEdgesToDelete));
+}
+
 
 vector<int> Graph::oldRRSetGeneration(int randomVertex, int rrSetID) {
     //Most of this code is used from the source code of TIM - Influence Maximization: Near-Optimal Time Complexity Meets Practical Efficiency by Tang et al.
@@ -965,6 +1004,9 @@ vector<int> Graph::oldRRSetGeneration(int randomVertex, int rrSetID) {
 }
 
 void Graph::removeOutgoingEdges(int vertex) {
+
+    bool tshoot = false;
+
     inDegree[vertex] = 0;
     labels[vertex] = false;
     vector<int> outgoingNodes = vector<int>();
@@ -1007,6 +1049,13 @@ void Graph::removeOutgoingEdges(int vertex) {
         graphTranspose[i] = incomingEdges;
     }
     graphTranspose[vertex] = vector<int>();
+
+    if(tshoot){
+        cout << "Printing the graph after removing vertex: " << vertex << endl;
+        print2DVector(graph);
+        cout << "Printing the transposedGraph after removing vertex: " << vertex << endl;
+        print2DVector(graphTranspose);
+    }
 }
 
 void Graph::removeNodeFromRRset(int vertex) {
@@ -1126,6 +1175,20 @@ void Graph::addSetintoASmatrix(int row, int vertex, int rrSetID) {
             pairAssociatedSet[row].insert(node);
         }
     }
+}
+
+void Graph::print2DVector(const vector<vector<int>> myVector){
+
+    for (int i = 0; i < myVector.size(); i++) {
+        if (myVector[i].size() > 0) {
+            cout << i << " ---> ";
+            for (int j = 0; j < myVector[i].size(); j++) {
+                cout << myVector[i][j] << " -- ";
+            }
+            cout << endl;
+        }
+    }
+    cout << "-----Completed Printing 2D Vector----" << endl;
 }
 
 
