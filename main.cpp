@@ -63,12 +63,6 @@ vector<int> modNodesToRemoveUnsorted;
 vector<int> tGraphNodesToRemoveUnsorted;
 vector<int> modImpactNodesToRemoveUnsorted;
 vector<int> subModNodesToRemoveUnsorted;
-
-vector<int> modSeedUnsorted;
-vector<int> tGraphSeedUnsorted;
-vector<int> modImpactSeedUnsorted;
-vector<int> subModSeedUnsorted;
-
 vector<int> nodeMappedToOutdegree;
 //Global variables for testing end here
 
@@ -272,7 +266,7 @@ void checkMod(string graphFileName, float percentageTargetsFloat, Graph *graph, 
 }
 
 set<int>
-getSeed(Graph *graph, vector<int> activatedSet, set<int> modNodes, set<int> subModNodes, set<int> removalModImpactNodes,
+getSeed(Graph *graph, vector<int> activatedSet, set<int> modNodes, set<int> subModNodes, set<int> removalModImpactNodes, set<int> tGraphNodes,
         vector<int> *seedOrder) {
     vector<vector<int>> lookupTable;
     TIMCoverage timCoverage(&lookupTable);
@@ -286,7 +280,7 @@ getSeed(Graph *graph, vector<int> activatedSet, set<int> modNodes, set<int> subM
     unordered_set<int> activatedNodes;
     activatedNodes.insert(activatedSet.begin(), activatedSet.end());
     set<int> seedSet = timCoverage.findTopKNodes(budget, randomRRSets, activatedNodes, modNodes, removalModImpactNodes,
-                                                 subModNodes, seedOrder);
+                                                 subModNodes, tGraphNodes, seedOrder);
     for(int i = 0; i < timCoverage.vectorTopKNodes.size(); i++){
         myfile << timCoverage.vectorTopKNodes[i] << " ";
     }
@@ -316,9 +310,9 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector
     for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
         modStrength += influencedGraph->NodeinRRsetsWithCounts[i];
     }
-    cout << "\n \n Initial Strength is " << modStrength;
-    resultLogFile << "\n \n Initial Strength is " << modStrength;
-    myfile << modStrength << " <-InitialStrength\n";
+    cout << "\n \n Initial Strength is " << modStrength << endl;
+    resultLogFile << "\n \n Initial Strength is " << modStrength << endl;
+    myfile << modStrength << " <-InitialStrength" << endl;
 
     //clearing the memory
 //    vector<vector<int>>().swap(influencedGraph->rrSets);
@@ -360,8 +354,8 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> seedSet, vector
         count++;
     }
     vector<pair<int, int>>().swap(SortedNodeidCounts);
-    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << flush;
-    resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << flush;
+    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
 
     for (int nodeToRemove:nodesToRemove) {
 
@@ -413,6 +407,8 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     bool tshoot = true;
     bool tshoot1 = true;//Control whether the assert statements are executed
     bool tshoot2 = false;//Control whether the transposed graph after the nodes have been deleted
+    bool tshoot3 = true;//Comparing the results of transposedGraph and modular graph methods
+    bool tshoot4 = false;//Comparing the no.of times the vertex was randomly picked with the final strength of that vertex
 
     set<int> tGraphNodesToRemove;//Stores the nodes that will be removed
     set<int> alreadyInSeed = set<int>();
@@ -436,6 +432,13 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     resultLogFile << "\n\nInitial Strength of transposedGraph is " << tGraphStrength;
     myfile << tGraphStrength << " <-InitialStrength of transposedGraph\n";
 
+    if(tshoot4){
+        cout << "Checking the distribution of the randomness" << endl;
+        for(int i = 0; i < transposedGraph->timesThisNodeWasPicked.size(); i++){
+            cout << "Vertex " << i << " : " << transposedGraph->timesThisNodeWasPicked[i] << endl;
+        }
+    }
+
     if(tshoot){
         vector<pair<int, int>> sorted = vector<pair<int, int>>();
         for (int i = 0; i < transposedGraph->NodeinRRsetsWithCounts.size(); i++) {
@@ -449,8 +452,9 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
         assert(sorted.at(0).second >= sorted.at(1).second);
 
         cout << "\nPrinting Best Node and its strength in transposed Graph" << endl;
+        cout << "Node\tStrength\tTimesItWasPicked" << endl;
         for(int i = 0; i < removeNodes; i++){
-            cout << sorted[i].first << ": " << sorted[i].second << endl;
+            cout << sorted[i].first << ": " << sorted[i].second << " " << transposedGraph->timesThisNodeWasPicked[sorted[i].first] << endl;
         }
     }
 
@@ -499,12 +503,29 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
 
+    if(tshoot3){
+        cout << endl;
+        cout << "Nodes removed from modGraph with their transposedGraph values" << endl;
+        cout << "RemovedNode\tModGraphStrength\ttransposedGraphStrength\ttotalStrength" << endl;
+        for(int i = 0; i < modNodesToRemoveUnsorted.size(); i++){
+            int currNode = modNodesToRemoveUnsorted[i];
+            cout << currNode  << "-\t "
+            << influencedGraph->initialNodeinRRsetsWithCounts[currNode]  << "*\t "
+            << transposedGraph->NodeinRRsetsWithCounts[currNode] << " =\t "
+            << influencedGraph->initialNodeinRRsetsWithCounts[currNode] * transposedGraph->NodeinRRsetsWithCounts[currNode] << endl;
+        }
+
+    }
+
+
     //Note: Edges will be removed from the original graph. Not the transposedGraph that we were using so far
 
     unique_ptr<Graph> originalGraphForTGraph = make_unique<Graph>();
 
     float percentageTargetsFloat = (float) percentageTargets / (float) 100;
     originalGraphForTGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    int numEdgesAtStart = originalGraphForTGraph->m;
+    int totalNumEdgesToDelete = 0;
 
     for (int nodeToRemove:tGraphNodesToRemove) {
 
@@ -525,8 +546,10 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
                     numEdgesToDelete += originalGraphForTGraph->graph[k].size();
                 }
             }
+
         }
 
+        totalNumEdgesToDelete += numEdgesToDelete;
         originalGraphForTGraph->removeOutgoingEdges(nodeToRemove);
 
         if(tshoot1){
@@ -535,6 +558,13 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
             originalGraphForTGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTransGraphPre);
         }
 
+    }
+    if(tshoot1){
+        int totalNumOfEdges = 0;
+        for (int k = 0; k < originalGraphForTGraph->graph.size(); k++) {
+            totalNumOfEdges += originalGraphForTGraph->graph[k].size();
+        }
+        assert(("Divergence betn something", totalNumOfEdges == numEdgesAtStart - totalNumEdgesToDelete));
     }
 
     if(tshoot2){
@@ -816,30 +846,53 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     }
 
     cout << "\n \n******* Max influence start******** \n" << flush;
-
-    maxInfluenceSeed = getSeed(graph, activatedSet, set<int>(), set<int>(), set<int>(), NULL);
+    myfile << "Max influence Seed Set in the original graph considering that we can remove all vertices: " << endl;
+    maxInfluenceSeed = getSeed(graph, activatedSet, set<int>(), set<int>(), set<int>(), set<int>(), NULL);
     vector<vector<int>>().swap(graph->rrSets);
     maxInfluenceNum = oldNewIntersection(graph, maxInfluenceSeed, activatedSet, resultLogFile);
     myfile << maxInfluenceNum << " <-MaxInfluence Num\n";
     cout << "\n \n******* Max influence end ******** \n" << flush;
     delete graph;
 
+    //Calculating maxSeed to be used as the seed set for all the 4 methods:
+    set<int> maxSeed;//Stores the seedSet that will be used for diffusion in all of the 4 processes
+    int inflOfMaxSeed;//Stores the influence of the max seed on the original graph G
+
+    graph = new Graph;
+    graph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        graph->setPropogationProbability(probability);
+    }
+    cout << "\n \n******* Calculating maxSeed to be used as the seed set for all the 4 methods ******** \n" << endl;
+    myfile << "Chosen Max influence Seed Set in the original graph considering that we can remove "
+              "only those vertices that are not present in any of the sets of verticesRemove " << endl;
+    maxSeed = getSeed(graph, activatedSet, modNodes, subModNodes, removalModImpactNodes, tGraphNodes, NULL);
+    vector<vector<int>>().swap(graph->rrSets);
+    inflOfMaxSeed = oldNewIntersection(graph, maxSeed, activatedSet, resultLogFile);
+    myfile << inflOfMaxSeed << " <-Influence of chosenMaxSeed on the original Graph G" << endl;
+    cout << "\n \n******* Calculating maxSeed to be used ends ******** \n" << endl;
+    delete graph;
+
     SeedSet *SeedClass = new SeedSet(newGraph, budget);
 
     myfile <<"Unsorted Mod SeedSet: ";
-    modseedSet = getSeed(newGraph, activatedSet, modNodes, set<int>(), set<int>(), NULL);
+    modseedSet = getSeed(newGraph, activatedSet, modNodes, set<int>(), set<int>(), set<int>(), NULL);
     myfile <<"Unsorted SubMod SeedSet: ";
-    subModseedSet = getSeed(subNewGraph, activatedSet, subModNodes, set<int>(), set<int>(), NULL);
+    subModseedSet = getSeed(subNewGraph, activatedSet, subModNodes, set<int>(), set<int>(), set<int>(), NULL);
     myfile <<"Unsorted ModImpact SeedSet: ";
-    modImpactseedSet = getSeed(modImpactGraph, activatedSet, removalModImpactNodes, set<int>(), set<int>(), NULL);
+    modImpactseedSet = getSeed(modImpactGraph, activatedSet, removalModImpactNodes, set<int>(), set<int>(), set<int>(), NULL);
     myfile <<"Unsorted Transposed graph SeedSet: ";
-    tGraphSeedSet = getSeed(tGraph, activatedSet, tGraphNodes, set<int>(), set<int>(), NULL);
+    tGraphSeedSet = getSeed(tGraph, activatedSet, tGraphNodes, set<int>(), set<int>(), set<int>(), NULL);
 
     if(tshoot){
 
         cout << "\n\nMaxInfl Seed Set: " << endl;
-        myfile << "MaxInfl Seed Set: " << endl;
+        myfile << "\n\nMaxInfl Seed Set: " << endl;
         printSet(maxInfluenceSeed);
+
+        cout << "\nChosen MaxInfl Seed Set to perform diffusion: " << endl;
+        myfile << "\nChosen MaxInfl Seed Set to perform diffusion: " << endl;
+        printSet(maxSeed);
 
         cout << "\nModular Seed Set: " << endl;
         myfile << "\nModular Seed Set: " << endl;
@@ -865,9 +918,8 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     while (k < 5) {
         switch (5) {
             case 0: //bestTim
-                seedSet = getSeed(newGraph, activatedSet, modNodes, subModNodes, removalModImpactNodes, NULL);
+                seedSet = getSeed(newGraph, activatedSet, modNodes, subModNodes, removalModImpactNodes, tGraphNodes, NULL);
                 vector<vector<int>>().swap(newGraph->rrSets);
-
                 break;
             case 1:// best first Half Graph
                 graph = new Graph;
@@ -877,7 +929,7 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
                 if (!useIndegree) {
                     graph->setPropogationProbability(probability);
                 }
-                seedSet = getSeed(graph, activatedSet, modNodes, subModNodes, removalModImpactNodes, NULL);
+                seedSet = getSeed(graph, activatedSet, modNodes, subModNodes, removalModImpactNodes, tGraphNodes, NULL);
                 delete graph;
                 break;
             case 2: //random
@@ -893,6 +945,8 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
                 break;
         }
 
+        cout << "\n********** k = " << k << " **********" << endl;
+
         cout << "\n \n Selected new SeedSet in original graph: " << flush;
         resultLogFile << "\n \n Selected new SeedSet in original graph: " << flush;
         for (auto item:maxInfluenceSeed) {
@@ -902,27 +956,27 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
 
         int infNum = 0;
 
-        cout << "\nMod Results: " << flush;
-        resultLogFile << "\nMod Results: " << flush;
-        infNum = oldNewIntersection(newGraph, modseedSet, activatedSet, resultLogFile);
+        cout << "\nMod Results: " << endl;
+        resultLogFile << "\nMod Results: " << endl;
+        infNum = oldNewIntersection(newGraph, maxSeed, activatedSet, resultLogFile);
         modResults.push_back(infNum);
         myfile << infNum << " ";
 
-        cout << "\nSub Mod Results: " << flush;
-        resultLogFile << "\nSub Mod Results: " << flush;
-        infNum = oldNewIntersection(subNewGraph, subModseedSet, activatedSet, resultLogFile);
+        cout << "\nSub Mod Results: " << endl;
+        resultLogFile << "\nSub Mod Results: " << endl;
+        infNum = oldNewIntersection(subNewGraph, maxSeed, activatedSet, resultLogFile);
         SubmodResults.push_back(infNum);
         myfile << infNum << " ";
 
-        cout << "\nMod Impact Results: " << flush;
-        resultLogFile << "\nMod Impact Results: " << flush;
-        infNum = oldNewIntersection(modImpactGraph, modImpactseedSet, activatedSet, resultLogFile);
+        cout << "\nMod Impact Results: " << endl;
+        resultLogFile << "\nMod Impact Results: " << endl;
+        infNum = oldNewIntersection(modImpactGraph, maxSeed, activatedSet, resultLogFile);
         modImpactResults.push_back(infNum);
         myfile << infNum << " ";
 
-        cout << "\nTransposed Graph Results" << endl;
+        cout << "\nTransposed Graph Results: " << endl;
         resultLogFile << "\nTransposed Graph Results" << endl;
-        infNum = oldNewIntersection(tGraph, tGraphSeedSet, activatedSet, resultLogFile);
+        infNum = oldNewIntersection(tGraph, maxSeed, activatedSet, resultLogFile);
         tGraphResults.push_back(infNum);
         myfile << infNum << "\n";
 
@@ -1190,7 +1244,7 @@ void executeTIMTIM(cxxopts::ParseResult result) {
     SeedSet *SeedClass = nullptr;
     switch (initialSeed) {
         case 1://bestTim for  case1, besthalfGRaph for case 2
-            seedSet = getSeed(graph, vector<int>(), set<int>(), set<int>(), set<int>(), seedOrder);
+            seedSet = getSeed(graph, vector<int>(), set<int>(), set<int>(), set<int>(), set<int>(), seedOrder);
             if (half_seed == 2) {
                 graph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
                 if (!useIndegree) {
@@ -1323,7 +1377,7 @@ void executeTIMTIM(cxxopts::ParseResult result) {
     }
 
     set<int> newInfluenceSeed;
-    newInfluenceSeed = getSeed(modImpactGraph, activatedSet, set<int>(), set<int>(), set<int>(), NULL);
+    newInfluenceSeed = getSeed(modImpactGraph, activatedSet, set<int>(), set<int>(), set<int>(), set<int>(), NULL);
     oldNewIntersection(modImpactGraph, newInfluenceSeed, activatedSet, resultLogFile);
     cout << "\n \n******* New influence done******** \n" << flush;
 
@@ -1441,10 +1495,10 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     clock_t tGraphEndTime = clock();
     double totaltGraphTime = double(tGraphEndTime - tGraphStartTime) / (CLOCKS_PER_SEC * 60);
-    cout << "\nTransposed Graph algorithm time in minutes \n" << totalAlgorithmTime << flush;
-    resultLogFile << "\nTransposed Graph algorithm time in minutes \n" << totalAlgorithmTime;
+    cout << "\nTransposed Graph algorithm time in minutes \n" << totaltGraphTime << flush;
+    resultLogFile << "\nTransposed Graph algorithm time in minutes \n" << totaltGraphTime;
 
-    myfile << totalAlgorithmTime << " <-transposedGraph Time\n";
+    myfile << totaltGraphTime << " <-transposedGraph Time\n";
 
     delete influencedGraph;
     delete transposedGraph;
