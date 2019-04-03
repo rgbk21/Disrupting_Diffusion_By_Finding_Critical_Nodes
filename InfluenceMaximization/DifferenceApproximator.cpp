@@ -204,7 +204,7 @@ set<int> DifferenceApproximator::executeAlgorithmApproximatingOneFunction(Approx
         double reverseScale = (double)1/timEvaluator->getScalingFactorNonTargets();
         timCoverageTargets->offsetCoverage(i, nonTargetsEstimateNegated * reverseScale);
     }
-    seedSet = timCoverageTargets->findTopKNodes(k, approximation->getTIMEvaluator()->getRRSetsTargets(),unordered_set<int>(),set<int>(),set<int>(),set<int>(),NULL);
+    seedSet = timCoverageTargets->findTopKNodes(k, approximation->getTIMEvaluator()->getRRSetsTargets(),unordered_set<int>(),set<int>(),set<int>(), set<int>(),set<int>(),NULL);
     
     delete approximation;
     return seedSet;
