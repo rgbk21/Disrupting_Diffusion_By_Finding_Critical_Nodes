@@ -316,7 +316,7 @@ void Graph::readInfluencedGraph(string fileName, float percentage, vector<int> a
 void Graph::readGraph(string fileName, float percentage, std::ofstream &resultLogFile) {
     this->graphName = fileName;
     this->percentageTargets = percentage;
-    cout << "\n Reading all targets graph: ";
+    cout << "\nReading all targets graph: "<< endl;
 
     ifstream myFile(
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
@@ -479,6 +479,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     clock_t begin = clock();
     visitMark = vector<int>(n);
     long totalSize = 0;
+    timesThisNodeWasPicked = vector<int>(n,0);
 
 //    std::random_device rd; // obtain a random number from hardware
 //    std::mt19937 eng(rd()); // seed the generator
@@ -507,6 +508,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
             for (int i = 0; i < R; i++) {
                 int randomVertex;
                 randomVertex = activatedSet[rand() % t];
+                timesThisNodeWasPicked[randomVertex]++;
 //                randomVertex = distr(eng);
                 generateRandomRRSetwithCountMod(randomVertex, i);
                 if(i == 10) cout << "Completed " << i << " RR Sets" << endl;
@@ -948,6 +950,7 @@ void Graph::assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int
         assert(("Failed: Node not deleted in TransGraph",count(graphTranspose[i].begin(), graphTranspose[i].end(), vertex) == 0));
         totalEdgesInTransGraphPost += graphTranspose[i].size();
     }
+
     assert(("Failed: Mismatch in Edges deleted in TransGraph", totalEdgesInTransGraphPre - totalEdgesInTransGraphPost == numOfEdgesToDelete));
 
     for(int i = 0; i < graph.size(); i++){

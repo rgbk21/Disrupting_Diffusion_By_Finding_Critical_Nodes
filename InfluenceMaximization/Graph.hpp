@@ -69,6 +69,7 @@ public:
     vector<int> visitMark;
     vector<int> NodeinRRsetsWithCounts;
     vector<int> initialNodeinRRsetsWithCounts;//Stores the counts before the nodes are removed by the removeVertices method. Used for transposedGraph
+    vector<int> timesThisNodeWasPicked;//Stores the no. of times this node was picked as Random Vertex
     vector<vector<int>> RRgraph;
     
     vector<int> outdegree;
