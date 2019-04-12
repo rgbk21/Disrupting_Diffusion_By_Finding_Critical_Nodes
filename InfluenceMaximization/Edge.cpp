@@ -8,7 +8,7 @@
 
 #include "Edge.hpp"
 
-Edge:: Edge(std::string eid,int from,int to) {
+Edge:: Edge(string eid,int from,int to) {
     this->sourceid=from;
     this->destid=to;
     this->eid = eid;
@@ -19,7 +19,7 @@ std::string Edge:: Edge::getId() {
     return eid;
 }
 
-void Edge:: Edge::setId(std::string eid) {
+void Edge::setId(string eid) {
     this->eid = eid;
 }
 

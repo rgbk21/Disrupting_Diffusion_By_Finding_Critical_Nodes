@@ -70,6 +70,7 @@ public:
     vector<int> NodeinRRsetsWithCounts;
     vector<int> initialNodeinRRsetsWithCounts;//Stores the counts before the nodes are removed by the removeVertices method. Used for transposedGraph
     vector<int> timesThisNodeWasPicked;//Stores the no. of times this node was picked as Random Vertex
+    vector<int> outdegreeReducedFor;//Stores the reduction in outdegree for each node in 1 iteration of removeVertexFromRRassociatedGraph()
     vector<vector<int>> RRgraph;
     
     vector<int> outdegree;
@@ -92,6 +93,7 @@ public:
     void writeLabels(std::ofstream& resultLogFile);
     void setLabels(vector<bool> labels, float percentageTargets);
     void removeVertexFromRRassociatedGraph(int vertex);
+    void printVector(const vector<int> myVector);
     //Numbers
     int getNumberOfVertices();
     int getNumberOfEdges();

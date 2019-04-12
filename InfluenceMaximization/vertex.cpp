@@ -7,7 +7,9 @@
 //
 
 #include "vertex.hpp"
-vertex:: vertex(int id) {
+#include <assert.h>
+
+vertex::vertex(int id) {
     this->id = id;
     this->outDegree = 0;
 }
@@ -21,36 +23,51 @@ void vertex::setId(int id) {
 }
 
 
-int vertex:: getOutDegree() {
+int vertex::getOutDegree() {
     return outDegree;
 }
 
-void vertex:: setOutDegree(int outDegree) {
+void vertex::setOutDegree(int outDegree) {
     this->outDegree = outDegree;
 }
 
-vector<Edge*> vertex::getoutGoingEdges() {
+vector<Edge *> vertex::getoutGoingEdges() {
     return outGoingEdges;
 }
 
-void vertex::setOutBoundNeighbours(vector<Edge*> outBoundNeighbours) {
+void vertex::setOutBoundNeighbours(vector<Edge *> outBoundNeighbours) {
     this->outGoingEdges = outBoundNeighbours;
 }
 
 
 void vertex::addOutGoingEdges(Edge *e) {
-        this->outGoingEdges.push_back(e);
-        this->outDegree++;
+
+    //WARNING-Set to false if running actually
+    bool tshoot = true;
+    if(tshoot){
+        verifyEdgeDoesntExist(e);
+    }
+
+    this->outGoingEdges.push_back(e);
+    this->outDegree++;
 
 }
 
-bool vertex::removeOutgoingEdge(Edge* e, int rrSetID) {
-    for(int i=0;i<this->outGoingEdges.size();i++){
-        if(this->outGoingEdges[i]==e){
+void vertex::verifyEdgeDoesntExist(Edge *e){
+
+    for(int i = 0; i < outGoingEdges.size(); i++){
+        assert(("Edge already exists in outGoingEdges", !(outGoingEdges[i]->sourceid == e->sourceid &&
+        outGoingEdges[i]->destid == e->destid)));
+    }
+}
+
+bool vertex::removeOutgoingEdge(Edge *e, int rrSetID) {
+    for (int i = 0; i < this->outGoingEdges.size(); i++) {
+        if (this->outGoingEdges[i] == e) {
             this->outGoingEdges[i]->removeRRid(rrSetID);
             outDegree--;
-            if(this->outGoingEdges[i]->rrids.size()==0){
-                this->outGoingEdges.erase(this->outGoingEdges.begin()+i);
+            if (this->outGoingEdges[i]->rrids.size() == 0) {
+                this->outGoingEdges.erase(this->outGoingEdges.begin() + i);
                 return true;
             }
             return false;
@@ -60,7 +77,7 @@ bool vertex::removeOutgoingEdge(Edge* e, int rrSetID) {
 }
 
 
-void vertex:: deleteOutBoundNeighbour(){
+void vertex::deleteOutBoundNeighbour() {
     this->outGoingEdges.clear();
     this->setOutDegree(0);
 }

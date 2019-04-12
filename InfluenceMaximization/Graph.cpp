@@ -316,7 +316,7 @@ void Graph::readInfluencedGraph(string fileName, float percentage, vector<int> a
 void Graph::readGraph(string fileName, float percentage, std::ofstream &resultLogFile) {
     this->graphName = fileName;
     this->percentageTargets = percentage;
-    cout << "\nReading all targets graph: "<< endl;
+    cout << "\nReading all targets graph: " << endl;
 
     ifstream myFile(
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
@@ -347,13 +347,13 @@ void Graph::readGraph(string fileName, float percentage, std::ofstream &resultLo
     this->numberOfNonTargets = (int) nonTargets.size();
 }
 
-void Graph::writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m){
+void Graph::writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m) {
 
-    std::ofstream outfile (path+graphName);
+    std::ofstream outfile(path + graphName);
 
     outfile << n << " " << m << endl;
-    for(int i = 0; i < inputGraph.size(); i++){
-        for(int j = 0; j < inputGraph[i].size(); j++){
+    for (int i = 0; i < inputGraph.size(); i++) {
+        for (int j = 0; j < inputGraph[i].size(); j++) {
             outfile << i << " " << inputGraph[i][j] << endl;
         }
     }
@@ -449,7 +449,7 @@ void Graph::UpdateAssociatedSetMatrix(int rrSetID) {
                     node.second.insert(rrSetID);
                     pairAssociatedSet[j].insert(node);
                     coverage[j]++;
-                }else{
+                } else {
 
                     cout << "Are we here? Did I get this backwards?" << endl;
 
@@ -479,7 +479,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     clock_t begin = clock();
     visitMark = vector<int>(n);
     long totalSize = 0;
-    timesThisNodeWasPicked = vector<int>(n,0);
+    timesThisNodeWasPicked = vector<int>(n, 0);
 
 //    std::random_device rd; // obtain a random number from hardware
 //    std::mt19937 eng(rd()); // seed the generator
@@ -502,8 +502,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
                 generateRandomRRSetwithCountMod(randomVertex, i);
                 totalSize += rrSets[i].size();
             }
-        }
-        else {
+        } else {
             int t = (int) activatedSet.size();
             for (int i = 0; i < R; i++) {
                 int randomVertex;
@@ -511,8 +510,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
                 timesThisNodeWasPicked[randomVertex]++;
 //                randomVertex = distr(eng);
                 generateRandomRRSetwithCountMod(randomVertex, i);
-                if(i == 10) cout << "Completed " << i << " RR Sets" << endl;
-                if((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
+                if (i == 10) cout << "Completed " << i << " RR Sets" << endl;
+                if ((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
                 totalSize += rrSets[i].size();
             }
         }
@@ -546,7 +545,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         for (int i = 0; i < R; i++) {
             int randomVertex;
             if (i == doneRR * 10000) {
-                cout <<"\n" << i << " " << flush;
+                cout << "\n" << i << " " << flush;
                 doneRR++;
             }
             randomVertex = activatedSet[rand() % t];
@@ -649,12 +648,12 @@ void Graph::BFSonRRgraphs(int randomVertex, int rrSetID) {
                 alreadyVisited[v] = true;
                 workQueue.push(pair<int, int>(v, outdegree[v]));
 
+                //Defining the dependsOn relationship
                 for (int i:nodeAS[expand]) {
                     nodeAS[v].insert(i);
                     if (i != v) {
                         clock_t startMOD = clock();
                         RRas->addEdge(i, v, rrSetID);
-
                         coverage[i]++;
 
                         clock_t endMOD = clock();
@@ -937,7 +936,8 @@ void Graph::assertTransposeIsCorrect() {
 }
 
 //vertex is the vertex that was removed in this iteration of the loop
-void Graph::assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre, int totalEdgesInTransGraphPre){
+void Graph::assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre,
+                                         int totalEdgesInTransGraphPre) {
 
     assert(("Failed: TransGraph Size is not n", graphTranspose.size() == n));
     assert(("Failed: OrigGraph Size is not n", graph.size() == n));
@@ -945,20 +945,23 @@ void Graph::assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int
     int totalEdgesInOrigGraphPost = 0;
     int totalEdgesInTransGraphPost = 0;
 
-    for(int i = 0; i < graphTranspose.size(); i++){
+    for (int i = 0; i < graphTranspose.size(); i++) {
         //Assert that the removed vertex is not an outgoing edge to any vertex
-        assert(("Failed: Node not deleted in TransGraph",count(graphTranspose[i].begin(), graphTranspose[i].end(), vertex) == 0));
+        assert(("Failed: Node not deleted in TransGraph",
+                count(graphTranspose[i].begin(), graphTranspose[i].end(), vertex) == 0));
         totalEdgesInTransGraphPost += graphTranspose[i].size();
     }
 
-    assert(("Failed: Mismatch in Edges deleted in TransGraph", totalEdgesInTransGraphPre - totalEdgesInTransGraphPost == numOfEdgesToDelete));
+    assert(("Failed: Mismatch in Edges deleted in TransGraph", totalEdgesInTransGraphPre - totalEdgesInTransGraphPost ==
+                                                               numOfEdgesToDelete));
 
-    for(int i = 0; i < graph.size(); i++){
+    for (int i = 0; i < graph.size(); i++) {
         //Assert that the removed vertex is not an outgoing edge to any vertex
         assert(("Failed: Node not deleted in OrigGraph", count(graph[i].begin(), graph[i].end(), vertex) == 0));
         totalEdgesInOrigGraphPost += graph[i].size();
     }
-    assert(("Failed: Mismatch in Edges deleted in OrigGraph", totalEdgesInOrigGraphPre - totalEdgesInOrigGraphPost == numOfEdgesToDelete));
+    assert(("Failed: Mismatch in Edges deleted in OrigGraph", totalEdgesInOrigGraphPre - totalEdgesInOrigGraphPost ==
+                                                              numOfEdgesToDelete));
 }
 
 
@@ -1053,7 +1056,7 @@ void Graph::removeOutgoingEdges(int vertex) {
     }
     graphTranspose[vertex] = vector<int>();
 
-    if(tshoot){
+    if (tshoot) {
         cout << "Printing the graph after removing vertex: " << vertex << endl;
         print2DVector(graph);
         cout << "Printing the transposedGraph after removing vertex: " << vertex << endl;
@@ -1081,8 +1084,15 @@ void Graph::removeNodeFromRRset(int vertex) {
 
 void Graph::removeVertexFromRRassociatedGraph(int v) {
 
-    bool tshoot = true;
+    bool tshoot = false;
+    int edgesDeleted = 0;
+
     vertex *node = RRas->vertexMap.at(v); //node to be deleted
+
+    if(tshoot){
+        cout << "Outdegree of node to be deleted: " << node->outDegree << endl;
+    }
+    outdegreeReducedFor = vector<int>(n,0);
 
     for (Edge *outEdges : node->getoutGoingEdges()) { //all outgoing edges of the node
         if (outEdges->rrids.size() > 0) {
@@ -1098,10 +1108,14 @@ void Graph::removeVertexFromRRassociatedGraph(int v) {
                         eid = eid + "-" + to_string(outEdges->destid);//Correction to possible bug?
 
                         if (eid != outEdges->getId()) {
-                            std::unordered_map<std::string, Edge *>::iterator it = RRas->EdgeMap.find(
-                                    eid); //find that edge from edgeMap
+                            //auto it is an iterator
+                            auto it = RRas->EdgeMap.find(eid); //find that edge from edgeMap
                             if (it != RRas->EdgeMap.end() && it->second->rrids.count(RRi) == 1) {
-                                it->second->rrids.erase(RRi);   // remove rrid from the set
+                                it->second->rrids.erase(RRi);// remove rrid from the set
+                                if(tshoot){
+                                    outdegreeReducedFor[ASnode->id]++;
+                                    edgesDeleted++;
+                                }
                                 ASnode->outDegree--;
                             }
                         }
@@ -1112,6 +1126,12 @@ void Graph::removeVertexFromRRassociatedGraph(int v) {
         }
     }
     node->outDegree = 0;
+
+    if(tshoot){
+        cout << "Total outdegree reduced by:" << edgesDeleted << endl;
+        cout << "Printing outdegreeReducedFor: " << endl;
+        printVector(outdegreeReducedFor);
+    }
 }
 
 /*
@@ -1180,7 +1200,7 @@ void Graph::addSetintoASmatrix(int row, int vertex, int rrSetID) {
     }
 }
 
-void Graph::print2DVector(const vector<vector<int>> myVector){
+void Graph::print2DVector(const vector<vector<int>> myVector) {
 
     for (int i = 0; i < myVector.size(); i++) {
         if (myVector[i].size() > 0) {
@@ -1194,6 +1214,17 @@ void Graph::print2DVector(const vector<vector<int>> myVector){
     cout << "-----Completed Printing 2D Vector----" << endl;
 }
 
+void Graph::printVector(const vector<int> myVector) {
+
+    for (int i = 0; i < myVector.size(); i++) {
+
+        if(myVector[i] > 0){
+            cout << i <<": "<< myVector[i] << endl;
+        }
+    }
+    cout << endl;
+    cout << "-----Completed Printing Vector----" << endl;
+}
 
 
 

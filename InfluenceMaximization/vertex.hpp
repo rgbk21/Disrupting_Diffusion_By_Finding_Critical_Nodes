@@ -44,6 +44,7 @@ public:
     bool removeOutgoingEdge(Edge* e,int rrSetID);
     void addOutGoingEdges(Edge* v);
     void deleteOutBoundNeighbour();
+    void verifyEdgeDoesntExist(Edge *e);
 };
 
 

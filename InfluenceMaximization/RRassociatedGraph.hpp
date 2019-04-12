@@ -38,7 +38,7 @@ class RRassociatedGraph{
 
 public:
     unordered_map<int,vertex*> vertexMap;
-    std::unordered_map<std::string,Edge*> EdgeMap;
+    unordered_map<string,Edge*> EdgeMap;
     int noOfEdges;
     
 public:
@@ -47,7 +47,7 @@ public:
     int getNumberOfVertices();
     void addVertex(vertex v);
     vertex* find(int id);
-    Edge* findedge(std::string id);
+    Edge* findedge(string id);
     void addEdge(int from, int to, int label);
     void removeEdge(int from, int to,int rrSetID);
 };

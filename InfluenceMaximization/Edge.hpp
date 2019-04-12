@@ -18,9 +18,6 @@
 
 using namespace std;
 
-
-
-
 class Edge{
     
 public:
@@ -30,18 +27,18 @@ public:
         return eid==obj->eid;
     }
     
-    std::string eid;
+    string eid;
     set<int> rrids;
     int sourceid;
     int destid;
     int strength;
 
 public:
-    Edge(std::string eid,int from,int to);
-    std::string getId();
+    Edge(string eid,int from,int to);
+    string getId();
     void addRRid(int rrid);
     void removeRRid(int rrid);
     void setRRid(set<int> rrids);
-    void setId(std::string eid);
+    void setId(string eid);
 };
 #endif /* Edge_hpp */
