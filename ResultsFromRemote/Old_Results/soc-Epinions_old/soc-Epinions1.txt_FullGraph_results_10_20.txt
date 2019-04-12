@@ -1,0 +1,63 @@
+
+10 <-SeedSetSize
+20 <-removeNodes
+
+26734745 <-InitialStrength
+21632165 <-ModStrength
+
+23049623 <-transposedGraph Strength
+
+26753707 <-Recalculated Init Strength
+21650461 <- ModImpact Strength
+21635653 <-subModStrength
+
+43.8063 <-SubModTime
+7.48867 <-transposedGraph Time
+8.24767 <-ModImpactTime
+3.9035 <-ModStrengthTime
+
+nodes To remove in mod graph:	 763 634 645 71399 5232 3924 637 2969 1835 145 1059 2066 44 1596 5227 1225 1172 824 1669 546 
+nodes To remove in transposedGraph: 634 645 546 44 763 2066 31 2969 34 1409 737 1172 2118 2236 637 143 1 27 663 40 
+nodes To remove in mod Impact graph: 645 634 763 71399 3924 5232 637 145 44 1059 2969 2066 1172 1835 1225 824 1596 5227 546 1409 
+nodes To remove in submod graph:	 645 634 763 71399 3924 5232 637 1059 44 145 5227 2969 2066 1835 1225 824 2704 1596 1172 1539 
+
+intersection of mod and transposedGraph nodes to remove 9
+intersection of mod and submod nodes to remove 18
+intersection of mod and modImpact nodes to remove 19
+intersection of submod and modImpact nodes to remove 18
+intersection of submod and transposedGraph nodes to remove 8
+intersection of modImpact and transposedGraph nodes to remove 10
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+763 634 645 5232 71399 3924 1835 5227 2969 637 
+6413 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+4920 1720 7047 5224 9412 1533 629 5144 6003 770 
+2840 <-Influence of chosenMaxSeed on the original Graph G
+Unsorted Mod SeedSet: 2704 1720 629 5224 1539 9412 4920 7047 770 1533 
+Unsorted SubMod SeedSet: 1669 1720 629 9412 5224 4920 7047 1533 5144 770 
+Unsorted ModImpact SeedSet: 2704 1720 1669 629 9412 1539 5224 4920 7047 1533 
+Unsorted Transposed graph SeedSet: 71399 5232 3924 1835 145 5227 1059 1720 1596 2704 
+
+
+MaxInfl Seed Set: 
+634 637 645 763 1835 2969 3924 5227 5232 71399 
+Chosen MaxInfl Seed Set to perform diffusion: 
+629 770 1533 1720 4920 5144 5224 6003 7047 9412 
+Modular Seed Set: 
+629 770 1533 1539 1720 2704 4920 5224 7047 9412 
+SubModular Seed Set: 
+629 770 1533 1669 1720 4920 5144 5224 7047 9412 
+ModImpact Seed Set: 
+629 1533 1539 1669 1720 2704 4920 5224 7047 9412 
+TransposedGraph Seed Set: 
+145 1059 1596 1720 1835 2704 3924 5227 5232 71399 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+2491 2503 2503 2647
+2485 2504 2508 2652
+2494 2495 2495 2637
+2492 2500 2503 2642
+2499 2505 2498 2641
+-0.00369508 <-subModGain
+-0.00369756 <-ModImpactGain

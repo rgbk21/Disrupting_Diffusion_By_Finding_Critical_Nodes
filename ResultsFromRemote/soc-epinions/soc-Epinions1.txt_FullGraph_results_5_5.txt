@@ -1,0 +1,62 @@
+
+5 <-SeedSetSize
+5 <-removeNodes
+
+26839904 <-InitialStrength
+24396096 <-ModStrength
+24694271 <-transposedGraph Strength
+
+26752341 <-Recalculated Init Strength
+24305571 <-subModStrength
+24336574 <- ModImpact Strength
+
+4.475 <-ModStrengthTime
+8.08583 <-transposedGraph Time
+15.1093 <-ModImpactTime
+158.223 <-SubModTime
+
+
+nodes To remove in mod graph:	 763 634 645 71399 5232 
+nodes To remove in transposedGraph: 634 645 546 44 763 
+nodes To remove in mod Impact graph: 645 634 763 71399 3924 
+nodes To remove in submod graph:	 645 634 763 71399 3924 
+
+intersection of mod and transposedGraph nodes to remove 3
+intersection of mod and submod nodes to remove 4
+intersection of mod and modImpact nodes to remove 4
+intersection of submod and modImpact nodes to remove 5
+intersection of submod and transposedGraph nodes to remove 3
+intersection of modImpact and transposedGraph nodes to remove 3
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+763 634 645 5232 71399 
+4628 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+1835 5227 2969 637 1059 
+
+2252 <-Influence of chosenMaxSeed on the original Graph G
+
+
+MaxInfl Seed Set: 
+634 645 763 5232 71399 
+Chosen MaxInfl Seed Set to perform diffusion: 
+637 1059 1835 2969 5227 
+
+Modular Seed Set: 
+
+SubModular Seed Set: 
+
+ModImpact Seed Set: 
+
+TransposedGraph Seed Set: 
+
+
+MOD SUBMOD MOD-IMPACT Transposed
+2078 2099 2101 2133
+2081 2099 2100 2131
+2075 2095 2100 2117
+2072 2096 2110 2135
+2075 2102 2099 2117
+
+-0.0105978 <-subModGain
+-0.0124306 <-ModImpactGain

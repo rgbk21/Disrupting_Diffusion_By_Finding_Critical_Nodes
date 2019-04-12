@@ -1,0 +1,62 @@
+
+5 <-SeedSetSize
+5 <-removeNodes
+
+26811757 <-InitialStrength
+24372736 <-ModStrength
+24708051 <-transposedGraph Strength
+
+26822536 <-Recalculated Init Strength
+24352728 <-subModStrength
+24265643 <- ModImpact Strength
+
+4.36567 <-ModStrengthTime
+7.8575 <-transposedGraph Time
+8.24633 <-ModImpactTime
+33.4655 <-SubModTime
+
+nodes To remove in mod graph:	 763 634 645 71399 5232 
+nodes To remove in transposedGraph: 634 645 546 44 763 
+nodes To remove in mod Impact graph: 645 634 763 71399 3924 
+nodes To remove in submod graph:	 645 634 763 71399 3924 
+
+intersection of mod and transposedGraph nodes to remove 3
+intersection of mod and submod nodes to remove 4
+intersection of mod and modImpact nodes to remove 4
+intersection of submod and modImpact nodes to remove 5
+intersection of submod and transposedGraph nodes to remove 3
+intersection of modImpact and transposedGraph nodes to remove 3
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+763 634 645 5232 71399 
+4620 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+1835 5227 2969 637 1059 
+2258 <-Influence of chosenMaxSeed on the original Graph G
+Unsorted Mod SeedSet: 3924 637 1835 2969 145 
+Unsorted SubMod SeedSet: 5232 637 1835 2969 145 
+Unsorted ModImpact SeedSet: 5232 637 1835 2969 145 
+Unsorted Transposed graph SeedSet: 71399 5232 3924 637 1835 
+
+
+MaxInfl Seed Set: 
+634 645 763 5232 71399 
+Chosen MaxInfl Seed Set to perform diffusion: 
+637 1059 1835 2969 5227 
+Modular Seed Set: 
+145 637 1835 2969 3924 
+SubModular Seed Set: 
+145 637 1835 2969 5232 
+ModImpact Seed Set: 
+145 637 1835 2969 5232 
+TransposedGraph Seed Set: 
+637 1835 3924 5232 71399 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+2078 2100 2099 2129
+2078 2095 2100 2129
+2082 2101 2102 2127
+2073 2093 2094 2127
+2082 2094 2092 2127
+-0.00866109 <-subModGain
+-0.00904649 <-ModImpactGain

@@ -1,0 +1,2644 @@
+Starting program
+Setup logger 
+
+ begin execution tim tim 
+ Conducting experiments for:
+ Graph: soc-Epinions1.txt	 Budget: 10	 Non Target Threshod: 10	 Percentage:  100	 Method: 1	 Nodes removed: 10	 Seed selection case: 0	 Top best outdegree threshold : 100	 Probability: Indegree
+Reading all targets graph: 
+
+ Targets activated = 75888
+ Non targets are = 0
+ ******* Running modular approach ******** 
+R = 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 117.03 
+ Time per RR Set is 2.21886e-05
+ Total Size is 26786202
+ Average size is 5.0786
+ RRsets done 
+ 
+ Initial Strength is 26786202
+
+ Number of nodes Already present in seed set = 0
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 91.77 
+ Time per RR Set is 1.73994e-05
+ Total Size is 23202768
+ Average size is 4.39919
+ 
+ After removing Modular Strength is 23202768
+ Reverse algorithm time in minutes 
+3.4875
+ ******* Running TransposedGraph approach ******** 
+
+Reading all targets graph: 
+R = 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 283.28 
+ Time per RR Set is 5.37092e-05
+ Total Size is 46838109
+ Average size is 8.88039
+ RRsets done 
+
+
+Initial Strength of transposedGraph is 46838109
+Printing Best Node and its strength in transposed Graph
+Node tGraph.Strength * originalGraph.Strength TimesItWasPicked 
+18: 207864 * 9021.87493e+0874
+737: 161925 * 67711.09639e+0976
+118: 115070 * 17512.01488e+0876
+40: 109091 * 51895.66073e+0881
+1719: 105678 * 5706.02365e+0784
+136: 104014 * 26352.74077e+0865
+143: 101156 * 63516.42442e+0867
+790: 96931 * 18141.75833e+0871
+401: 91574 * 31652.89832e+0869
+725: 89373 * 61155.46516e+0865
+Printing Best Node after multiplying
+Node transposedGraph.strength influencedGraph.strength
+Node: 634 - 24471 * 82151 = 2.01032e+09
+Node: 645 - 23449 * 80981 = 1.89892e+09
+Node: 546 - 65877 * 26237 = 1.72841e+09
+Node: 44 - 51071 * 31245 = 1.59571e+09
+Node: 763 - 14424 * 99330 = 1.43274e+09
+Node: 2066 - 41901 * 31531 = 1.32118e+09
+Node: 31 - 72576 * 17051 = 1.23749e+09
+Node: 2969 - 35092 * 35024 = 1.22906e+09
+Node: 34 - 81201 * 14896 = 1.20957e+09
+Node: 1409 - 47338 * 24493 = 1.15945e+09
+
+ Number of nodes Already present in seed set = 0
+
+Nodes removed from modGraph with their transposedGraph values
+RemovedNode	ModGraphStrength	transposedGraphStrength	totalStrength
+763-	 99330*	 14424 =	 1.43274e+09
+634-	 82151*	 24471 =	 2.01032e+09
+645-	 80981*	 23449 =	 1.89892e+09
+71399-	 61351*	 5307 =	 3.2559e+08
+5232-	 54356*	 3929 =	 2.13565e+08
+3924-	 51325*	 3566 =	 1.83025e+08
+637-	 38117*	 18566 =	 7.0768e+08
+2969-	 35024*	 35092 =	 1.22906e+09
+145-	 34595*	 6304 =	 2.18087e+08
+1835-	 34313*	 5214 =	 1.78908e+08
+
+Reading all targets graph: 
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 90.13 
+ Time per RR Set is 1.70884e-05
+ Total Size is 23935397
+ Average size is 4.53809
+
+ After removing nodes, transposedGraph Strength is 23935397
+Transposed Graph end here
+
+Transposed Graph algorithm time in minutes 
+6.25767
+ 
+ ******* Running Sub Modular approach ******** 
+
+Reading all targets graph: 
+
+RR sets are: 5274331
+
+10000 
+20000 
+30000 
+40000 
+50000 
+60000 
+70000 
+80000 
+90000 
+100000 
+110000 
+120000 
+130000 
+140000 
+150000 
+160000 
+170000 
+180000 
+190000 
+200000 
+210000 
+220000 
+230000 
+240000 
+250000 
+260000 
+270000 
+280000 
+290000 
+300000 
+310000 
+320000 
+330000 
+340000 
+350000 
+360000 
+370000 
+380000 
+390000 
+400000 
+410000 
+420000 
+430000 
+440000 
+450000 
+460000 
+470000 
+480000 
+490000 
+500000 
+510000 
+520000 
+530000 
+540000 
+550000 
+560000 
+570000 
+580000 
+590000 
+600000 
+610000 
+620000 
+630000 
+640000 
+650000 
+660000 
+670000 
+680000 
+690000 
+700000 
+710000 
+720000 
+730000 
+740000 
+750000 
+760000 
+770000 
+780000 
+790000 
+800000 
+810000 
+820000 
+830000 
+840000 
+850000 
+860000 
+870000 
+880000 
+890000 
+900000 
+910000 
+920000 
+930000 
+940000 
+950000 
+960000 
+970000 
+980000 
+990000 
+1000000 
+1010000 
+1020000 
+1030000 
+1040000 
+1050000 
+1060000 
+1070000 
+1080000 
+1090000 
+1100000 
+1110000 
+1120000 
+1130000 
+1140000 
+1150000 
+1160000 
+1170000 
+1180000 
+1190000 
+1200000 
+1210000 
+1220000 
+1230000 
+1240000 
+1250000 
+1260000 
+1270000 
+1280000 
+1290000 
+1300000 
+1310000 
+1320000 
+1330000 
+1340000 
+1350000 
+1360000 
+1370000 
+1380000 
+1390000 
+1400000 
+1410000 
+1420000 
+1430000 
+1440000 
+1450000 
+1460000 
+1470000 
+1480000 
+1490000 
+1500000 
+1510000 
+1520000 
+1530000 
+1540000 
+1550000 
+1560000 
+1570000 
+1580000 
+1590000 
+1600000 
+1610000 
+1620000 
+1630000 
+1640000 
+1650000 
+1660000 
+1670000 
+1680000 
+1690000 
+1700000 
+1710000 
+1720000 
+1730000 
+1740000 
+1750000 
+1760000 
+1770000 
+1780000 
+1790000 
+1800000 
+1810000 
+1820000 
+1830000 
+1840000 
+1850000 
+1860000 
+1870000 
+1880000 
+1890000 
+1900000 
+1910000 
+1920000 
+1930000 
+1940000 
+1950000 
+1960000 
+1970000 
+1980000 
+1990000 
+2000000 
+2010000 
+2020000 
+2030000 
+2040000 
+2050000 
+2060000 
+2070000 
+2080000 
+2090000 
+2100000 
+2110000 
+2120000 
+2130000 
+2140000 
+2150000 
+2160000 
+2170000 
+2180000 
+2190000 
+2200000 
+2210000 
+2220000 
+2230000 
+2240000 
+2250000 
+2260000 
+2270000 
+2280000 
+2290000 
+2300000 
+2310000 
+2320000 
+2330000 
+2340000 
+2350000 
+2360000 
+2370000 
+2380000 
+2390000 
+2400000 
+2410000 
+2420000 
+2430000 
+2440000 
+2450000 
+2460000 
+2470000 
+2480000 
+2490000 
+2500000 
+2510000 
+2520000 
+2530000 
+2540000 
+2550000 
+2560000 
+2570000 
+2580000 
+2590000 
+2600000 
+2610000 
+2620000 
+2630000 
+2640000 
+2650000 
+2660000 
+2670000 
+2680000 
+2690000 
+2700000 
+2710000 
+2720000 
+2730000 
+2740000 
+2750000 
+2760000 
+2770000 
+2780000 
+2790000 
+2800000 
+2810000 
+2820000 
+2830000 
+2840000 
+2850000 
+2860000 
+2870000 
+2880000 
+2890000 
+2900000 
+2910000 
+2920000 
+2930000 
+2940000 
+2950000 
+2960000 
+2970000 
+2980000 
+2990000 
+3000000 
+3010000 
+3020000 
+3030000 
+3040000 
+3050000 
+3060000 
+3070000 
+3080000 
+3090000 
+3100000 
+3110000 
+3120000 
+3130000 
+3140000 
+3150000 
+3160000 
+3170000 
+3180000 
+3190000 
+3200000 
+3210000 
+3220000 
+3230000 
+3240000 
+3250000 
+3260000 
+3270000 
+3280000 
+3290000 
+3300000 
+3310000 
+3320000 
+3330000 
+3340000 
+3350000 
+3360000 
+3370000 
+3380000 
+3390000 
+3400000 
+3410000 
+3420000 
+3430000 
+3440000 
+3450000 
+3460000 
+3470000 
+3480000 
+3490000 
+3500000 
+3510000 
+3520000 
+3530000 
+3540000 
+3550000 
+3560000 
+3570000 
+3580000 
+3590000 
+3600000 
+3610000 
+3620000 
+3630000 
+3640000 
+3650000 
+3660000 
+3670000 
+3680000 
+3690000 
+3700000 
+3710000 
+3720000 
+3730000 
+3740000 
+3750000 
+3760000 
+3770000 
+3780000 
+3790000 
+3800000 
+3810000 
+3820000 
+3830000 
+3840000 
+3850000 
+3860000 
+3870000 
+3880000 
+3890000 
+3900000 
+3910000 
+3920000 
+3930000 
+3940000 
+3950000 
+3960000 
+3970000 
+3980000 
+3990000 
+4000000 
+4010000 
+4020000 
+4030000 
+4040000 
+4050000 
+4060000 
+4070000 
+4080000 
+4090000 
+4100000 
+4110000 
+4120000 
+4130000 
+4140000 
+4150000 
+4160000 
+4170000 
+4180000 
+4190000 
+4200000 
+4210000 
+4220000 
+4230000 
+4240000 
+4250000 
+4260000 
+4270000 
+4280000 
+4290000 
+4300000 
+4310000 
+4320000 
+4330000 
+4340000 
+4350000 
+4360000 
+4370000 
+4380000 
+4390000 
+4400000 
+4410000 
+4420000 
+4430000 
+4440000 
+4450000 
+4460000 
+4470000 
+4480000 
+4490000 
+4500000 
+4510000 
+4520000 
+4530000 
+4540000 
+4550000 
+4560000 
+4570000 
+4580000 
+4590000 
+4600000 
+4610000 
+4620000 
+4630000 
+4640000 
+4650000 
+4660000 
+4670000 
+4680000 
+4690000 
+4700000 
+4710000 
+4720000 
+4730000 
+4740000 
+4750000 
+4760000 
+4770000 
+4780000 
+4790000 
+4800000 
+4810000 
+4820000 
+4830000 
+4840000 
+4850000 
+4860000 
+4870000 
+4880000 
+4890000 
+4900000 
+4910000 
+4920000 
+4930000 
+4940000 
+4950000 
+4960000 
+4970000 
+4980000 
+4990000 
+5000000 
+5010000 
+5020000 
+5030000 
+5040000 
+5050000 
+5060000 
+5070000 
+5080000 
+5090000 
+5100000 
+5110000 
+5120000 
+5130000 
+5140000 
+5150000 
+5160000 
+5170000 
+5180000 
+5190000 
+5200000 
+5210000 
+5220000 
+5230000 
+5240000 
+5250000 
+5260000 
+5270000 
+ Generated reverse5274331 RR sets
+Elapsed time 1592.65 
+ Time per RR Set is 0.000301962
+ Total Size is 26834618
+ Average size is 5.08778
+Starting to remove nodes by the modImpact and subMod methods
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 493339
+634 504155
+645 507662
+71399 370883
+5232 288275
+3924 332250
+637 239228
+2969 203001
+145 217610
+1835 184873
+
+ 
+ ******* Running Mod Impact approach ********
+
+associated value is 0
+
+ Number of nodes for (mod impact) already present in seed set = 0
+ Reverse submod impact algorithm time in minutes 9.58717
+******* Completed Mod Impact approach ********
+******* Running SubMod approach ********
+
+Removed node: 645
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 471566
+634 479598
+645 0
+71399 358865
+5232 282937
+3924 325761
+637 226058
+2969 195388
+145 199270
+1835 181592
+
+Removed node: 634
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 449377
+634 0
+645 0
+71399 345346
+5232 278462
+3924 320574
+637 211504
+2969 187295
+145 190741
+1835 178489
+
+Removed node: 763
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 333104
+5232 274778
+3924 316183
+637 202042
+2969 181133
+145 183466
+1835 176620
+
+Removed node: 71399
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 270625
+3924 311843
+637 194260
+2969 173106
+145 180435
+1835 171270
+
+Removed node: 3924
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 264103
+3924 0
+637 191245
+2969 170613
+145 178532
+1835 166912
+
+Removed node: 5232
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 0
+3924 0
+637 189230
+2969 164806
+145 177213
+1835 155975
+
+Removed node: 637
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 0
+3924 0
+637 0
+2969 162112
+145 174047
+1835 154648
+
+Removed node: 1059
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 0
+3924 0
+637 0
+2969 159331
+145 169733
+1835 150519
+
+Removed node: 145
+**************************************
+Printing outdegree values for modNodes
+Node Outdegree
+763 0
+634 0
+645 0
+71399 0
+5232 0
+3924 0
+637 0
+2969 157261
+145 0
+1835 149257
+
+Removed node: 44
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 92.86 
+ Time per RR Set is 1.7606e-05
+ Total Size is 23256502
+ Average size is 4.40937
+ Recalculated Initial strength was = 26834618
+
+ Number of nodes Already present in seed set = 0
+ Submodular strength = 23256502
+ Reverse submodular algorithm time in minutes 36.4473
+ 
+******* Node removed in all four approaches ******** 
+
+Reading all targets graph: 
+
+Reading all targets graph: 
+
+Reading all targets graph: 
+
+Reading all targets graph: 
+
+nodes To remove in mod graph: 145 634 637 645 763 1835 2969 3924 5232 71399 
+ nodes To remove in submod graph 44 145 634 637 645 763 1059 3924 5232 71399 
+ nodes To remove in mod Impact graph 44 145 634 637 645 763 1059 3924 5232 71399 
+nodes to remove in transposedGraph: 31 34 44 546 634 645 763 1409 2066 2969 
+intersection of mod and transposedGraph nodes to remove 4
+intersection of mod and submod nodes to remove 8
+intersection of mod and modImpact nodes to remove 8
+intersection of submod and modImpact nodes to remove 10
+intersection of submod and transposedGraph nodes to remove 4
+intersection of modImpact and transposedGraph nodes to remove 4
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 97.08 
+ Time per RR Set is 1.84061e-05
+ Total Size is 23197216
+ Average size is 4.39813
+ 
+ After removing mod Impact Modular Strength is 23197216
+
+Reading all targets graph: 
+
+ 
+******* Max influence start******** 
+
+ Generated 5274331 RR sets
+Elapsed time 125.92 
+ Time per RR Set is 2.38741e-05
+ Total Size is 26791313
+ Average size is 5.07957
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 123.56 
+ Time per RR Set is 2.34267e-05
+ Total Size is 26818645
+ Average size is 5.08475
+ New Targets activated = 6411
+ 
+******* Max influence end ******** 
+
+Reading all targets graph: 
+
+ 
+******* Calculating maxSeed to be used as the seed set for all the 4 methods ******** 
+
+
+ Generated 5274331 RR sets
+Elapsed time 128.29 
+ Time per RR Set is 2.43235e-05
+ Total Size is 26824779
+ Average size is 5.08591
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 126.99 
+ Time per RR Set is 2.4077e-05
+ Total Size is 26797012
+ Average size is 5.08065
+ New Targets activated = 3127
+ 
+******* Calculating maxSeed to be used ends ******** 
+
+
+
+MaxInfl Seed Set: 
+634 637 645 763 1835 2969 3924 5227 5232 71399 
+-----Completed Printing Set-----
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+1533 1596 1669 1720 2704 4920 5224 5227 7047 9412 
+-----Completed Printing Set-----
+
+Modular Seed Set: 
+
+-----Completed Printing Set-----
+
+SubModular Seed Set: 
+
+-----Completed Printing Set-----
+
+ModImpact Seed Set: 
+
+-----Completed Printing Set-----
+
+TransposedGraph Seed Set: 
+
+-----Completed Printing Set-----
+
+********** k = 0 **********
+
+ 
+ Selected new SeedSet in original graph: 634 637 645 763 1835 2969 3924 5227 5232 71399 
+Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 103.67 
+ Time per RR Set is 1.96556e-05
+ Total Size is 23234990
+ Average size is 4.4053
+ New Targets activated = 2880
+Sub Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 99.44 
+ Time per RR Set is 1.88536e-05
+ Total Size is 23206766
+ Average size is 4.39994
+ New Targets activated = 2875
+Mod Impact Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 98.34 
+ Time per RR Set is 1.8645e-05
+ Total Size is 23179417
+ Average size is 4.39476
+ New Targets activated = 2875
+Transposed Graph Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 100.89 
+ Time per RR Set is 1.91285e-05
+ Total Size is 23929619
+ Average size is 4.537
+ New Targets activated = 2952
+********** k = 1 **********
+
+ 
+ Selected new SeedSet in original graph: 634 637 645 763 1835 2969 3924 5227 5232 71399 
+Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 104.54 
+ Time per RR Set is 1.98205e-05
+ Total Size is 23240766
+ Average size is 4.40639
+ New Targets activated = 2881
+Sub Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 100.48 
+ Time per RR Set is 1.90508e-05
+ Total Size is 23179092
+ Average size is 4.3947
+ New Targets activated = 2883
+Mod Impact Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 100.17 
+ Time per RR Set is 1.8992e-05
+ Total Size is 23187432
+ Average size is 4.39628
+ New Targets activated = 2874
+Transposed Graph Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 103.72 
+ Time per RR Set is 1.96651e-05
+ Total Size is 23907444
+ Average size is 4.53279
+ New Targets activated = 2952
+********** k = 2 **********
+
+ 
+ Selected new SeedSet in original graph: 634 637 645 763 1835 2969 3924 5227 5232 71399 
+Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 103.73 
+ Time per RR Set is 1.96669e-05
+ Total Size is 23178117
+ Average size is 4.39451
+ New Targets activated = 2865
+Sub Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 104.94 
+ Time per RR Set is 1.98964e-05
+ Total Size is 23155501
+ Average size is 4.39022
+ New Targets activated = 2874
+Mod Impact Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 102.06 
+ Time per RR Set is 1.93503e-05
+ Total Size is 23207193
+ Average size is 4.40003
+ New Targets activated = 2888
+Transposed Graph Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 102.61 
+ Time per RR Set is 1.94546e-05
+ Total Size is 23884500
+ Average size is 4.52844
+ New Targets activated = 2950
+********** k = 3 **********
+
+ 
+ Selected new SeedSet in original graph: 634 637 645 763 1835 2969 3924 5227 5232 71399 
+Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 105.09 
+ Time per RR Set is 1.99248e-05
+ Total Size is 23217007
+ Average size is 4.40189
+ New Targets activated = 2882
+Sub Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 104.07 
+ Time per RR Set is 1.97314e-05
+ Total Size is 23188817
+ Average size is 4.39654
+ New Targets activated = 2887
+Mod Impact Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 103.46 
+ Time per RR Set is 1.96158e-05
+ Total Size is 23192341
+ Average size is 4.39721
+ New Targets activated = 2860
+Transposed Graph Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 100.78 
+ Time per RR Set is 1.91076e-05
+ Total Size is 23860184
+ Average size is 4.52383
+ New Targets activated = 2942
+********** k = 4 **********
+
+ 
+ Selected new SeedSet in original graph: 634 637 645 763 1835 2969 3924 5227 5232 71399 
+Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 102.24 
+ Time per RR Set is 1.93844e-05
+ Total Size is 23177076
+ Average size is 4.39432
+ New Targets activated = 2869
+Sub Mod Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 103.03 
+ Time per RR Set is 1.95342e-05
+ Total Size is 23180603
+ Average size is 4.39498
+ New Targets activated = 2889
+Mod Impact Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 100.9 
+ Time per RR Set is 1.91304e-05
+ Total Size is 23174126
+ Average size is 4.39376
+ New Targets activated = 2870
+Transposed Graph Results: 
+
+RR sets are: 5274331
+Completed 0 RR Sets
+Completed 10 RR Sets
+Completed 100000 RR Sets
+Completed 200000 RR Sets
+Completed 300000 RR Sets
+Completed 400000 RR Sets
+Completed 500000 RR Sets
+Completed 600000 RR Sets
+Completed 700000 RR Sets
+Completed 800000 RR Sets
+Completed 900000 RR Sets
+Completed 1000000 RR Sets
+Completed 1100000 RR Sets
+Completed 1200000 RR Sets
+Completed 1300000 RR Sets
+Completed 1400000 RR Sets
+Completed 1500000 RR Sets
+Completed 1600000 RR Sets
+Completed 1700000 RR Sets
+Completed 1800000 RR Sets
+Completed 1900000 RR Sets
+Completed 2000000 RR Sets
+Completed 2100000 RR Sets
+Completed 2200000 RR Sets
+Completed 2300000 RR Sets
+Completed 2400000 RR Sets
+Completed 2500000 RR Sets
+Completed 2600000 RR Sets
+Completed 2700000 RR Sets
+Completed 2800000 RR Sets
+Completed 2900000 RR Sets
+Completed 3000000 RR Sets
+Completed 3100000 RR Sets
+Completed 3200000 RR Sets
+Completed 3300000 RR Sets
+Completed 3400000 RR Sets
+Completed 3500000 RR Sets
+Completed 3600000 RR Sets
+Completed 3700000 RR Sets
+Completed 3800000 RR Sets
+Completed 3900000 RR Sets
+Completed 4000000 RR Sets
+Completed 4100000 RR Sets
+Completed 4200000 RR Sets
+Completed 4300000 RR Sets
+Completed 4400000 RR Sets
+Completed 4500000 RR Sets
+Completed 4600000 RR Sets
+Completed 4700000 RR Sets
+Completed 4800000 RR Sets
+Completed 4900000 RR Sets
+Completed 5000000 RR Sets
+Completed 5100000 RR Sets
+Completed 5200000 RR Sets
+
+ Generated reverse5274331 RR sets
+Elapsed time 102.02 
+ Time per RR Set is 1.93427e-05
+ Total Size is 23934110
+ Average size is 4.53785
+ New Targets activated = 2956
+ Elapsed time in minutes 95.5818Memory Usage: 18208 MB

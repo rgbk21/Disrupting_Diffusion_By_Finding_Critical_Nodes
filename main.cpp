@@ -483,7 +483,7 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
     for (int i = 0; i < transposedGraph->NodeinRRsetsWithCounts.size(); i++) {
         pair<int, float> node = pair<int, float>();
         node.first = i;
-        node.second = transposedGraph->NodeinRRsetsWithCounts[i] * influencedGraph->initialNodeinRRsetsWithCounts[i];
+        node.second = (float) transposedGraph->NodeinRRsetsWithCounts[i] * influencedGraph->initialNodeinRRsetsWithCounts[i];
         assert(node.second >= 0);
         SortedNodeIdByCount.push_back(node);
     }

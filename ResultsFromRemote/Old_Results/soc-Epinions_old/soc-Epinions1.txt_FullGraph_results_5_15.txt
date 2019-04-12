@@ -1,0 +1,71 @@
+
+5 <-SeedSetSize
+15 <-removeNodes
+
+26775371 <-InitialStrength
+22358423 <-ModStrength
+23275211 <-transposedGraph Strength
+
+26773986 <-Recalculated Init Strength
+22305841 <-subModStrength
+22364270 <- ModImpact Strength
+
+4.0225 <-ModStrengthTime
+7.65933 <-transposedGraph Time
+8.26283 <-ModImpactTime
+
+40.307 <-SubModTime
+
+
+
+nodes To remove in mod graph:	 
+763 634 645 71399 5232 3924 637 2969 1835 145 1059 2066 44 1596 5227 
+nodes To remove in transposedGraph: 
+634 645 546 44 763 2066 31 2969 34 1409 737 1172 2118 2236 637 
+nodes To remove in mod Impact graph: 
+645 634 763 71399 3924 5232 637 145 44 1059 2969 2066 1835 1225 1172 
+nodes To remove in submod graph:	 
+645 634 763 71399 3924 5232 637 1059 145 44 5227 2969 2066 1225 1835 
+
+intersection of mod and transposedGraph nodes to remove 7
+intersection of mod and submod nodes to remove 14
+intersection of mod and modImpact nodes to remove 13
+intersection of submod and modImpact nodes to remove 14
+intersection of submod and transposedGraph nodes to remove 7
+intersection of modImpact and transposedGraph nodes to remove 8
+
+Chosen MaxInfl Seed Set: 1720 2704 4920 5224 7047 
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+763 634 645 5232 71399 
+4630 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+4920 2704 1720 7047 5224 
+
+1530 <-Influence of chosenMaxSeed on the original Graph G
+
+
+Unsorted Mod SeedSet: 1225 2704 1720 824 1669 
+Unsorted SubMod SeedSet: 1596 2704 1720 1669 1172 
+Unsorted ModImpact SeedSet: 5227 1596 2704 1669 1720 
+Unsorted Transposed graph SeedSet: 71399 5232 3924 1835 145 
+
+
+MaxInfl Seed Set: 
+634 645 763 5232 71399 
+Modular Seed Set: 
+824 1225 1669 1720 2704 
+SubModular Seed Set: 
+1172 1596 1669 1720 2704 
+ModImpact Seed Set: 
+1596 1669 1720 2704 5227 
+TransposedGraph Seed Set: 
+145 1835 3924 5232 71399 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+1400 1403 1410 1437
+1392 1407 1413 1436
+1401 1397 1416 1436
+1396 1399 1418 1437
+1402 1400 1404 1434
+-0.00215722 <-subModGain
+-0.0100243 <-ModImpactGain

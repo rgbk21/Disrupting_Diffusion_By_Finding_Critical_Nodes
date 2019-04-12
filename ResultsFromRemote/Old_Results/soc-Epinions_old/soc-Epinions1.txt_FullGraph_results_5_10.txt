@@ -1,0 +1,63 @@
+
+5 <-SeedSetSize
+10 <-removeNodes
+
+26744307 <-InitialStrength
+23228344 <-ModStrength
+23944979 <-transposedGraph Strength
+
+26734001 <-Recalculated Init Strength
+23230023 <-subModStrength
+23195964 <- ModImpact Strength
+
+4.21733 <-ModStrengthTime
+7.69533 <-transposedGraph Time
+8.28083 <-ModImpactTime
+38.229 <-SubModTime
+
+
+nodes To remove in mod graph:	 763 634 645 71399 5232 3924 637 2969 145 1835 
+nodes To remove in transposedGraph: 634 645 546 44 763 2066 31 2969 34 1409 
+nodes To remove in mod Impact graph: 634 645 763 71399 3924 5232 637 145 1059 44 
+nodes To remove in submod graph:	 634 645 763 71399 3924 5232 637 1059 145 44 
+
+intersection of mod and transposedGraph nodes to remove 4
+intersection of mod and submod nodes to remove 8
+intersection of mod and modImpact nodes to remove 8
+intersection of submod and modImpact nodes to remove 10
+intersection of submod and transposedGraph nodes to remove 4
+intersection of modImpact and transposedGraph nodes to remove 4
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+763 634 645 5232 71399 
+4630 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+5227 4920 2704 1720 7047 
+1647 <-Influence of chosenMaxSeed on the original Graph G
+Unsorted Mod SeedSet: 1059 5227 44 2066 1596 
+Unsorted SubMod SeedSet: 1835 2969 5227 2066 1596 
+Unsorted ModImpact SeedSet: 1835 2969 5227 2066 1596 
+Unsorted Transposed graph SeedSet: 71399 5232 3924 637 1835 
+
+
+MaxInfl Seed Set: 
+634 645 763 5232 71399 
+Chosen MaxInfl Seed Set to perform diffusion: 
+1720 2704 4920 5227 7047 
+Modular Seed Set: 
+44 1059 1596 2066 5227 
+SubModular Seed Set: 
+1596 1835 2066 2969 5227 
+ModImpact Seed Set: 
+1596 1835 2066 2969 5227 
+TransposedGraph Seed Set: 
+637 1835 3924 5232 71399 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+1546 1547 1548 1570
+1545 1544 1551 1565
+1536 1546 1549 1568
+1533 1546 1544 1559
+1539 1547 1542 1562
+-0.00403766 <-subModGain
+-0.0045531 <-ModImpactGain

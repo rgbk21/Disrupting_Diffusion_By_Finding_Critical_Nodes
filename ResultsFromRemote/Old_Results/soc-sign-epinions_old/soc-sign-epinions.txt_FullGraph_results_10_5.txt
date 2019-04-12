@@ -1,0 +1,62 @@
+
+10 <-SeedSetSize
+5 <-removeNodes
+
+52402179 <-InitialStrength
+47587935 <-ModStrength
+51042377 <-transposedGraph Strength
+
+52323486 <-Recalculated Init Strength
+47577530 <-subModStrength
+47634265 <- ModImpact Strength
+
+91.6352 <-SubModTime
+12.8015 <-ModStrengthTime
+15.4907 <-transposedGraph Time
+19.821 <-ModImpactTime
+
+nodes To remove in mod graph:	 767 2738 2737 2256 53 
+nodes To remove in transposedGraph: 21 1135 80 68 47 
+nodes To remove in mod Impact graph: 767 2737 2256 53 2738 
+nodes To remove in submod graph:	 767 2737 15274 2256 53 
+
+intersection of mod and transposedGraph nodes to remove 0
+intersection of mod and submod nodes to remove 4
+intersection of mod and modImpact nodes to remove 5
+intersection of submod and modImpact nodes to remove 4
+intersection of submod and transposedGraph nodes to remove 0
+intersection of modImpact and transposedGraph nodes to remove 0
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+767 2738 2256 27619 2737 53 15274 109 7883 15180 
+9962 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+27619 109 7883 15180 21506 40 3567 2654 110 4809 
+7795 <-Influence of chosenMaxSeed on the original Graph G
+Unsorted Mod SeedSet: 27619 109 7883 15274 4809 40 21506 15180 3567 110 
+Unsorted SubMod SeedSet: 2738 27619 109 7883 21506 4809 15180 40 3567 110 
+Unsorted ModImpact SeedSet: 27619 109 7883 15274 4809 40 21506 15180 3567 110 
+Unsorted Transposed graph SeedSet: 767 2738 2256 27619 2737 53 15274 109 7883 15180 
+
+
+MaxInfl Seed Set: 
+53 109 767 2256 2737 2738 7883 15180 15274 27619 
+Chosen MaxInfl Seed Set to perform diffusion: 
+40 109 110 2654 3567 4809 7883 15180 21506 27619 
+Modular Seed Set: 
+40 109 110 3567 4809 7883 15180 15274 21506 27619 
+SubModular Seed Set: 
+40 109 110 2738 3567 4809 7883 15180 21506 27619 
+ModImpact Seed Set: 
+40 109 110 3567 4809 7883 15180 15274 21506 27619 
+TransposedGraph Seed Set: 
+53 109 767 2256 2737 2738 7883 15180 15274 27619 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+7348 7326 7336 7685
+7337 7329 7327 7705
+7330 7313 7329 7709
+7337 7301 7342 7701
+7328 7312 7325 7709
+0.00269873 <-subModGain
+0.000572078 <-ModImpactGain

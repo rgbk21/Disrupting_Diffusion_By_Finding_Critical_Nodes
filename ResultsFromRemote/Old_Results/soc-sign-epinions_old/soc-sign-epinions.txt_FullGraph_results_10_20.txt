@@ -1,0 +1,62 @@
+
+10 <-SeedSetSize
+20 <-removeNodes
+
+52331233 <-InitialStrength
+40407225 <-ModStrength
+46983047 <-transposedGraph Strength
+
+52376454 <-Recalculated Init Strength
+40421253 <-subModStrength
+40408689 <- ModImpact Strength
+
+131.35 <-SubModTime
+11.6265 <-ModStrengthTime
+14.5133 <-transposedGraph Time
+20.1933 <-ModImpactTime
+
+nodes To remove in mod graph:	 767 2738 2737 2256 53 27619 15274 109 21506 7883 4809 110 40 3567 769 15180 61 10717 2654 6156 
+nodes To remove in transposedGraph: 21 1135 80 68 47 134 33 35 767 78 1655 1072 1656 323 189 74 325 48 1016 127 
+nodes To remove in mod Impact graph: 767 2737 53 2256 2738 27619 15274 109 21506 4809 7883 3567 110 40 769 61 10717 15180 325 6 
+nodes To remove in submod graph:	 767 2737 27619 2256 53 2738 15274 109 21506 7883 4809 3567 40 110 769 61 15180 10717 325 2654 
+
+intersection of mod and transposedGraph nodes to remove 1
+intersection of mod and submod nodes to remove 19
+intersection of mod and modImpact nodes to remove 18
+intersection of submod and modImpact nodes to remove 19
+intersection of submod and transposedGraph nodes to remove 2
+intersection of modImpact and transposedGraph nodes to remove 2
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+767 2738 2256 27619 2737 53 15274 109 7883 15180 
+9964 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+6222 2427 3582 15144 18462 2892 5015 4247 6134 8403 
+4500 <-Influence of chosenMaxSeed on the original Graph G
+Unsorted Mod SeedSet: 325 3582 18462 2427 5949 6 21 134 15144 6222 
+Unsorted SubMod SeedSet: 3582 6156 18462 2427 5949 6 134 21 15144 2526 
+Unsorted ModImpact SeedSet: 2654 3582 6156 18462 2427 5949 21 134 15144 6222 
+Unsorted Transposed graph SeedSet: 2738 2256 27619 2737 53 109 15274 7883 15180 21506 
+
+
+MaxInfl Seed Set: 
+53 109 767 2256 2737 2738 7883 15180 15274 27619 
+Chosen MaxInfl Seed Set to perform diffusion: 
+2427 2892 3582 4247 5015 6134 6222 8403 15144 18462 
+Modular Seed Set: 
+6 21 134 325 2427 3582 5949 6222 15144 18462 
+SubModular Seed Set: 
+6 21 134 2427 2526 3582 5949 6156 15144 18462 
+ModImpact Seed Set: 
+21 134 2427 2654 3582 5949 6156 6222 15144 18462 
+TransposedGraph Seed Set: 
+53 109 2256 2737 2738 7883 15180 15274 21506 27619 
+
+MOD	SUBMOD	MOD-IMPACT	Transposed
+3833 3833 3840 4179
+3828 3826 3833 4192
+3829 3825 3836 4197
+3827 3829 3837 4196
+3832 3835 3835 4189
+5.23283e-05 <-subModGain
+-0.00167129 <-ModImpactGain

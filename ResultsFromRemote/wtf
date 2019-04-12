@@ -1,0 +1,386 @@
+[me@template-base-centos7-webdb ~]$ sudo yum install centos-release-scl
+[sudo] password for me: 
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+epel/x86_64/metalink                                     |  16 kB     00:00     
+ * base: mirror.keystealth.org
+ * epel: kdeforge2.unl.edu
+ * extras: mirror.jaleco.com
+ * updates: mirrors.usinternet.com
+base                                                     | 3.6 kB     00:00     
+centos-sclo-rh                                           | 3.0 kB     00:00     
+docker-ce-stable                                         | 3.5 kB     00:00     
+epel                                                     | 4.7 kB     00:00     
+extras                                                   | 3.4 kB     00:00     
+mysql-connectors-community                               | 2.5 kB     00:00     
+mysql-tools-community                                    | 2.5 kB     00:00     
+mysql80-community                                        | 2.5 kB     00:00     
+updates                                                  | 3.4 kB     00:00     
+(1/3): docker-ce-stable/x86_64/primary_db                  |  26 kB   00:00     
+(2/3): epel/x86_64/updateinfo                              | 1.0 MB   00:00     
+(3/3): epel/x86_64/primary_db                              | 6.6 MB   00:01     
+Resolving Dependencies
+--> Running transaction check
+---> Package centos-release-scl.noarch 0:2-2.el7.centos will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                  Arch         Version               Repository    Size
+================================================================================
+Installing:
+ centos-release-scl       noarch       2-2.el7.centos        extras        12 k
+
+Transaction Summary
+================================================================================
+Install  1 Package
+
+Total download size: 12 k
+Installed size: 19 k
+Is this ok [y/d/N]: y
+Downloading packages:
+centos-release-scl-2-2.el7.centos.noarch.rpm               |  12 kB   00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : centos-release-scl-2-2.el7.centos.noarch                     1/1 
+  Verifying  : centos-release-scl-2-2.el7.centos.noarch                     1/1 
+
+Installed:
+  centos-release-scl.noarch 0:2-2.el7.centos                                    
+
+Complete!
+[me@template-base-centos7-webdb ~]$ sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
+Loaded plugins: fastestmirror
+[me@template-base-centos7-webdb ~]$ sudo yum install devtoolset-7
+Loaded plugins: fastestmirror
+Loading mirror speeds from cached hostfile
+ * base: repos-tx.psychz.net
+ * epel: kdeforge2.unl.edu
+ * extras: mirror.dc2.hackingand.coffee
+ * updates: mirrors.usinternet.com
+centos-sclo-sclo                                         | 2.9 kB     00:00     
+centos-sclo-sclo/x86_64/primary_db                         | 264 kB   00:00     
+Resolving Dependencies
+--> Running transaction check
+---> Package devtoolset-7.x86_64 0:7.1-4.el7 will be installed
+--> Processing Dependency: devtoolset-7-toolchain for package: devtoolset-7-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-runtime for package: devtoolset-7-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-perftools for package: devtoolset-7-7.1-4.el7.x86_64
+--> Running transaction check
+---> Package devtoolset-7-perftools.x86_64 0:7.1-4.el7 will be installed
+--> Processing Dependency: devtoolset-7-valgrind for package: devtoolset-7-perftools-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-systemtap for package: devtoolset-7-perftools-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-oprofile for package: devtoolset-7-perftools-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-dyninst for package: devtoolset-7-perftools-7.1-4.el7.x86_64
+---> Package devtoolset-7-runtime.x86_64 0:7.1-4.el7 will be installed
+---> Package devtoolset-7-toolchain.x86_64 0:7.1-4.el7 will be installed
+--> Processing Dependency: devtoolset-7-strace for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-memstomp for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-make for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-ltrace for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-gdb for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-gcc-gfortran for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-gcc-c++ for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-gcc for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-elfutils for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-dwz for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Processing Dependency: devtoolset-7-binutils for package: devtoolset-7-toolchain-7.1-4.el7.x86_64
+--> Running transaction check
+---> Package devtoolset-7-binutils.x86_64 0:2.28-11.el7 will be installed
+---> Package devtoolset-7-dwz.x86_64 0:0.12-1.1.el7 will be installed
+---> Package devtoolset-7-dyninst.x86_64 0:9.3.2-3.el7 will be installed
+--> Processing Dependency: libboost_thread-mt.so.1.53.0()(64bit) for package: devtoolset-7-dyninst-9.3.2-3.el7.x86_64
+--> Processing Dependency: libboost_system-mt.so.1.53.0()(64bit) for package: devtoolset-7-dyninst-9.3.2-3.el7.x86_64
+--> Processing Dependency: libboost_date_time-mt.so.1.53.0()(64bit) for package: devtoolset-7-dyninst-9.3.2-3.el7.x86_64
+---> Package devtoolset-7-elfutils.x86_64 0:0.170-5.el7 will be installed
+--> Processing Dependency: devtoolset-7-elfutils-libs(x86-64) = 0.170-5.el7 for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: devtoolset-7-elfutils-libelf(x86-64) = 0.170-5.el7 for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.7)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.6)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.5)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.4)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.3)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.2)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.1.1)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.1)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1(ELFUTILS_1.0)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.167)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.165)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.161)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.158)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.149)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.148)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.143)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.138)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.130)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.127)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.126)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1(ELFUTILS_0.122)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libasm.so.dts.1(ELFUTILS_1.0)(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libelf.so.dts.1()(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libdw.so.dts.1()(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+--> Processing Dependency: libasm.so.dts.1()(64bit) for package: devtoolset-7-elfutils-0.170-5.el7.x86_64
+---> Package devtoolset-7-gcc.x86_64 0:7.3.1-5.15.el7 will be installed
+---> Package devtoolset-7-gcc-c++.x86_64 0:7.3.1-5.15.el7 will be installed
+--> Processing Dependency: devtoolset-7-libstdc++-devel = 7.3.1-5.15.el7 for package: devtoolset-7-gcc-c++-7.3.1-5.15.el7.x86_64
+---> Package devtoolset-7-gcc-gfortran.x86_64 0:7.3.1-5.15.el7 will be installed
+--> Processing Dependency: devtoolset-7-libquadmath-devel = 7.3.1-5.15.el7 for package: devtoolset-7-gcc-gfortran-7.3.1-5.15.el7.x86_64
+--> Processing Dependency: libgfortran4 >= 7.1.1-2 for package: devtoolset-7-gcc-gfortran-7.3.1-5.15.el7.x86_64
+---> Package devtoolset-7-gdb.x86_64 0:8.0.1-36.el7 will be installed
+---> Package devtoolset-7-ltrace.x86_64 0:0.7.91-2.el7 will be installed
+---> Package devtoolset-7-make.x86_64 1:4.2.1-3.el7 will be installed
+---> Package devtoolset-7-memstomp.x86_64 0:0.1.5-5.1.el7 will be installed
+---> Package devtoolset-7-oprofile.x86_64 0:1.2.0-2.el7.1 will be installed
+---> Package devtoolset-7-strace.x86_64 0:4.17-7.el7 will be installed
+---> Package devtoolset-7-systemtap.x86_64 0:3.1-4s.el7 will be installed
+--> Processing Dependency: devtoolset-7-systemtap-devel = 3.1-4s.el7 for package: devtoolset-7-systemtap-3.1-4s.el7.x86_64
+--> Processing Dependency: devtoolset-7-systemtap-client = 3.1-4s.el7 for package: devtoolset-7-systemtap-3.1-4s.el7.x86_64
+---> Package devtoolset-7-valgrind.x86_64 1:3.13.0-11.el7 will be installed
+--> Running transaction check
+---> Package boost-date-time.x86_64 0:1.53.0-27.el7 will be installed
+---> Package boost-system.x86_64 0:1.53.0-27.el7 will be installed
+---> Package boost-thread.x86_64 0:1.53.0-27.el7 will be installed
+---> Package devtoolset-7-elfutils-libelf.x86_64 0:0.170-5.el7 will be installed
+---> Package devtoolset-7-elfutils-libs.x86_64 0:0.170-5.el7 will be installed
+---> Package devtoolset-7-libquadmath-devel.x86_64 0:7.3.1-5.15.el7 will be installed
+--> Processing Dependency: libquadmath for package: devtoolset-7-libquadmath-devel-7.3.1-5.15.el7.x86_64
+---> Package devtoolset-7-libstdc++-devel.x86_64 0:7.3.1-5.15.el7 will be installed
+---> Package devtoolset-7-systemtap-client.x86_64 0:3.1-4s.el7 will be installed
+--> Processing Dependency: devtoolset-7-systemtap-runtime = 3.1-4s.el7 for package: devtoolset-7-systemtap-client-3.1-4s.el7.x86_64
+--> Processing Dependency: zip for package: devtoolset-7-systemtap-client-3.1-4s.el7.x86_64
+--> Processing Dependency: unzip for package: devtoolset-7-systemtap-client-3.1-4s.el7.x86_64
+--> Processing Dependency: mokutil for package: devtoolset-7-systemtap-client-3.1-4s.el7.x86_64
+---> Package devtoolset-7-systemtap-devel.x86_64 0:3.1-4s.el7 will be installed
+--> Processing Dependency: kernel-devel-uname-r for package: devtoolset-7-systemtap-devel-3.1-4s.el7.x86_64
+---> Package libgfortran4.x86_64 0:8.2.1-1.3.1.el7_5 will be installed
+--> Running transaction check
+---> Package devtoolset-7-systemtap-runtime.x86_64 0:3.1-4s.el7 will be installed
+---> Package kernel-debug-devel.x86_64 0:3.10.0-957.10.1.el7 will be installed
+---> Package libquadmath.x86_64 0:4.8.5-36.el7_6.1 will be installed
+---> Package mokutil.x86_64 0:15-2.el7.centos will be installed
+--> Processing Dependency: libefivar.so.1(libefivar.so.0)(64bit) for package: mokutil-15-2.el7.centos.x86_64
+--> Processing Dependency: libefivar.so.1(LIBEFIVAR_0.24)(64bit) for package: mokutil-15-2.el7.centos.x86_64
+--> Processing Dependency: libefivar.so.1()(64bit) for package: mokutil-15-2.el7.centos.x86_64
+---> Package unzip.x86_64 0:6.0-19.el7 will be installed
+---> Package zip.x86_64 0:3.0-11.el7 will be installed
+--> Running transaction check
+---> Package efivar-libs.x86_64 0:36-11.el7_6.1 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                        Arch   Version             Repository      Size
+================================================================================
+Installing:
+ devtoolset-7                   x86_64 7.1-4.el7           centos-sclo-rh 6.2 k
+Installing for dependencies:
+ boost-date-time                x86_64 1.53.0-27.el7       base            52 k
+ boost-system                   x86_64 1.53.0-27.el7       base            40 k
+ boost-thread                   x86_64 1.53.0-27.el7       base            57 k
+ devtoolset-7-binutils          x86_64 2.28-11.el7         centos-sclo-rh 5.3 M
+ devtoolset-7-dwz               x86_64 0.12-1.1.el7        centos-sclo-rh  99 k
+ devtoolset-7-dyninst           x86_64 9.3.2-3.el7         centos-sclo-rh 3.6 M
+ devtoolset-7-elfutils          x86_64 0.170-5.el7         centos-sclo-rh 390 k
+ devtoolset-7-elfutils-libelf   x86_64 0.170-5.el7         centos-sclo-rh 194 k
+ devtoolset-7-elfutils-libs     x86_64 0.170-5.el7         centos-sclo-rh 280 k
+ devtoolset-7-gcc               x86_64 7.3.1-5.15.el7      centos-sclo-rh  29 M
+ devtoolset-7-gcc-c++           x86_64 7.3.1-5.15.el7      centos-sclo-rh  11 M
+ devtoolset-7-gcc-gfortran      x86_64 7.3.1-5.15.el7      centos-sclo-rh  11 M
+ devtoolset-7-gdb               x86_64 8.0.1-36.el7        centos-sclo-rh 3.2 M
+ devtoolset-7-libquadmath-devel x86_64 7.3.1-5.15.el7      centos-sclo-rh 154 k
+ devtoolset-7-libstdc++-devel   x86_64 7.3.1-5.15.el7      centos-sclo-rh 2.6 M
+ devtoolset-7-ltrace            x86_64 0.7.91-2.el7        centos-sclo-rh 148 k
+ devtoolset-7-make              x86_64 1:4.2.1-3.el7       centos-sclo-rh 485 k
+ devtoolset-7-memstomp          x86_64 0.1.5-5.1.el7       centos-sclo-rh 442 k
+ devtoolset-7-oprofile          x86_64 1.2.0-2.el7.1       centos-sclo-rh 1.8 M
+ devtoolset-7-perftools         x86_64 7.1-4.el7           centos-sclo-rh 3.6 k
+ devtoolset-7-runtime           x86_64 7.1-4.el7           centos-sclo-rh  20 k
+ devtoolset-7-strace            x86_64 4.17-7.el7          centos-sclo-rh 558 k
+ devtoolset-7-systemtap         x86_64 3.1-4s.el7          centos-sclo-rh 141 k
+ devtoolset-7-systemtap-client  x86_64 3.1-4s.el7          centos-sclo-rh 2.1 M
+ devtoolset-7-systemtap-devel   x86_64 3.1-4s.el7          centos-sclo-rh 2.1 M
+ devtoolset-7-systemtap-runtime x86_64 3.1-4s.el7          centos-sclo-rh 405 k
+ devtoolset-7-toolchain         x86_64 7.1-4.el7           centos-sclo-rh 3.8 k
+ devtoolset-7-valgrind          x86_64 1:3.13.0-11.el7     centos-sclo-rh 7.6 M
+ efivar-libs                    x86_64 36-11.el7_6.1       updates         89 k
+ kernel-debug-devel             x86_64 3.10.0-957.10.1.el7 updates         17 M
+ libgfortran4                   x86_64 8.2.1-1.3.1.el7_5   updates        685 k
+ libquadmath                    x86_64 4.8.5-36.el7_6.1    updates        189 k
+ mokutil                        x86_64 15-2.el7.centos     updates         42 k
+ unzip                          x86_64 6.0-19.el7          base           170 k
+ zip                            x86_64 3.0-11.el7          base           260 k
+
+Transaction Summary
+================================================================================
+Install  1 Package (+35 Dependent packages)
+
+Total download size: 101 M
+Installed size: 291 M
+Is this ok [y/d/N]: y
+Downloading packages:
+(1/36): boost-date-time-1.53.0-27.el7.x86_64.rpm           |  52 kB   00:00     
+(2/36): devtoolset-7-7.1-4.el7.x86_64.rpm                  | 6.2 kB   00:00     
+(3/36): boost-system-1.53.0-27.el7.x86_64.rpm              |  40 kB   00:00     
+(4/36): boost-thread-1.53.0-27.el7.x86_64.rpm              |  57 kB   00:00     
+(5/36): devtoolset-7-dwz-0.12-1.1.el7.x86_64.rpm           |  99 kB   00:00     
+(6/36): devtoolset-7-binutils-2.28-11.el7.x86_64.rpm       | 5.3 MB   00:00     
+(7/36): devtoolset-7-dyninst-9.3.2-3.el7.x86_64.rpm        | 3.6 MB   00:00     
+(8/36): devtoolset-7-elfutils-0.170-5.el7.x86_64.rpm       | 390 kB   00:00     
+(9/36): devtoolset-7-elfutils-libelf-0.170-5.el7.x86_64.rp | 194 kB   00:00     
+(10/36): devtoolset-7-elfutils-libs-0.170-5.el7.x86_64.rpm | 280 kB   00:00     
+(11/36): devtoolset-7-gcc-c++-7.3.1-5.15.el7.x86_64.rpm    |  11 MB   00:00     
+(12/36): devtoolset-7-gcc-7.3.1-5.15.el7.x86_64.rpm        |  29 MB   00:00     
+(13/36): devtoolset-7-gcc-gfortran-7.3.1-5.15.el7.x86_64.r |  11 MB   00:00     
+(14/36): devtoolset-7-libquadmath-devel-7.3.1-5.15.el7.x86 | 154 kB   00:00     
+(15/36): devtoolset-7-gdb-8.0.1-36.el7.x86_64.rpm          | 3.2 MB   00:00     
+(16/36): devtoolset-7-ltrace-0.7.91-2.el7.x86_64.rpm       | 148 kB   00:00     
+(17/36): devtoolset-7-make-4.2.1-3.el7.x86_64.rpm          | 485 kB   00:00     
+(18/36): devtoolset-7-libstdc++-devel-7.3.1-5.15.el7.x86_6 | 2.6 MB   00:00     
+(19/36): devtoolset-7-memstomp-0.1.5-5.1.el7.x86_64.rpm    | 442 kB   00:00     
+(20/36): devtoolset-7-perftools-7.1-4.el7.x86_64.rpm       | 3.6 kB   00:00     
+(21/36): devtoolset-7-oprofile-1.2.0-2.el7.1.x86_64.rpm    | 1.8 MB   00:00     
+(22/36): devtoolset-7-runtime-7.1-4.el7.x86_64.rpm         |  20 kB   00:00     
+(23/36): devtoolset-7-strace-4.17-7.el7.x86_64.rpm         | 558 kB   00:00     
+(24/36): devtoolset-7-systemtap-3.1-4s.el7.x86_64.rpm      | 141 kB   00:00     
+(25/36): devtoolset-7-systemtap-client-3.1-4s.el7.x86_64.r | 2.1 MB   00:00     
+(26/36): devtoolset-7-systemtap-devel-3.1-4s.el7.x86_64.rp | 2.1 MB   00:00     
+(27/36): devtoolset-7-systemtap-runtime-3.1-4s.el7.x86_64. | 405 kB   00:00     
+(28/36): devtoolset-7-toolchain-7.1-4.el7.x86_64.rpm       | 3.8 kB   00:00     
+(29/36): efivar-libs-36-11.el7_6.1.x86_64.rpm              |  89 kB   00:00     
+(30/36): devtoolset-7-valgrind-3.13.0-11.el7.x86_64.rpm    | 7.6 MB   00:00     
+(31/36): mokutil-15-2.el7.centos.x86_64.rpm                |  42 kB   00:00     
+(32/36): libquadmath-4.8.5-36.el7_6.1.x86_64.rpm           | 189 kB   00:00     
+(33/36): unzip-6.0-19.el7.x86_64.rpm                       | 170 kB   00:00     
+(34/36): libgfortran4-8.2.1-1.3.1.el7_5.x86_64.rpm         | 685 kB   00:00     
+(35/36): zip-3.0-11.el7.x86_64.rpm                         | 260 kB   00:00     
+(36/36): kernel-debug-devel-3.10.0-957.10.1.el7.x86_64.rpm |  17 MB   00:01     
+--------------------------------------------------------------------------------
+Total                                               31 MB/s | 101 MB  00:03     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : devtoolset-7-runtime-7.1-4.el7.x86_64                       1/36 
+  Installing : devtoolset-7-elfutils-libelf-0.170-5.el7.x86_64             2/36 
+  Installing : devtoolset-7-binutils-2.28-11.el7.x86_64                    3/36 
+  Installing : libquadmath-4.8.5-36.el7_6.1.x86_64                         4/36 
+  Installing : boost-system-1.53.0-27.el7.x86_64                           5/36 
+  Installing : boost-thread-1.53.0-27.el7.x86_64                           6/36 
+  Installing : libgfortran4-8.2.1-1.3.1.el7_5.x86_64                       7/36 
+  Installing : devtoolset-7-elfutils-libs-0.170-5.el7.x86_64               8/36 
+  Installing : devtoolset-7-elfutils-0.170-5.el7.x86_64                    9/36 
+  Installing : devtoolset-7-libstdc++-devel-7.3.1-5.15.el7.x86_64         10/36 
+  Installing : devtoolset-7-memstomp-0.1.5-5.1.el7.x86_64                 11/36 
+  Installing : devtoolset-7-strace-4.17-7.el7.x86_64                      12/36 
+  Installing : 1:devtoolset-7-valgrind-3.13.0-11.el7.x86_64               13/36 
+  Installing : devtoolset-7-gdb-8.0.1-36.el7.x86_64                       14/36 
+  Installing : 1:devtoolset-7-make-4.2.1-3.el7.x86_64                     15/36 
+  Installing : devtoolset-7-ltrace-0.7.91-2.el7.x86_64                    16/36 
+  Installing : devtoolset-7-oprofile-1.2.0-2.el7.1.x86_64                 17/36 
+  Installing : devtoolset-7-dwz-0.12-1.1.el7.x86_64                       18/36 
+  Installing : boost-date-time-1.53.0-27.el7.x86_64                       19/36 
+  Installing : devtoolset-7-dyninst-9.3.2-3.el7.x86_64                    20/36 
+  Installing : devtoolset-7-systemtap-runtime-3.1-4s.el7.x86_64           21/36 
+  Installing : unzip-6.0-19.el7.x86_64                                    22/36 
+  Installing : efivar-libs-36-11.el7_6.1.x86_64                           23/36 
+  Installing : mokutil-15-2.el7.centos.x86_64                             24/36 
+  Installing : zip-3.0-11.el7.x86_64                                      25/36 
+  Installing : kernel-debug-devel-3.10.0-957.10.1.el7.x86_64              26/36 
+  Installing : devtoolset-7-gcc-7.3.1-5.15.el7.x86_64                     27/36 
+  Installing : devtoolset-7-systemtap-devel-3.1-4s.el7.x86_64             28/36 
+  Installing : devtoolset-7-systemtap-client-3.1-4s.el7.x86_64            29/36 
+  Installing : devtoolset-7-systemtap-3.1-4s.el7.x86_64                   30/36 
+  Installing : devtoolset-7-perftools-7.1-4.el7.x86_64                    31/36 
+  Installing : devtoolset-7-gcc-c++-7.3.1-5.15.el7.x86_64                 32/36 
+  Installing : devtoolset-7-libquadmath-devel-7.3.1-5.15.el7.x86_64       33/36 
+  Installing : devtoolset-7-gcc-gfortran-7.3.1-5.15.el7.x86_64            34/36 
+  Installing : devtoolset-7-toolchain-7.1-4.el7.x86_64                    35/36 
+  Installing : devtoolset-7-7.1-4.el7.x86_64                              36/36 
+  Verifying  : kernel-debug-devel-3.10.0-957.10.1.el7.x86_64               1/36 
+  Verifying  : boost-system-1.53.0-27.el7.x86_64                           2/36 
+  Verifying  : devtoolset-7-libstdc++-devel-7.3.1-5.15.el7.x86_64          3/36 
+  Verifying  : devtoolset-7-systemtap-3.1-4s.el7.x86_64                    4/36 
+  Verifying  : devtoolset-7-7.1-4.el7.x86_64                               5/36 
+  Verifying  : devtoolset-7-elfutils-libelf-0.170-5.el7.x86_64             6/36 
+  Verifying  : devtoolset-7-gcc-7.3.1-5.15.el7.x86_64                      7/36 
+  Verifying  : zip-3.0-11.el7.x86_64                                       8/36 
+  Verifying  : devtoolset-7-toolchain-7.1-4.el7.x86_64                     9/36 
+  Verifying  : libquadmath-4.8.5-36.el7_6.1.x86_64                        10/36 
+  Verifying  : devtoolset-7-systemtap-devel-3.1-4s.el7.x86_64             11/36 
+  Verifying  : devtoolset-7-elfutils-0.170-5.el7.x86_64                   12/36 
+  Verifying  : devtoolset-7-gcc-gfortran-7.3.1-5.15.el7.x86_64            13/36 
+  Verifying  : boost-thread-1.53.0-27.el7.x86_64                          14/36 
+  Verifying  : devtoolset-7-dyninst-9.3.2-3.el7.x86_64                    15/36 
+  Verifying  : efivar-libs-36-11.el7_6.1.x86_64                           16/36 
+  Verifying  : devtoolset-7-memstomp-0.1.5-5.1.el7.x86_64                 17/36 
+  Verifying  : unzip-6.0-19.el7.x86_64                                    18/36 
+  Verifying  : devtoolset-7-strace-4.17-7.el7.x86_64                      19/36 
+  Verifying  : boost-date-time-1.53.0-27.el7.x86_64                       20/36 
+  Verifying  : devtoolset-7-runtime-7.1-4.el7.x86_64                      21/36 
+  Verifying  : devtoolset-7-elfutils-libs-0.170-5.el7.x86_64              22/36 
+  Verifying  : 1:devtoolset-7-valgrind-3.13.0-11.el7.x86_64               23/36 
+  Verifying  : devtoolset-7-binutils-2.28-11.el7.x86_64                   24/36 
+  Verifying  : devtoolset-7-perftools-7.1-4.el7.x86_64                    25/36 
+  Verifying  : libgfortran4-8.2.1-1.3.1.el7_5.x86_64                      26/36 
+  Verifying  : devtoolset-7-gdb-8.0.1-36.el7.x86_64                       27/36 
+  Verifying  : devtoolset-7-gcc-c++-7.3.1-5.15.el7.x86_64                 28/36 
+  Verifying  : mokutil-15-2.el7.centos.x86_64                             29/36 
+  Verifying  : 1:devtoolset-7-make-4.2.1-3.el7.x86_64                     30/36 
+  Verifying  : devtoolset-7-systemtap-runtime-3.1-4s.el7.x86_64           31/36 
+  Verifying  : devtoolset-7-systemtap-client-3.1-4s.el7.x86_64            32/36 
+  Verifying  : devtoolset-7-libquadmath-devel-7.3.1-5.15.el7.x86_64       33/36 
+  Verifying  : devtoolset-7-ltrace-0.7.91-2.el7.x86_64                    34/36 
+  Verifying  : devtoolset-7-oprofile-1.2.0-2.el7.1.x86_64                 35/36 
+  Verifying  : devtoolset-7-dwz-0.12-1.1.el7.x86_64                       36/36 
+
+Installed:
+  devtoolset-7.x86_64 0:7.1-4.el7                                               
+
+Dependency Installed:
+  boost-date-time.x86_64 0:1.53.0-27.el7                                        
+  boost-system.x86_64 0:1.53.0-27.el7                                           
+  boost-thread.x86_64 0:1.53.0-27.el7                                           
+  devtoolset-7-binutils.x86_64 0:2.28-11.el7                                    
+  devtoolset-7-dwz.x86_64 0:0.12-1.1.el7                                        
+  devtoolset-7-dyninst.x86_64 0:9.3.2-3.el7                                     
+  devtoolset-7-elfutils.x86_64 0:0.170-5.el7                                    
+  devtoolset-7-elfutils-libelf.x86_64 0:0.170-5.el7                             
+  devtoolset-7-elfutils-libs.x86_64 0:0.170-5.el7                               
+  devtoolset-7-gcc.x86_64 0:7.3.1-5.15.el7                                      
+  devtoolset-7-gcc-c++.x86_64 0:7.3.1-5.15.el7                                  
+  devtoolset-7-gcc-gfortran.x86_64 0:7.3.1-5.15.el7                             
+  devtoolset-7-gdb.x86_64 0:8.0.1-36.el7                                        
+  devtoolset-7-libquadmath-devel.x86_64 0:7.3.1-5.15.el7                        
+  devtoolset-7-libstdc++-devel.x86_64 0:7.3.1-5.15.el7                          
+  devtoolset-7-ltrace.x86_64 0:0.7.91-2.el7                                     
+  devtoolset-7-make.x86_64 1:4.2.1-3.el7                                        
+  devtoolset-7-memstomp.x86_64 0:0.1.5-5.1.el7                                  
+  devtoolset-7-oprofile.x86_64 0:1.2.0-2.el7.1                                  
+  devtoolset-7-perftools.x86_64 0:7.1-4.el7                                     
+  devtoolset-7-runtime.x86_64 0:7.1-4.el7                                       
+  devtoolset-7-strace.x86_64 0:4.17-7.el7                                       
+  devtoolset-7-systemtap.x86_64 0:3.1-4s.el7                                    
+  devtoolset-7-systemtap-client.x86_64 0:3.1-4s.el7                             
+  devtoolset-7-systemtap-devel.x86_64 0:3.1-4s.el7                              
+  devtoolset-7-systemtap-runtime.x86_64 0:3.1-4s.el7                            
+  devtoolset-7-toolchain.x86_64 0:7.1-4.el7                                     
+  devtoolset-7-valgrind.x86_64 1:3.13.0-11.el7                                  
+  efivar-libs.x86_64 0:36-11.el7_6.1                                            
+  kernel-debug-devel.x86_64 0:3.10.0-957.10.1.el7                               
+  libgfortran4.x86_64 0:8.2.1-1.3.1.el7_5                                       
+  libquadmath.x86_64 0:4.8.5-36.el7_6.1                                         
+  mokutil.x86_64 0:15-2.el7.centos                                              
+  unzip.x86_64 0:6.0-19.el7                                                     
+  zip.x86_64 0:3.0-11.el7                                                       
+
+Complete!
+[me@template-base-centos7-webdb ~]$ scl enable devtoolset-7 bash
+[me@template-base-centos7-webdb ~]$ 
+[me@template-base-centos7-webdb ~]$ 
+[me@template-base-centos7-webdb ~]$ sh /opt/clion-*/bin/clion.sh
+Error parsing gtk-icon-sizes string: ''
+
