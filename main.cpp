@@ -55,7 +55,6 @@ int newSeed;
 int diffusion;
 ofstream myfile;
 bool fullgraph = false;
-set<int> maxSeedSet;
 ofstream resultLogFile;
 
 //These are my global variables for testing
@@ -470,8 +469,9 @@ set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph* influencedGraph, in
         cout << "Node tGraph.Strength * originalGraph.Strength TimesItWasPicked " << endl;
         for(int i = 0; i < removeNodes; i++){
             pair<int, int> node = sorted[i];
-            cout << node.first << ": " << node.second << " * " << influencedGraph->initialNodeinRRsetsWithCounts[node.first] <<
-            (float) influencedGraph->initialNodeinRRsetsWithCounts[node.first] * node.second << transposedGraph->timesThisNodeWasPicked[sorted[i].first] <<
+            cout << node.first << ": " << node.second << " * " << influencedGraph->initialNodeinRRsetsWithCounts[node.first] << " " <<
+            (float) influencedGraph->initialNodeinRRsetsWithCounts[node.first] * node.second << " " <<
+            transposedGraph->timesThisNodeWasPicked[sorted[i].first] <<
             endl;
         }
     }
@@ -850,7 +850,6 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     vector<vector<int>>().swap(modImpactGraph->rrSets);
     vector<int>().swap(modImpactGraph->NodeinRRsetsWithCounts);
 
-    Graph *graph;
     set<int> maxInfluenceSeed;
     int maxInfluenceNum;
     set<int> seedSet;
@@ -860,26 +859,26 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     set<int> modImpactseedSet = set<int>();
     set<int> tGraphSeedSet = set<int>();
 
-    graph = new Graph;
-    graph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    Graph* maxSeedGraph = new Graph;
+    maxSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
-        graph->setPropogationProbability(probability);
+        maxSeedGraph->setPropogationProbability(probability);
     }
 
     cout << "\n \n******* Max influence start******** \n" << flush;
     myfile << "Max influence Seed Set in the original graph considering that we can remove all vertices: " << endl;
-    maxInfluenceSeed = getSeed(graph, activatedSet, set<int>(), set<int>(), set<int>(), set<int>(), NULL);
-    vector<vector<int>>().swap(graph->rrSets);
-    maxInfluenceNum = oldNewIntersection(graph, maxInfluenceSeed, activatedSet, resultLogFile);
+    maxInfluenceSeed = getSeed(maxSeedGraph, activatedSet, set<int>(), set<int>(), set<int>(), set<int>(), NULL);
+    vector<vector<int>>().swap(maxSeedGraph->rrSets);
+    maxInfluenceNum = oldNewIntersection(maxSeedGraph, maxInfluenceSeed, activatedSet, resultLogFile);
     myfile << maxInfluenceNum << " <-MaxInfluence Num\n";
     cout << "\n \n******* Max influence end ******** \n" << flush;
-    delete graph;
+    delete maxSeedGraph;
 
     //Calculating maxSeed to be used as the seed set for all the 4 methods:
     set<int> maxSeed;//Stores the seedSet that will be used for diffusion in all of the 4 processes
     int inflOfMaxSeed;//Stores the influence of the max seed on the original graph G
 
-    graph = new Graph;
+    Graph* graph = new Graph;
     graph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
         graph->setPropogationProbability(probability);
