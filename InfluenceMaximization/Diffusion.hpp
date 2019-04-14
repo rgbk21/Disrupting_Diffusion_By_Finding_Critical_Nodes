@@ -319,8 +319,8 @@ inline int oldNewIntersection(Graph *newGraph, set<int> seedSet,vector<int> acti
     //cout << "\n Old Targets activated = " << activatedSet.size();
     //cout << "\n New Targets activated = " << NewactivatedSet.size();
     
-     cout << "\n New Targets activated = " << diffusionNum;
-    resultLogFile<< "\n New Targets activated = " << diffusionNum;
+     cout << "\nNew Targets activated = " << diffusionNum;
+    resultLogFile<< "\nNew Targets activated = " << diffusionNum;
     //cout << "\n intersection size "<<intersect.size();
     //cout << "\n Percentage of intersect with old " <<double((intersect.size()*100)/activatedSet.size())<<"%";
     return diffusionNum;
