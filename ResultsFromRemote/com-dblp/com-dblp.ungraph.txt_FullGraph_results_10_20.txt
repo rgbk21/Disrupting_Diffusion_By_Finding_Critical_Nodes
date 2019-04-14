@@ -1,0 +1,58 @@
+
+10 <-SeedSetSize
+20 <-removeNodes
+
+125625700 <-InitialStrength
+120486327 <-ModStrength
+120199966 <-transposedGraph Strength
+
+
+125610793 <-Recalculated Init Strength
+118131168 <-subModStrength
+119066537 <- ModImpact Strength
+
+106.502 <-SubModTime
+5.2605 <-ModStrengthTime
+3.98017 <-transposedGraph Time
+33.1508 <-ModImpactTime
+
+
+nodes To remove in mod graph:	 963 905 1499 969 1421 3451 3452 1213 1214 1046 745 585 2960 1998 439 440 1244 159 1650 2576 
+nodes To remove in transposedGraph: 905 1214 963 1499 1244 1817 969 440 3451 745 1542 376 1367 1469 3452 1421 1046 1213 151 2960 
+nodes To remove in mod Impact graph: 905 1499 1998 2960 745 1244 159 2174 8362 1367 1650 1469 5002 14689 12204 1427 1817 7006 973 3452 
+nodes To remove in submod graph:	 905 1499 2960 1998 2174 1367 8362 12204 3452 1050 5002 7006 1928 1650 1427 4248 1252 1817 2545 2577 
+
+intersection of mod and transposedGraph nodes to remove 14
+intersection of mod and submod nodes to remove 6
+intersection of mod and modImpact nodes to remove 9
+intersection of submod and modImpact nodes to remove 14
+intersection of submod and transposedGraph nodes to remove 6
+intersection of modImpact and transposedGraph nodes to remove 9
+
+Max influence Seed Set in the original graph considering that we can remove all vertices: 
+963 905 3451 1046 1213 1421 2576 3281 2960 585 
+21275 <-MaxInfluence Num
+Chosen Max influence Seed Set in the original graph considering that we can remove only those vertices that are not present in any of the sets of verticesRemove 
+3281 506 2285 3870 321 5612 2904 4528 746 3137 
+11704 <-Influence of chosenMaxSeed on the original Graph G
+
+
+MaxInfl Seed Set: 
+585 905 963 1046 1213 1421 2576 2960 3281 3451 
+Chosen MaxInfl Seed Set to perform diffusion: 
+321 506 746 2285 2904 3137 3281 3870 4528 5612 
+Modular Seed Set: 
+
+SubModular Seed Set: 
+
+ModImpact Seed Set: 
+
+TransposedGraph Seed Set: 
+
+
+MOD SUBMOD MOD-IMPACT Transposed
+10816 9066 9038 10420
+10817 9050 9031 10425
+10808 9055 9033 10427
+0.162449 <-subModGain
+0.164576 <-ModImpactGain
