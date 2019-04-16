@@ -40,6 +40,9 @@ public:
     unordered_map<int,vertex*> vertexMap;
     unordered_map<string,Edge*> EdgeMap;
     int noOfEdges;
+    int noOfEdgesCreated;
+    int noOfEdgesDeleted;
+    int noOfVertices;
     
 public:
     RRassociatedGraph();
