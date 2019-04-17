@@ -9,6 +9,9 @@
 #include "RRassociatedGraph.hpp"
 RRassociatedGraph::RRassociatedGraph() {
     noOfEdges=0;
+    noOfEdgesCreated = 0;
+    noOfEdgesDeleted = 0;
+    noOfVertices = 0;
 }
 
 void RRassociatedGraph::addVertex(vertex v) {
@@ -35,12 +38,14 @@ void RRassociatedGraph::addEdge(int from, int to, int label) {
     if (fromVertex == nullptr) {
         fromVertex = new vertex(from);
         vertexMap.insert(pair<int,vertex*>(fromVertex->getId(), fromVertex));
+        noOfVertices++;
     }
     
     vertex* toVertex = find(to);
     if (toVertex == nullptr) {
         toVertex = new vertex(to);
         vertexMap.insert(pair<int,vertex*>(toVertex->getId(), toVertex));
+        noOfVertices++;
     }
 
     //For self loops, I believe?
@@ -63,6 +68,7 @@ void RRassociatedGraph::addEdge(int from, int to, int label) {
         fromVertex->addOutGoingEdges(edge);
         EdgeMap.insert(pair<string,Edge*>(edge->getId(), edge));
         noOfEdges++;
+        noOfEdgesCreated++;
     }
     else{
         /*So if the edge exists, you are incrementing the outdegree of the vertex.
@@ -93,10 +99,11 @@ void RRassociatedGraph::removeEdge(int from, int to,int rrSetID) {
     eid = eid + "-" + to_string(to);//Correction to possible bug?
 
     if(EdgeMap.count(eid)==1){
-        Edge* e=EdgeMap.find(eid)->second;
+        Edge* e = EdgeMap.find(eid)->second;
         if(fromVertex->removeOutgoingEdge(e,rrSetID)){
             EdgeMap.erase(eid);
             delete e;
+            noOfEdgesDeleted++;
         }
     }
 }

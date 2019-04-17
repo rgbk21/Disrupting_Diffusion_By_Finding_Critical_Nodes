@@ -363,7 +363,7 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> maxSeedSet, vec
     vector<pair<int, int>>().swap(SortedNodeidCounts);
     cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    cout << "Printing the nodes already in seed that were not added to removeNodes" << endl;
+    cout << "Printing the nodes already in seed that were not added to modNodes" << endl;
     myfile << "Printing the nodes already in seed that were not added to removeNodes" << endl;
     printSet(alreadyinSeed);
 
@@ -1010,7 +1010,7 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed\n";
 
     int k = 0;
-    while (k < 5) {
+    while (k < 3) {
         switch (5) {
 
             case 0: //bestTim
@@ -1097,7 +1097,7 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
 
     bool tshoot = false;//Prints the outdegree of each node in ASDegree.
     bool tshoot1 = true;//Prints the node being removed in each iteration
-    bool tshoot2 = true;//Prints the outdegree values for the modNodes removed in Algo1
+    bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
 
     clock_t subModReverseStartTime = clock();
 
@@ -1114,6 +1114,22 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     cout << "\nRR sets are: " << R << endl;
     resultLogFile << "\nRR sets are: " << R << endl;
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+
+    cout << "\nNumber of edges created in EdgeMap: " << influencedGraph->RRas->noOfEdgesCreated << endl;
+    cout << "Number of edges deleted from EdgeMap: " << influencedGraph->RRas->noOfEdgesDeleted << endl;
+    cout << "Number of vertices created in VertexMap: " << influencedGraph->RRas->noOfVertices << endl;
+    cout << "vertexMap.size(): " << influencedGraph->RRas->vertexMap.size() << endl;
+    cout << "EdgeMap.size(): " << influencedGraph->RRas->EdgeMap.size() << endl;
+    cout << "RRSetsSize - sizeof(influencedGraph->rrSets): " << sizeof(influencedGraph->rrSets);
+
+    myfile << "Number of edges created in EdgeMap: " << influencedGraph->RRas->noOfEdgesCreated << endl;
+    myfile << "Number of edges deleted from EdgeMap: " << influencedGraph->RRas->noOfEdgesDeleted << endl;
+    myfile << "Number of vertices created in VertexMap: " << influencedGraph->RRas->noOfVertices << endl;
+    myfile << "vertexMap.size(): " << influencedGraph->RRas->vertexMap.size() << endl;
+    myfile << "EdgeMap.size(): " << influencedGraph->RRas->EdgeMap.size() << endl;
+    myfile << "RRSetsSize - sizeof(influencedGraph->rrSets): " << sizeof(influencedGraph->rrSets);
+
+
 
     cout << "\nStarting to remove nodes by the modImpact and subMod methods" << endl;
     int h = 0;

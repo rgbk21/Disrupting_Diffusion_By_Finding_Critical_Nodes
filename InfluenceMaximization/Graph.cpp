@@ -12,6 +12,10 @@
 #include <iomanip>
 #include <random>
 #include <climits>
+#include <deque>
+#include <set>
+#include <vector>
+
 
 using namespace std;
 
@@ -538,8 +542,10 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         alreadyVisited = vector<bool>(n, false);
         RRgraph = vector<vector<int>>(n);
         outdegree = vector<int>(n, n);
+        dependancyVector = vector<vector<vector<int>>>(R);
         modImpactTime = 0;
         coverage = vector<int>(n, 0);
+
         int t = (int) activatedSet.size();
         int doneRR = 1;
         for (int i = 0; i < R; i++) {
@@ -560,11 +566,11 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     clock_t end = clock();
 
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "\n Generated reverse" << R << " RR sets\n";
-    cout << "Elapsed time " << elapsed_secs;
-    cout << " \n Time per RR Set is " << elapsed_secs / R;
-    cout << "\n Total Size is " << totalSize << flush;
-    cout << "\n Average size is " << (float) totalSize / (float) R;
+    cout << "\n Generated reverse: " << R << " RR sets" << endl;
+    cout << "Elapsed time: " << elapsed_secs << endl;
+    cout << " Time per RR Set is: " << elapsed_secs / R << endl;
+    cout << "Total Size is: " << totalSize << endl;
+    cout << "\n Average size is: " << (float) totalSize / (float) R;
 
 
     resultLogFile << "\n Generated reverse" << R << " RR sets\n";
@@ -621,9 +627,10 @@ void Graph::generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID) {
         }
     }
 
-    BFSonRRgraphs(randomVertex, rrSetID);
+//    BFSonRRgraphs(randomVertex, rrSetID);//THE method
+    calcDependancyMatrix(randomVertex, rrSetID, rrSets[rrSetID].size());
 
-    for (int i = 0; i < nVisitMark; i++) {
+    for (int i = 0; i < nVisitMark; i++){
         visited[visitMark[i]] = false;
         alreadyVisited[visitMark[i]] = false;
         nodeAS[visitMark[i]].clear();
@@ -633,6 +640,104 @@ void Graph::generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID) {
 
 }
 
+void Graph::calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize) {
+
+    bool tshoot = false;//Prints shit ton of data
+
+    //Trying to map - <int, int> => <24, 0> means that 24 is mapped to 0.
+    if(tshoot){
+        cout << "Printing mappedIndex" << endl;
+    }
+    unordered_map<int, int> mappedIndex;
+    for(int i = 0; i < rrSetSize; i++){
+        mappedIndex.insert(make_pair(rrSets[rrSetID][i], i));
+        if(tshoot){
+            cout << rrSets[rrSetID][i] << " mapped to " << i << endl;
+        }
+    }
+
+    //Trying to map - index 0 contains 24 means that 0 corresponds to vertex 24
+    if(tshoot){
+        cout << "Printing revMappedIndex" << endl;
+    }
+    vector<int> revMappedIndex = vector<int>(rrSetSize);
+    for(int i = 0; i < rrSetSize; i++){
+        revMappedIndex.at(i) = rrSets[rrSetID][i];
+        if(tshoot){
+            cout << i << " reverse mapped to " << rrSets[rrSetID][i] << endl;
+        }
+    }
+
+    //Creating the miniRRGraph containing these mapped vertices from the original RRGraph
+    vector<vector<int>> miniRRGraph = vector<vector<int>>(); //Just this wouldnt do.
+    for(int i = 0; i < rrSetSize; i++){
+        miniRRGraph.emplace_back(vector<int>());
+    }
+//    vector<vector<int>> miniRRGraph = vector<vector<int>>(rrSetSize,vector<int>(rrSetSize, 1));
+    for(int i = 0; i < RRgraph.size(); i++){
+        for (int j = 0; j < RRgraph[i].size(); j++){
+            int fromVertex = mappedIndex.at(i);
+            int toVertex = mappedIndex.at(RRgraph[i][j]);
+            miniRRGraph[fromVertex].push_back(toVertex);
+        }
+    }
+
+    if(tshoot){
+        cout << "Printing miniRRGraph: " << endl;
+        print2DVector(miniRRGraph);
+    }
+
+
+    //Stores the dependsOn relation in each RRSet generation
+    dependancyMatrix = vector<vector<int>> (rrSetSize,vector<int>(rrSetSize, 1));//Initialize matrix to contain all 1s initially
+    for(int i = 0; i < rrSetSize; i++){//for every vertex u in the RRGraph
+        int vertexRemoved = mappedIndex.at(rrSets[rrSetID][i]);
+        if(vertexRemoved != mappedIndex.at(randomVertex)){//if u != randomVertex
+            vector<vector<int>> myGraph = miniRRGraph;
+            myGraph[vertexRemoved].clear();//Remove u and all its outgoing edges from the graph
+            BFS(myGraph, mappedIndex.at(randomVertex), rrSetSize, vertexRemoved);//Do a BFS on the resulting graph starting from the randomVertex
+        }
+    }
+
+    dependancyVector.at(rrSetID) = dependancyMatrix;
+    /*  Freeing up the memory
+     * In C++ there is a very simple rule of thumb:
+     * All memory is automatically freed when it runs out of scope unless it has been allocated manually.
+
+
+//    vector<vector<int>>().swap(dependancyMatrix);
+//    vector<vector<int>>().swap(miniRRGraph);
+//    vector<int>().swap(revMappedIndex);
+//    unordered_map<int, int>().swap(mappedIndex);
+     */
+}
+
+//myGraph is the graph on which you want to perform the BFS.
+//All the outgoing edges from the removedVertex have been removed in this graph
+//startVertex is the vertex from which you want to start the BFS
+void Graph::BFS(vector<vector<int>> &myGraph, int startVertex, int rrSetSize, int vertexRemoved){
+
+    vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
+    deque<int> queue;                                               //Create a queue for BFS
+    visitedBFS[startVertex] = true;                                 //Mark the current node as visited
+    queue.push_back(startVertex);                                   //And add it to the queue
+    dependancyMatrix[vertexRemoved][startVertex] = 0;
+
+    while(!queue.empty()){
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++){
+            int v = myGraph[u][i];
+            if(!visitedBFS[v]){
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if(vertexRemoved != v){//Because reachability of vertexRemoved will depend on itself
+                    dependancyMatrix[vertexRemoved][v] = 0;//Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+}
 
 void Graph::BFSonRRgraphs(int randomVertex, int rrSetID) {
 

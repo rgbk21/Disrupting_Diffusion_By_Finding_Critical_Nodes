@@ -72,6 +72,9 @@ public:
     vector<int> timesThisNodeWasPicked;//Stores the no. of times this node was picked as Random Vertex
     vector<int> outdegreeReducedFor;//Stores the reduction in outdegree for each node in 1 iteration of removeVertexFromRRassociatedGraph()
     vector<vector<int>> RRgraph;
+    vector<vector<vector<int>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
+    vector<vector<int>> dependancyMatrix;
+//    vector<vector<int>> dependancyMatrix;//Stores the dependsOn relation in each RRSet generation
     
     vector<int> outdegree;
     priority_queue<pair<int,int>,vector<pair<int,int>>,CompareOutdegree> workQueue;
@@ -80,7 +83,9 @@ public:
     vector<set<int>>nodeAS;
     vector<unordered_map<int,unordered_set<int>>> pairAssociatedSet;
     vector<int> coverage;
-    
+
+    void BFS(vector<vector<int>> &myGraph, int u, int rrSetSize, int vertexRemoved);
+    void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize);
     void readGraph(string fileName,std::ofstream& resultLogFile);
     void readGraph(string fileName, float percentage,std::ofstream& resultLogFile);
     void writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m);
