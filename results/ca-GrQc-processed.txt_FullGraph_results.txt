@@ -255,3 +255,21 @@ Number of edges deleted from EdgeMap: 0
 Number of vertices created in VertexMap: 0
 vertexMap.size(): 0
 EdgeMap.size(): 0
+
+20 <-SeedSetSize
+15 <-removeNodes
+1571325 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+
+1118869 <-ModStrength
+0.0330667 <-ModStrengthTime
+597395 <-InitialStrength of transposedGraph
+Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: 
+
+1110410 <-transposedGraph Strength
+0.0257667 <-transposedGraph Time
+Number of edges created in EdgeMap: 0
+Number of edges deleted from EdgeMap: 0
+Number of vertices created in VertexMap: 0
+vertexMap.size(): 0
+EdgeMap.size(): 0

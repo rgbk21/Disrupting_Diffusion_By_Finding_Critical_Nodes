@@ -543,6 +543,37 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         RRgraph = vector<vector<int>>(n);
         outdegree = vector<int>(n, n);
         dependancyVector = vector<vector<vector<int>>>(R);
+        vertexToIndex = vector<unordered_map<int,int>>(R);
+        indexToVertex = vector<vector<int>>(R);
+
+        //Datastructures being used in the code:
+        /* Datstructures:
+         *
+         * vertexToIndex: Stores the vector of unordered_maps which stores mapping of each vertex to an index
+         * At index 10 of vertexToIndex is the mapping of RRSetId number 10
+         * At index 10: inside the unordered_map
+         * Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+         *
+         * indexToVertex: Stores a vector of vector<int>. Vector at index i corresponds to RRSetID i.
+         * Inside RRSetID i bucket: each vector is -
+         * Trying to map - index 0 contains 24 means that 0 corresponds to vertex 24
+         *
+         * dependancyVector: Stores an Array of Matrices.
+         * Matrix at index i is the dependancyMatrix of RRSet number i
+         * How to read them? Consider the following graph and Matrix:
+         *  0 -> 1 -> 2 -> 3
+         *
+         * Dependence of reachability of 2 starting from 0 given that 1 has been removed is:
+         *
+         *   0  1 (2)  3
+         * 0 1  1  1  1
+         * 1 0  1  1  1
+         * 2 0  0  1  1
+         * 3 0  0  0  1
+         *
+         *
+         * */
+
         modImpactTime = 0;
         coverage = vector<int>(n, 0);
 
@@ -655,6 +686,7 @@ void Graph::calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize) {
             cout << rrSets[rrSetID][i] << " mapped to " << i << endl;
         }
     }
+    vertexToIndex.at(rrSetID) = mappedIndex;
 
     //Trying to map - index 0 contains 24 means that 0 corresponds to vertex 24
     if(tshoot){
@@ -667,13 +699,13 @@ void Graph::calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize) {
             cout << i << " reverse mapped to " << rrSets[rrSetID][i] << endl;
         }
     }
+    indexToVertex.at(rrSetID) = revMappedIndex;
 
     //Creating the miniRRGraph containing these mapped vertices from the original RRGraph
     vector<vector<int>> miniRRGraph = vector<vector<int>>(); //Just this wouldnt do.
     for(int i = 0; i < rrSetSize; i++){
         miniRRGraph.emplace_back(vector<int>());
     }
-//    vector<vector<int>> miniRRGraph = vector<vector<int>>(rrSetSize,vector<int>(rrSetSize, 1));
     for(int i = 0; i < RRgraph.size(); i++){
         for (int j = 0; j < RRgraph[i].size(); j++){
             int fromVertex = mappedIndex.at(i);
@@ -686,7 +718,6 @@ void Graph::calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize) {
         cout << "Printing miniRRGraph: " << endl;
         print2DVector(miniRRGraph);
     }
-
 
     //Stores the dependsOn relation in each RRSet generation
     dependancyMatrix = vector<vector<int>> (rrSetSize,vector<int>(rrSetSize, 1));//Initialize matrix to contain all 1s initially

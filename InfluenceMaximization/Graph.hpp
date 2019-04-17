@@ -62,6 +62,11 @@ public:
     vector<vector<int> > graph;
     vector<vector<int> > graphTranspose;
     vector<vector<int>> rrSets;
+    vector<unordered_map<int, int>> vertexToIndex;
+    vector<vector<int>> indexToVertex;
+    vector<vector<vector<int>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
+    vector<vector<int>> dependancyMatrix;
+
     vector<bool> labels;
     deque<int> q;
     vector<int> inDegree;
@@ -72,10 +77,7 @@ public:
     vector<int> timesThisNodeWasPicked;//Stores the no. of times this node was picked as Random Vertex
     vector<int> outdegreeReducedFor;//Stores the reduction in outdegree for each node in 1 iteration of removeVertexFromRRassociatedGraph()
     vector<vector<int>> RRgraph;
-    vector<vector<vector<int>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
-    vector<vector<int>> dependancyMatrix;
-//    vector<vector<int>> dependancyMatrix;//Stores the dependsOn relation in each RRSet generation
-    
+
     vector<int> outdegree;
     priority_queue<pair<int,int>,vector<pair<int,int>>,CompareOutdegree> workQueue;
     //set<pair<int,int>,CompareOutdegree> workMap;
