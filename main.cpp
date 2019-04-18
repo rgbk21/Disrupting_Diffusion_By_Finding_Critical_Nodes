@@ -60,8 +60,8 @@ bool fullgraph = false;
 ofstream resultLogFile;
 
 //Variables for experimenting
-bool useMaxSeed = true;//Set to false if using random Seed for diffusion instead of using maxSeed => Experiment 3
-bool someCondition = false;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
+bool useMaxSeed = true;//Applicable if someCondition = false. Set to false if using random Seed for diffusion instead of using maxSeed => Experiment 3
+bool someCondition = true;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
 
 //These are my global variables for testing
 vector<int> modNodesToRemoveUnsorted;
@@ -109,9 +109,11 @@ void printVector(const vector<int> myVector) {
 
     for (int i = 0; i < myVector.size(); i++) {
         myfile << i << ":" << myVector[i] << " ";
+        cout << myVector[i] << " ";
     }
     myfile << endl;
     myfile << "-----Completed Printing Vector----" << endl;
+    cout << "-----Completed Printing Vector----" << endl;
 }
 
 void printSet(const set<int> myVector) {
@@ -526,12 +528,12 @@ set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, in
 
     while (j < removeNodes && j < SortedNodeIdByCount.size()) {
         int nodeid = SortedNodeIdByCount.at(count).first;
-        if (tGraphNodesToRemove.count(nodeid) == 0 && maxSeedSet.count(nodeid)==0) {
+        if (tGraphNodesToRemove.count(nodeid) == 0 && maxSeedSet.count(nodeid) == 0) {
             tGraphNodesToRemove.insert(nodeid);
             //tGraphNodesToRemoveUnsorted: for printing out the nodes that are being removed in the order that they were added
             tGraphNodesToRemoveUnsorted.push_back(nodeid);
             j++;
-        }else{
+        } else {
             alreadyinSeed.insert(nodeid);
         }
         count++;
@@ -609,7 +611,8 @@ set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, in
     cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     cout << "Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: " << endl;
-    myfile << "Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: " << endl;
+    myfile << "Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: "
+           << endl;
     printSet(alreadyinSeed);
 
     //Calculating the strength of the resulting graph after removing the edges
@@ -893,7 +896,7 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
 
     set<int> maxSeed;//Stores the seedSet that will be used for diffusion in all of the 4 processes
 
-    if(!someCondition) {
+    if (!someCondition) {
         cout << "\n \n******* Max influence start******** \n" << flush;
         myfile << "Max influence Seed Set in the original graph considering that we can remove all vertices: " << endl;
         maxInfluenceSeed = getSeed(budget, maxSeedGraph, activatedSet, set<int>(), set<int>(), set<int>(), set<int>(),
@@ -959,7 +962,7 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
 
     }
 
-    if(someCondition){
+    if (someCondition) {
         maxSeed = prevSelectSeed;
     }
     SeedSet *SeedClass = new SeedSet(newGraph, budget);
@@ -1006,7 +1009,7 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
 
     }
 
-    Graph* graph;
+    Graph *graph;
     myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed\n";
 
     int k = 0;
@@ -1092,7 +1095,118 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     delete SeedClass;
 }
 
-set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet, int removeNodes, set<int> maxSeedSet,
+void computeDependencyValues(vector<int> &dependencyValues, Graph *influencedGraph, vector<pair<int, int>> &ASdegree){
+
+    cout << "Recalculating Dependency Values" << endl;
+
+    for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
+        for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId].size(); rowIdx++) {                    //for each row in the dependancyMatrix
+            int vertex = influencedGraph->indexToVertex[rrSetId][rowIdx];                                               //find the vertex that was mapped to that index
+            for (int colIdx = 0; colIdx < influencedGraph->dependancyVector[rrSetId][rowIdx].size(); colIdx++) {        //for each col in that row
+                dependencyValues[vertex] += influencedGraph->dependancyVector[rrSetId][rowIdx][colIdx];                 //Add the value to the existing dependencyValues of that vertex
+            }
+        }
+    }
+
+    ASdegree = vector<pair<int, int>>();//Because we are recalculating the dependency values, we need to initialise ASdegree to empty again
+    for (int i = 0; i < dependencyValues.size(); i++) {
+        pair<int, int> node = pair<int, int>();
+        node.first = i;
+        node.second = dependencyValues[i];
+        ASdegree.push_back(node);
+    }
+
+    std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
+    assert(ASdegree.at(0).second >= ASdegree.at(1).second);
+}
+
+void
+computeModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> *removalModImpact) {
+
+    set<int> alreadyinSeed = set<int>();
+    ASdegree = vector<pair<int, int>>();
+    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
+
+    computeDependencyValues(dependencyValues, influencedGraph, ASdegree);
+
+    cout << "ModImpact Nodes Sorted!" << endl;
+
+    int index = 0;
+    for (int i = 0; i < removeNodes;) {
+        int node = ASdegree.at(index).first;
+        if (maxSeedSet.count(node) == 0) {
+            i++;
+            removalModImpact->insert(node);
+            modImpactNodesToRemoveUnsorted.push_back(node);
+        } else {
+            alreadyinSeed.insert(node);
+        }
+        index++;
+    }
+    assert(("Mismatch - removalModImpact and removeNodes", removalModImpact->size() == removeNodes));
+
+//    cout << "Node to be removed by the mod Impact process" << endl;
+//    printVector(modImpactNodesToRemoveUnsorted);
+
+    cout << "\nassociated value is: " << alreadyinSeed.size() << endl;
+    cout << "Number of nodes for (mod impact) already present in seed set = " << alreadyinSeed.size() << endl;
+    resultLogFile << "Number of nodes for (mod impact) already present in seed set = " << alreadyinSeed.size();
+    cout << "Printing nodes in modImpact that were not added to removeNodes because they were in seesSet: " << endl;
+    myfile << "Printing nodes in modImpact that were not added to removeNodes because they were in seesSet: " << endl;
+    printSet(alreadyinSeed);
+
+    //Clearing alreadyinSeed because it contains the modImpact nodes at this point
+    alreadyinSeed.clear();
+}
+
+//node is the vertex being deleted from all of the dependencyMatrices
+void removeFromDependencyVector(int node, Graph *influencedGraph, vector<pair<int,int>> &ASdegree){
+
+    /*Update the dependencyVector datastructure
+     *
+     * In each RRSet
+     *  if node occurs in that RRSet
+     *      set all elements in the row index corresponding to that node to 0
+     *      set all elements in the column index corresponding to that node to 0
+     */
+
+    cout << "Removing vertex: " << node << endl;
+    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
+
+    for(int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++){                                                            //for each RRSet in dependancyVector
+        unordered_map<int,int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId].find(node);                                            //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+        if(got !=  influencedGraph->vertexToIndex[rrSetId].end()){
+            fill(influencedGraph->dependancyVector[rrSetId][got->second].begin(), influencedGraph->dependancyVector[rrSetId][got->second].end(), 0);//Replace all elements in the row with 0;
+            for(int row = 0; row < influencedGraph->dependancyVector[rrSetId].size(); row++){
+                influencedGraph->dependancyVector[rrSetId][row][got->second] = 0;
+            }
+        }
+    }
+
+    //Recalculate the dependencyValues for each node
+    computeDependencyValues(dependencyValues, influencedGraph, ASdegree);
+
+}
+
+void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> &subModNodesToremove, set<int> &alreadyinSeed) {
+
+    int index = 0;
+    for (int i = 0; i < removeNodes;) {
+        int node = ASdegree.at(index).first;
+        if (maxSeedSet.count(node) == 0) {
+            i++;
+            subModNodesToremove.insert(node);
+            subModNodesToRemoveUnsorted.push_back(node);
+            removeFromDependencyVector(node, influencedGraph, ASdegree);
+            index = 0;
+        } else {
+            alreadyinSeed.insert(node);
+            index++;
+        }
+    }
+}
+
+set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet, int removeNodes, const set<int> &maxSeedSet,
                                set<int> *removalModImpact) {
 
     bool tshoot = false;//Prints the outdegree of each node in ASDegree.
@@ -1105,7 +1219,6 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     set<int> subModNodesToremove;
     vector<pair<int, int>> ASdegree;
     int removalNum = removeNodes;
-    bool SubImpact = false;
 
     //Random RR sets
     int n = (int) activatedSet.size();
@@ -1115,152 +1228,22 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     resultLogFile << "\nRR sets are: " << R << endl;
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
 
-    cout << "\nNumber of edges created in EdgeMap: " << influencedGraph->RRas->noOfEdgesCreated << endl;
-    cout << "Number of edges deleted from EdgeMap: " << influencedGraph->RRas->noOfEdgesDeleted << endl;
-    cout << "Number of vertices created in VertexMap: " << influencedGraph->RRas->noOfVertices << endl;
-    cout << "vertexMap.size(): " << influencedGraph->RRas->vertexMap.size() << endl;
-    cout << "EdgeMap.size(): " << influencedGraph->RRas->EdgeMap.size() << endl;
-    cout << "RRSetsSize - sizeof(influencedGraph->rrSets): " << sizeof(influencedGraph->rrSets);
-
-    myfile << "Number of edges created in EdgeMap: " << influencedGraph->RRas->noOfEdgesCreated << endl;
-    myfile << "Number of edges deleted from EdgeMap: " << influencedGraph->RRas->noOfEdgesDeleted << endl;
-    myfile << "Number of vertices created in VertexMap: " << influencedGraph->RRas->noOfVertices << endl;
-    myfile << "vertexMap.size(): " << influencedGraph->RRas->vertexMap.size() << endl;
-    myfile << "EdgeMap.size(): " << influencedGraph->RRas->EdgeMap.size() << endl;
-    myfile << "RRSetsSize - sizeof(influencedGraph->rrSets): " << sizeof(influencedGraph->rrSets);
+    cout << "\nComputing nodes to remove by the Mod Impact method" << endl;
+    computeModImpactNodes(influencedGraph, removeNodes, ASdegree, maxSeedSet, removalModImpact);
 
 
+    clock_t ModImpactEndTime = clock();
+    double totalModImpactTime = double(ModImpactEndTime - subModReverseStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "Mod Impact impact algorithm time in minutes " << totalModImpactTime << endl;
+    resultLogFile << "Mod Impact impact algorithm time in minutes" << totalModImpactTime << endl;
+    myfile << totalModImpactTime << " <-ModImpactTime\n";
+    cout << "******* Completed Mod Impact approach ********" << endl;
+    cout << endl;
+    cout << endl;
 
-    cout << "\nStarting to remove nodes by the modImpact and subMod methods" << endl;
-    int h = 0;
-    bool nodeInSeedSet = false;
-    while (removeNodes != 0) {
-        /*
-        vector<pair<int,int>> SortedNodeidCounts=vector<pair<int,int>>();
-        for(int i=0;i<influencedGraph->coverage.size();i++){
-            pair<int,int> node= pair<int,int>();
-            node.first=i;
-            node.second=influencedGraph->coverage[i];
-            SortedNodeidCounts.push_back(node);
-        }
-        std :: sort(SortedNodeidCounts.begin(),SortedNodeidCounts.end(), sortbysecdesc);
-        assert(SortedNodeidCounts.at(0).second>=SortedNodeidCounts.at(1).second);*/
-
-        //nodeMappedToOutdegree eg. Suppose at index 4 is stored 23.
-        // It means - Node 4 has oudegree of 23
-        nodeMappedToOutdegree = vector<int>(n, 0);
-
-        if(!nodeInSeedSet) {
-            ASdegree = vector<pair<int, int>>();
-            for (auto it = influencedGraph->RRas->vertexMap.begin();
-                 it != influencedGraph->RRas->vertexMap.end(); ++it) {
-                pair<int, int> node = pair<int, int>();
-                node.first = it->first;
-                node.second = it->second->getOutDegree();
-                ASdegree.push_back(node);
-                nodeMappedToOutdegree.at(node.first) = node.second;
-            }
-
-            //Prints the outdegree of each node in ASDegree.
-            if (tshoot) {
-                myfile << "Started printing for removeNodes = " << removeNodes << endl;
-                printVector(nodeMappedToOutdegree);
-            }
-
-            //Prints the outdegree values for the modNodes removed in Algo1
-            if (tshoot2) {
-                cout << "**************************************" << endl;
-                cout << "Printing outdegree values for modNodes removed in Algo1" << endl;
-                cout << "Node Outdegree" << endl;
-                for (int i = 0; i < modNodesToRemoveUnsorted.size(); i++) {
-                    for (int j = 0; j < ASdegree.size(); j++) {
-                        if (ASdegree[j].first == modNodesToRemoveUnsorted[i]) {
-                            cout << ASdegree[j].first << " " << ASdegree[j].second << endl;
-                        }
-                    }
-                }
-            }
-
-            std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
-            assert(ASdegree.at(0).second >= ASdegree.at(1).second);
-
-        }
-
-        int index = 0;
-        if (!SubImpact) {
-            cout << "\n\n******* Running Mod Impact approach ********" << endl;
-            resultLogFile << "\n\n******* Running Mod Impact approach ********"<< endl;
-            for (int i = 0; i < removalNum; ) {
-                int node = ASdegree.at(index).first;
-                if (maxSeedSet.count(node) == 0) {
-                    i++;
-                    removalModImpact->insert(node);
-                    modImpactNodesToRemoveUnsorted.push_back(node);
-                    SubImpact = true;
-                }else{
-                    alreadyinSeed.insert(node);
-                }
-                index++;
-            }
-            assert(("Mismatch - removalModImpact and removeNodes", removalModImpact->size() == removalNum));
-
-            /*
-            int k=0;
-            for(int i=0;i<removalNum;i++){
-                if(seedSet.count(SortedNodeidCounts.at(i).first)==1){
-                    k++;
-                }
-                removalModImpact->insert(SortedNodeidCounts.at(i).first);
-                SubImpact=true;
-            }*/
-
-            cout << "\nassociated value is " << alreadyinSeed.size() << endl;
-            cout << "\n Number of nodes for (mod impact) already present in seed set = " << alreadyinSeed.size() << endl;
-            resultLogFile << "\n Number of nodes for (mod impact) already present in seed set = " << alreadyinSeed.size();
-            cout << "Printing nodes in modImpact that were not added to removeNodes because they were in seesSet: " << endl;
-            myfile << "Printing nodes in modImpact that were not added to removeNodes because they were in seesSet: " << endl;
-            printSet(alreadyinSeed);
-
-            clock_t subModImapctEndTime = clock();
-            double totalModImapctTime =
-                    double(subModImapctEndTime - subModReverseStartTime - influencedGraph->modImpactTime) /
-                    (CLOCKS_PER_SEC * 60);
-            cout << "\n Reverse submod impact algorithm time in minutes " << totalModImapctTime << endl;
-            resultLogFile << "\n Reverse submod impact algorithm time in minutes " << totalModImapctTime << "\n";
-            myfile << totalModImapctTime << " <-ModImpactTime\n";
-            cout << "******* Completed Mod Impact approach ********" << endl;
-            cout << "******* Running SubMod approach ********" << endl;
-            //Clearing alreadyinSeed because it contains the modImpact nodes at this point
-            alreadyinSeed.clear();
-        }
-        cout << endl;
-        /*while(seedSet.count(SortedNodeidCounts.at(h).first)==1){+
-         h++;
-         }*/
-        /*int node = SortedNodeidCounts.at(h).first;
-        subModNodesToremove.insert(node);
-        if(seedSet.count(node)==1){
-            alreadyinSeed.insert(node);
-        }*/
-        int node = ASdegree.at(h).first;
-        if (maxSeedSet.count(node) == 0) {
-            subModNodesToremove.insert(node);
-            subModNodesToRemoveUnsorted.push_back(node);
-            //remove node from RRset
-            if (tshoot1) {
-                cout << "Removed node: " << node << endl;
-            }
-            influencedGraph->removeVertexFromRRassociatedGraph(node);
-            //influencedGraph->removeNodeFromRRset(node);
-            removeNodes--;
-            h = 0;
-            nodeInSeedSet = false;
-        }else{
-            h++;
-            alreadyinSeed.insert(node);
-            nodeInSeedSet = true;
-        }
-    }
+    cout << "******* Running SubMod approach ********" << endl;
+    alreadyinSeed = set<int>();
+    computeSubModImpactNodes(influencedGraph, removeNodes, ASdegree, maxSeedSet, subModNodesToremove, alreadyinSeed);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModNodesToremove.size() == removalNum));
     clock_t subModReverseEndTime = clock();
@@ -1674,7 +1657,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     }
 
     clock_t tGraphStartTime = clock();
-    tGraphNodesToremove = tGraphRemoveVertices(transposedGraph, influencedGraph, removeNodes, maxInfluenceSeed, activatedSet,
+    tGraphNodesToremove = tGraphRemoveVertices(transposedGraph, influencedGraph, removeNodes, maxInfluenceSeed,
+                                               activatedSet,
                                                "modular");
 
     clock_t tGraphEndTime = clock();
@@ -1698,7 +1682,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         subInfluencedGraph->setPropogationProbability(probability);
     }
     set<int> *removalModImpact = new set<int>();
-    set<int> subModNodesToremove = subModularNodesRemove(subInfluencedGraph, activatedSet, removeNodes, maxInfluenceSeed,
+    set<int> subModNodesToremove = subModularNodesRemove(subInfluencedGraph, activatedSet, removeNodes,
+                                                         maxInfluenceSeed,
                                                          removalModImpact);
     //delete subInfluencedGraph;
 

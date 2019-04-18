@@ -734,8 +734,6 @@ void Graph::calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize) {
     /*  Freeing up the memory
      * In C++ there is a very simple rule of thumb:
      * All memory is automatically freed when it runs out of scope unless it has been allocated manually.
-
-
 //    vector<vector<int>>().swap(dependancyMatrix);
 //    vector<vector<int>>().swap(miniRRGraph);
 //    vector<int>().swap(revMappedIndex);
