@@ -58,14 +58,20 @@ public:
     vector<bool> alreadyVisited;
     //vector<unordered_map<AS,vector<AS>>> AStree;
     //vector<AS> *match;
+
+    //Timings
+    double bfsTime = 0;
+    double matrixTime = 0;
+    double whileLoopTime = 0;
+
     
     vector<vector<int> > graph;
     vector<vector<int> > graphTranspose;
     vector<vector<int>> rrSets;
-    vector<unordered_map<int, int>> vertexToIndex;
-    vector<vector<int>> indexToVertex;
-    vector<vector<vector<int>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
-    vector<vector<int>> dependancyMatrix;
+
+    vector<unordered_map<int, int>*> vertexToIndex;
+    vector<vector<int>*> indexToVertex;
+    vector<vector<vector<int>>*> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
 
     vector<bool> labels;
     deque<int> q;
@@ -86,8 +92,11 @@ public:
     vector<unordered_map<int,unordered_set<int>>> pairAssociatedSet;
     vector<int> coverage;
 
-    void BFS(vector<vector<int>> &myGraph, int u, int rrSetSize, int vertexRemoved);
-    void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize);
+    void BFS(vector<vector<int>> &myGraph, vector<vector<int>>* dependancyMatrix, int u, int rrSetSize, int vertexRemoved);
+    void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
+    void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
+    void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
+    void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, const int randomVertex, const int rrSetID, const int rrSetSize, const vector<int> &visitedNodes, const unordered_map<int, int>* mappedIndex);
     void readGraph(string fileName,std::ofstream& resultLogFile);
     void readGraph(string fileName, float percentage,std::ofstream& resultLogFile);
     void writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m);
@@ -119,7 +128,6 @@ public:
     void generateRandomRRSetwithCountMod(int randomVertex, int rrSetID);
     void BFSonRRgraphs(int Rid,int rrSetID);
     void UpdateAssociatedSetMatrix(int rrSetID);
-    void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void clearRandomRRSets();
     vector<vector<int>>* getRandomRRSets();
     
