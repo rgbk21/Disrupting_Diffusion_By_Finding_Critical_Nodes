@@ -877,9 +877,9 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     vector<vector<int>>().swap(modImpactGraph->rrSets);
     vector<int>().swap(modImpactGraph->NodeinRRsetsWithCounts);
 
-    set<int> maxInfluenceSeed;
-    int maxInfluenceNum;
-    set<int> seedSet;
+    set<int> maxInfluenceSeed = set<int>();
+    int maxInfluenceNum = 0;
+    set<int> seedSet = set<int>();
 
     set<int> modseedSet = set<int>();
     set<int> subModseedSet = set<int>();
@@ -1102,9 +1102,9 @@ void computeDependencyValues(vector<int> &dependencyValues, Graph *influencedGra
     for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
         for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId]->size(); rowIdx++) {                   //for each row in the dependancyMatrix
             int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                            //find the vertex that was mapped to that index
-            for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {        //for each col in that row
+            for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {     //for each col in that row
 //                dependencyValues[vertex] += influencedGraph->dependancyVector[rrSetId][rowIdx][colIdx];               //Add the value to the existing dependencyValues of that vertex
-                dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];          //WARNING Check if this can be faster
+                dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];              //WARNING Check if this can be faster
             }
         }
     }
@@ -1174,23 +1174,25 @@ void removeFromDependencyVector(int node, Graph *influencedGraph, vector<pair<in
     cout << "Removing vertex: " << node << endl;
     vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
 
-    for(int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++){                                                            //for each RRSet in dependancyVector
-        unordered_map<int,int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(node);                                            //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
-        if(got !=  influencedGraph->vertexToIndex[rrSetId]->end()){
+    for(int i = 0; i < influencedGraph->inRRSet[node].size(); i++){                                                                                     //for each RRSet in inRRSet (each RRSet that contains node)
+        int rrSetId = influencedGraph->inRRSet[node][i];                                                                                                //get the next RRSet that the node to be removed is in
+        unordered_map<int,int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(node);                                               //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+        if(got !=  influencedGraph->vertexToIndex[rrSetId]->end()){                                                                                     //if vertex is found
             //WARNING: Seemingly both of these work. WHY?
-//            fill(influencedGraph->dependancyVector[rrSetId][got->second].begin(), influencedGraph->dependancyVector[rrSetId][got->second].end(), 0);//Replace all elements in the row with 0;
+//            fill(influencedGraph->dependancyVector[rrSetId][got->second].begin(), influencedGraph->dependancyVector[rrSetId][got->second].end(), 0);  //Replace all elements in the vertex row with 0;
             fill( (*influencedGraph->dependancyVector[rrSetId])[got->second].begin(), (*influencedGraph->dependancyVector[rrSetId])[got->second].end(), 0);
-            for(int row = 0; row < influencedGraph->dependancyVector[rrSetId]->size(); row++){
+            for(int row = 0; row < influencedGraph->dependancyVector[rrSetId]->size(); row++){                                                          //Replace all elements in the vertex column with 0;
 //                influencedGraph->dependancyVector[rrSetId][row][got->second] = 0;
-                influencedGraph->dependancyVector[rrSetId]->at(row).at(got->second)= 0;
+//                influencedGraph->dependancyVector[rrSetId]->at(row).at(got->second)= 0;
                 (* influencedGraph->dependancyVector[rrSetId])[row][got->second]= 0;
             }
+        }else{
+            assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
         }
     }
 
     //Recalculate the dependencyValues for each node
     computeDependencyValues(dependencyValues, influencedGraph, ASdegree);
-
 }
 
 void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> &subModNodesToremove, set<int> &alreadyinSeed) {
@@ -1202,7 +1204,9 @@ void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pa
             i++;
             subModNodesToremove.insert(node);
             subModNodesToRemoveUnsorted.push_back(node);
-            removeFromDependencyVector(node, influencedGraph, ASdegree);
+            if(i < (removeNodes)){//Dont call if final vertex to be removed has been found
+                removeFromDependencyVector(node, influencedGraph, ASdegree);
+            }
             index = 0;
         } else {
             alreadyinSeed.insert(node);
@@ -1284,6 +1288,7 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
 
     }
 
+    cout << endl;
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
     int subModStrength = 0;
     for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
@@ -1301,9 +1306,15 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     myfile << influencedGraph->totalNumNodesInRRSets << " <-Recalculated Init Strength\n";
     myfile << subModStrength << " <-subModStrength\n";
     double totalAlgorithmTime = double(subModReverseEndTime - subModReverseStartTime) / (CLOCKS_PER_SEC * 60);
-    cout << "\n Reverse submodular algorithm time in minutes " << totalAlgorithmTime << endl;
+    cout << "\nReverse submodular algorithm time in minutes " << totalAlgorithmTime << endl;
     cout << "Breakup of time taken: " << endl;
+    cout << "Total time taken by randomNumGenerator: " << influencedGraph->randomNumGen/(CLOCKS_PER_SEC * 60) << endl;
     cout << "Total time taken by outer while Loop: " << influencedGraph->whileLoopTime/(CLOCKS_PER_SEC * 60) << endl;
+    cout << endl;
+    cout << "Breakup of time taken by outer while Loop: " << endl;
+    cout << "Total time taken by initialization: " << influencedGraph->initTime/(CLOCKS_PER_SEC * 60) << endl;
+    cout << "Total time taken by only the loop: " << influencedGraph->onlyLoopTime/(CLOCKS_PER_SEC * 60) << endl;
+    cout << endl;
     cout << "Total time taken by calcDependancyMatrix(): " << influencedGraph->matrixTime/(CLOCKS_PER_SEC * 60) << endl;
     cout << "Total time taken by BFS(): " << influencedGraph->bfsTime/(CLOCKS_PER_SEC * 60) << endl;
     resultLogFile << "\n Reverse submodular algorithm time in minutes " << totalAlgorithmTime;

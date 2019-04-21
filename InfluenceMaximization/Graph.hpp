@@ -60,9 +60,17 @@ public:
     //vector<AS> *match;
 
     //Timings
+    clock_t randomGenStart;
+    clock_t outerWhileLoopStart;
+    clock_t endOfInit;
+    clock_t matrixStart;
+    clock_t bfsStart;
     double bfsTime = 0;
     double matrixTime = 0;
     double whileLoopTime = 0;
+    double initTime = 0;
+    double onlyLoopTime = 0;
+    double randomNumGen = 0;
 
     
     vector<vector<int> > graph;
@@ -83,6 +91,8 @@ public:
     vector<int> timesThisNodeWasPicked;//Stores the no. of times this node was picked as Random Vertex
     vector<int> outdegreeReducedFor;//Stores the reduction in outdegree for each node in 1 iteration of removeVertexFromRRassociatedGraph()
     vector<vector<int>> RRgraph;
+    vector<vector<int>> miniRRGraph = vector<vector<int>>();//Stores the RRGraph but with mappedVertices instead of original vertices
+    vector<vector<int>> inRRSet;//inRRSet contains the RRSetIds of the RRSets in which this vertex occurs
 
     vector<int> outdegree;
     priority_queue<pair<int,int>,vector<pair<int,int>>,CompareOutdegree> workQueue;
@@ -96,7 +106,7 @@ public:
     void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
-    void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, const int randomVertex, const int rrSetID, const int rrSetSize, const vector<int> &visitedNodes, const unordered_map<int, int>* mappedIndex);
+    void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, const int randomVertex, const int rrSetID, const int rrSetSize, const unordered_map<int, int>* mappedIndex);
     void readGraph(string fileName,std::ofstream& resultLogFile);
     void readGraph(string fileName, float percentage,std::ofstream& resultLogFile);
     void writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m);
@@ -109,7 +119,7 @@ public:
     void writeLabels(std::ofstream& resultLogFile);
     void setLabels(vector<bool> labels, float percentageTargets);
     void removeVertexFromRRassociatedGraph(int vertex);
-    void printVector(const vector<int> myVector);
+    void printVector(const vector<int> &myVector);
     //Numbers
     int getNumberOfVertices();
     int getNumberOfEdges();
@@ -143,7 +153,7 @@ public:
     void removeNodeFromRRset(int v);
     void removeSetFromASmatrix(int row, int vertex, int rrSetID);
     void addSetintoASmatrix(int row, int vertex, int rrSetID);
-    void print2DVector(const vector <vector<int>> myVector);
+    void print2DVector(const vector <vector<int>> &myVector);
     void assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre, int totalEdgesInTransGraphPre);
 };
 
