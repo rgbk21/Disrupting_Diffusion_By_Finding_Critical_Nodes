@@ -372,7 +372,6 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> maxSeedSet, vec
     int numEdgesAtStart = influencedGraph->m;
     int totalNumEdgesToDelete = 0;
 
-
     for (int nodeToRemove:nodesToRemove) {
 
         int totalEdgesInTransGraphPre = 0;
@@ -431,7 +430,7 @@ removeVertices(Graph *influencedGraph, int removeNodes, set<int> maxSeedSet, vec
     return nodesToRemove;
 }
 
-set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, int removeNodes, set<int> maxSeedSet,
+set<int> tGraphRemoveVertices(Graph* transposedGraph, Graph *influencedGraph, int removeNodes, set<int> maxSeedSet,
                               vector<int> activatedSet, string modular) {
 
     bool tshoot = true;
@@ -557,7 +556,6 @@ set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, in
 
     }
 
-
     //Note: Edges will be removed from the original graph. Not the transposedGraph that we were using so far
 
     unique_ptr<Graph> originalGraphForTGraph = make_unique<Graph>();
@@ -608,7 +606,7 @@ set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, in
         assert(("Divergence betn something", totalNumOfEdges == numEdgesAtStart - totalNumEdgesToDelete));
     }
 
-    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    cout << "\nNumber of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
     cout << "Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: " << endl;
     myfile << "Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: "
@@ -629,7 +627,9 @@ set<int> tGraphRemoveVertices(Graph *transposedGraph, Graph *influencedGraph, in
     cout << "\nTransposed Graph end here" << endl;
 
     vector<vector<int>>().swap(transposedGraph->rrSets);
+    vector<int>().swap(transposedGraph->NodeinRRsetsWithCounts);
     vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+    vector<int>().swap(influencedGraph->initialNodeinRRsetsWithCounts);
 
     return tGraphNodesToRemove;
 }
@@ -1095,19 +1095,10 @@ void newDiffusion(Graph *newGraph, Graph *subNewGraph, Graph *modImpactGraph, Gr
     delete SeedClass;
 }
 
-void computeDependencyValues(vector<int> &dependencyValues, Graph *influencedGraph, vector<pair<int, int>> &ASdegree){
+//reComputeDependencyValues: dont have to redo all the computation from scratch
+void reComputeDependencyValues(vector<int> &dependencyValues, Graph *influencedGraph, vector<pair<int, int>> &ASdegree){
 
-    cout << "Recalculating Dependency Values" << endl;
-
-    for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
-        for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId]->size(); rowIdx++) {                   //for each row in the dependancyMatrix
-            int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                            //find the vertex that was mapped to that index
-            for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {     //for each col in that row
-//                dependencyValues[vertex] += influencedGraph->dependancyVector[rrSetId][rowIdx][colIdx];               //Add the value to the existing dependencyValues of that vertex
-                dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];              //WARNING Check if this can be faster
-            }
-        }
-    }
+    cout << "ReCalculating Dependency Values" << endl;
 
     ASdegree = vector<pair<int, int>>();//Because we are recalculating the dependency values, we need to initialise ASdegree to empty again
     for (int i = 0; i < dependencyValues.size(); i++) {
@@ -1121,12 +1112,37 @@ void computeDependencyValues(vector<int> &dependencyValues, Graph *influencedGra
     assert(ASdegree.at(0).second >= ASdegree.at(1).second);
 }
 
+void computeDependencyValues(vector<int> &dependencyValues, Graph *influencedGraph, vector<pair<int, int>> &ASdegree){
+
+    cout << "Calculating Dependency Values" << endl;
+
+    for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
+        for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId]->size(); rowIdx++) {                   //for each row in the dependancyMatrix
+            int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                            //find the vertex that was mapped to that index
+            for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {     //for each col in that row
+//                dependencyValues[vertex] += influencedGraph->dependancyVector[rrSetId][rowIdx][colIdx];               //Add the value to the existing dependencyValues of that vertex
+                dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];              //WARNING Check if this can be faster
+            }
+        }
+    }
+
+    ASdegree = vector<pair<int, int>>();
+    for (int i = 0; i < dependencyValues.size(); i++) {
+        pair<int, int> node = pair<int, int>();
+        node.first = i;
+        node.second = dependencyValues[i];
+        ASdegree.push_back(node);
+    }
+
+    std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
+    assert(ASdegree.at(0).second >= ASdegree.at(1).second);
+}
+
 void
-computeModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> *removalModImpact) {
+computeModImpactNodes(Graph *influencedGraph, int removeNodes, vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> *removalModImpact) {
 
     set<int> alreadyinSeed = set<int>();
     ASdegree = vector<pair<int, int>>();
-    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
 
     computeDependencyValues(dependencyValues, influencedGraph, ASdegree);
 
@@ -1161,7 +1177,7 @@ computeModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, 
 }
 
 //node is the vertex being deleted from all of the dependencyMatrices
-void removeFromDependencyVector(int node, Graph *influencedGraph, vector<pair<int,int>> &ASdegree){
+void removeFromDependencyVector(int node, Graph *influencedGraph, vector<int> &dependencyValues, vector<pair<int,int>> &ASdegree){
 
     /*Update the dependencyVector datastructure
      *
@@ -1172,7 +1188,7 @@ void removeFromDependencyVector(int node, Graph *influencedGraph, vector<pair<in
      */
 
     cout << "Removing vertex: " << node << endl;
-    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
+//    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
 
     for(int i = 0; i < influencedGraph->inRRSet[node].size(); i++){                                                                                     //for each RRSet in inRRSet (each RRSet that contains node)
         int rrSetId = influencedGraph->inRRSet[node][i];                                                                                                //get the next RRSet that the node to be removed is in
@@ -1184,18 +1200,24 @@ void removeFromDependencyVector(int node, Graph *influencedGraph, vector<pair<in
             for(int row = 0; row < influencedGraph->dependancyVector[rrSetId]->size(); row++){                                                          //Replace all elements in the vertex column with 0;
 //                influencedGraph->dependancyVector[rrSetId][row][got->second] = 0;
 //                influencedGraph->dependancyVector[rrSetId]->at(row).at(got->second)= 0;
-                (* influencedGraph->dependancyVector[rrSetId])[row][got->second]= 0;
+
+                if((*influencedGraph->dependancyVector[rrSetId])[row][got->second] == 1){
+                    (*influencedGraph->dependancyVector[rrSetId])[row][got->second]= 0;
+                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[row]] -= 1;
+                }
+
             }
         }else{
             assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
         }
     }
 
-    //Recalculate the dependencyValues for each node
-    computeDependencyValues(dependencyValues, influencedGraph, ASdegree);
+    dependencyValues[node] = 0;                                                 //Set the value to be 0 manually because we are using reComputeDependencyValues() and not computeDependencyValues() now.
+    reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
+
 }
 
-void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> &subModNodesToremove, set<int> &alreadyinSeed) {
+void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet, set<int> &subModNodesToremove, set<int> &alreadyinSeed) {
 
     int index = 0;
     for (int i = 0; i < removeNodes;) {
@@ -1204,8 +1226,8 @@ void computeSubModImpactNodes(Graph *influencedGraph, int removeNodes, vector<pa
             i++;
             subModNodesToremove.insert(node);
             subModNodesToRemoveUnsorted.push_back(node);
-            if(i < (removeNodes)){//Dont call if final vertex to be removed has been found
-                removeFromDependencyVector(node, influencedGraph, ASdegree);
+            if(i < removeNodes){//Dont call if final vertex to be removed has been found
+                removeFromDependencyVector(node, influencedGraph, dependencyValues, ASdegree);
             }
             index = 0;
         } else {
@@ -1228,6 +1250,7 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     set<int> subModNodesToremove;
     vector<pair<int, int>> ASdegree;
     int removalNum = removeNodes;
+    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
 
     //Random RR sets
     int n = (int) activatedSet.size();
@@ -1238,7 +1261,7 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
     influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
 
     cout << "\nComputing nodes to remove by the Mod Impact method" << endl;
-    computeModImpactNodes(influencedGraph, removeNodes, ASdegree, maxSeedSet, removalModImpact);
+    computeModImpactNodes(influencedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, removalModImpact);
 
 
     clock_t ModImpactEndTime = clock();
@@ -1252,7 +1275,7 @@ set<int> subModularNodesRemove(Graph *influencedGraph, vector<int> activatedSet,
 
     cout << "******* Running SubMod approach ********" << endl;
     alreadyinSeed = set<int>();
-    computeSubModImpactNodes(influencedGraph, removeNodes, ASdegree, maxSeedSet, subModNodesToremove, alreadyinSeed);
+    computeSubModImpactNodes(influencedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, subModNodesToremove, alreadyinSeed);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModNodesToremove.size() == removalNum));
     clock_t subModReverseEndTime = clock();
@@ -1641,6 +1664,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     }
 
 
+    //******************************************************************************************************************
+
     //get node to be removed
     set<int> modNodesToremove;
     cout << "\n ******* Running modular approach ******** \n" << flush;
@@ -1663,7 +1688,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     set<int> tGraphNodesToremove;
 
     //Read the graph from the file and create the Graph object for the TransposedGraph
-    Graph *transposedGraph = new Graph;
+    Graph* transposedGraph = new Graph;
 
 //    unique_ptr<Graph> transposedGraph = make_unique<Graph>();
     transposedGraph->readGraph(nameOfTheGraph, percentageTargetsFloat, resultLogFile);
@@ -1706,6 +1731,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                                                          maxInfluenceSeed,
                                                          removalModImpact);
     //delete subInfluencedGraph;
+
+    //******************************************************************************************************************
 
     cout << "\n \n******* Node removed in all four approaches ******** \n" << flush;
     resultLogFile << "\n \n******* Node removed in all four approaches ******** \n" << flush;

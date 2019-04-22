@@ -497,7 +497,9 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     //for mod influence
     if (modular == "modular") {
         NodeinRRsetsWithCounts = vector<int>(n, 0);
+        labels = vector<bool>(n, true);
         if (activatedSet.size() == 0) {
+            assert(("NOPE!NOPE!NOPE!", false));
             for (int i = 0; i < R; i++) {
                 int randomVertex;
                 randomVertex = rand() % n;
@@ -548,6 +550,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         indexToVertex = vector<vector<int> *>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
+        labels = vector<bool>(n, true);
         //Datastructures being used in the code:
         /* Datstructures:
          *
@@ -616,6 +619,144 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     resultLogFile << "\n Average size is " << (float) totalSize / (float) R;
 }
 
+
+
+
+void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID) {
+
+    outerWhileLoopStart = clock();
+
+    q.clear();
+    int nVisitMark = 0;
+    int vertexCount = 0;//vertexCount Counts the number of unique vertices seen in the loop
+
+    //mappedIndex: Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+    unordered_map<int, int> *mappedIndex = new unordered_map<int, int>();
+    mappedIndex->reserve(8);//Reserve the memory size to be sth around average RRSetSize to prevent rehashing
+
+    //revMappedIndex: Trying to map - index 0 contains 24 means that index 0 corresponds to vertex 24
+    vector<int> *revMappedIndex = new vector<int>();
+
+    rrSets[rrSetID].push_back(randomVertex);
+    inRRSet[randomVertex].push_back(rrSetID);
+    q.push_back(randomVertex);
+    visitMark[nVisitMark++] = randomVertex;
+    visited[randomVertex] = true;
+
+    mappedIndex->insert(make_pair(randomVertex, vertexCount++));
+    (*revMappedIndex).push_back(randomVertex);
+
+    endOfInit = clock();
+    initTime += (endOfInit - outerWhileLoopStart);
+
+    //Simultaneously creating RRGraph and miniRRGraph
+    int v;
+    int expand;
+    while (!q.empty()) {
+        expand = q.front();
+        q.pop_front();
+        miniRRGraph.emplace_back(vector<int>());
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            v = graphTranspose[expand][j];
+            if (!labels[v]){
+                assert(("label was false_Interleaved? Why?", false));
+                continue;
+            }
+            if (!this->flipCoinOnEdge(v, expand)){
+                continue;
+            }
+
+            if (visited[v]) {
+                miniRRGraph[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                continue;
+            }
+
+            if (!visited[v]) {
+                visitMark[nVisitMark++] = v;
+                visited[v] = true;
+                mappedIndex->insert(make_pair(v, vertexCount++));
+                (*revMappedIndex).push_back(v);
+                miniRRGraph[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                inRRSet[v].push_back(rrSetID);
+            }
+            q.push_back(v);
+            rrSets[rrSetID].push_back(v);
+        }
+    }
+
+    vertexToIndex[rrSetID] = mappedIndex;
+    indexToVertex[rrSetID] = revMappedIndex;
+
+    matrixStart = clock();
+    whileLoopTime += (matrixStart - outerWhileLoopStart);
+    onlyLoopTime += (matrixStart - endOfInit);
+
+    calcDependancyMatrix_Interleaved(miniRRGraph, randomVertex, rrSetID, rrSets[rrSetID].size(),
+                                     mappedIndex);
+    matrixTime += (clock() - matrixStart);
+
+    //Freeing and clearing the memory
+    vector<vector<int>>().swap(miniRRGraph);
+    for (int i = 0; i < nVisitMark; i++) {
+        visited[visitMark[i]] = false;
+        visitMark[i] = -1;//WARNING-Doing this because I want to check if this node is ever visited. Code should crash and burn.
+    }
+
+}
+
+void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph,
+                                             const int randomVertex, const int rrSetID,
+                                             const int rrSetSize,
+                                             const unordered_map<int, int>* mappedIndex) {
+
+    //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
+    vector<vector<int>> *dependancyMatrix = new vector<vector<int>>(rrSetSize, vector<int>(rrSetSize,1));   //Initialize matrix to contain all 1s initially
+
+    int vertexRemoved = 0;
+    vector<vector<int>> myGraph;
+    for (int i = 0; i < rrSetSize; i++) {                                                                   //for every vertex u in the RRGraph
+        vertexRemoved = mappedIndex->at(rrSets[rrSetID][i]);
+        if (vertexRemoved != mappedIndex->at(randomVertex)) {                                               //if u != randomVertex
+            myGraph = miniRRGraph;
+            myGraph[vertexRemoved].clear();                                                                 //Remove u and all its outgoing edges from the graph
+
+            bfsStart = clock();
+            BFS(myGraph, dependancyMatrix, mappedIndex->at(randomVertex), rrSetSize, vertexRemoved);        //Do a BFS on the resulting graph starting from the randomVertex
+            bfsTime += (clock() - bfsStart);
+        }
+    }
+
+    dependancyVector[rrSetID] = dependancyMatrix;
+}
+
+
+//myGraph is the graph on which you want to perform the BFS.
+//All the outgoing edges from the removedVertex have been removed in this graph
+//startVertex is the vertex from which you want to start the BFS
+void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<int>> *dependancyMatrix, int startVertex, int rrSetSize,
+                int vertexRemoved) {
+
+    vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
+    deque<int> queue;                                               //Create a queue for BFS
+    visitedBFS[startVertex] = true;                                 //Mark the current node as visited
+    queue.push_back(startVertex);                                   //And add it to the queue
+    (*dependancyMatrix)[vertexRemoved][startVertex] = 0;
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++) {
+            int v = myGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if (vertexRemoved != v) {                           //Because reachability of vertexRemoved will depend on itself
+                    (*dependancyMatrix)[vertexRemoved][v] = 0;      //Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+}
 
 //********** Function only for the influenced graph ********
 void Graph::generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID) {
@@ -742,132 +883,40 @@ void Graph::calcDependancyMatrix(const int randomVertex, const int rrSetID, cons
      */
 }
 
-void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID) {
-
-    outerWhileLoopStart = clock();
-
+//********** Function only for the influenced graph with modular property********
+void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
+    NodeinRRsetsWithCounts[randomVertex]++;
     q.clear();
-    int nVisitMark = 0;
-    int vertexCount = 0;//vertexCount Counts the number of unique vertices seen in the loop
-
-    //mappedIndex: Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
-    unordered_map<int, int> *mappedIndex = new unordered_map<int, int>();
-    mappedIndex->reserve(8);//Reserve the memory size to be sth around average RRSetSize to prevent rehashing
-
-    //revMappedIndex: Trying to map - index 0 contains 24 means that index 0 corresponds to vertex 24
-    vector<int> *revMappedIndex = new vector<int>();
-
     rrSets[rrSetID].push_back(randomVertex);
-    inRRSet[randomVertex].push_back(rrSetID);
     q.push_back(randomVertex);
+    int nVisitMark = 0;
     visitMark[nVisitMark++] = randomVertex;
     visited[randomVertex] = true;
-
-    mappedIndex->insert(make_pair(randomVertex, vertexCount++));
-    (*revMappedIndex).push_back(randomVertex);
-
-    endOfInit = clock();
-    initTime += (endOfInit - outerWhileLoopStart);
-
-    //Simultaneously creating RRGraph and miniRRGraph
     while (!q.empty()) {
         int expand = q.front();
         q.pop_front();
-        miniRRGraph.emplace_back(vector<int>());
         for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
             int v = graphTranspose[expand][j];
-            if (!labels[v])
-                continue;
-            if (!this->flipCoinOnEdge(v, expand))
-                continue;
-
-            if (visited[v]) {
-                miniRRGraph[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+            if (!labels[v]){
+                assert(("label was false? Why?", false));
                 continue;
             }
-
+            if (!this->flipCoinOnEdge(v, expand))
+                continue;
+            if (visited[v])
+                continue;
             if (!visited[v]) {
                 visitMark[nVisitMark++] = v;
                 visited[v] = true;
-                mappedIndex->insert(make_pair(v, vertexCount++));
-                (*revMappedIndex).push_back(v);
-                miniRRGraph[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
-                inRRSet[v].push_back(rrSetID);
             }
             q.push_back(v);
             rrSets[rrSetID].push_back(v);
+
+            NodeinRRsetsWithCounts[v]++;
         }
     }
-
-    vertexToIndex[rrSetID] = mappedIndex;
-    indexToVertex[rrSetID] = revMappedIndex;
-
-    matrixStart = clock();
-    whileLoopTime += (matrixStart - outerWhileLoopStart);
-    onlyLoopTime += (matrixStart - endOfInit);
-
-    calcDependancyMatrix_Interleaved(miniRRGraph, randomVertex, rrSetID, rrSets[rrSetID].size(),
-                                     mappedIndex);
-    matrixTime += (clock() - matrixStart);
-
-    //Freeing and clearing the memory
-    vector<vector<int>>().swap(miniRRGraph);
     for (int i = 0; i < nVisitMark; i++) {
         visited[visitMark[i]] = false;
-        visitMark[i] = -1;//WARNING-Doing this because I want to check if this node is ever visited. Code should crash and burn.
-    }
-
-}
-
-void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph,
-                                             const int randomVertex, const int rrSetID,
-                                             const int rrSetSize,
-                                             const unordered_map<int, int> *mappedIndex) {
-
-    //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
-    vector<vector<int>> *dependancyMatrix = new vector<vector<int>>(rrSetSize, vector<int>(rrSetSize,1));   //Initialize matrix to contain all 1s initially
-
-    for (int i = 0; i < rrSetSize; i++) {                                                                   //for every vertex u in the RRGraph
-        int vertexRemoved = mappedIndex->at(rrSets[rrSetID][i]);
-        if (vertexRemoved != mappedIndex->at(randomVertex)) {                                               //if u != randomVertex
-            vector<vector<int>> myGraph = miniRRGraph;
-            myGraph[vertexRemoved].clear();                                                                 //Remove u and all its outgoing edges from the graph
-
-            bfsStart = clock();
-            BFS(myGraph, dependancyMatrix, mappedIndex->at(randomVertex), rrSetSize, vertexRemoved);        //Do a BFS on the resulting graph starting from the randomVertex
-            bfsTime += (clock() - bfsStart);
-        }
-    }
-
-    dependancyVector[rrSetID] = dependancyMatrix;
-}
-
-
-//myGraph is the graph on which you want to perform the BFS.
-//All the outgoing edges from the removedVertex have been removed in this graph
-//startVertex is the vertex from which you want to start the BFS
-void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<int>> *dependancyMatrix, int startVertex, int rrSetSize,
-                int vertexRemoved) {
-
-    vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
-    deque<int> queue;                                               //Create a queue for BFS
-    visitedBFS[startVertex] = true;                                 //Mark the current node as visited
-    queue.push_back(startVertex);                                   //And add it to the queue
-    (*dependancyMatrix)[vertexRemoved][startVertex] = 0;
-
-    while (!queue.empty()) {
-        int u = queue.front();
-        queue.pop_front();
-        for (int i = 0; i < myGraph[u].size(); i++) {
-            int v = myGraph[u][i];
-            if (!visitedBFS[v]) {
-                visitedBFS[v] = true;
-                queue.push_back(v);
-                if (vertexRemoved != v) {                           //Because reachability of vertexRemoved will depend on itself
-                    (*dependancyMatrix)[vertexRemoved][v] = 0;      //Since v was still reachable after removing vertexRemoved.
-                }
-            }
-        }
     }
 }
 
@@ -942,40 +991,7 @@ void Graph::BFSonRRgraphs(int randomVertex, int rrSetID) {
 }
 
 
-//********** Function only for the influenced graph with modular property********
-void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
-    NodeinRRsetsWithCounts[randomVertex]++;
-    q.clear();
-    rrSets[rrSetID].push_back(randomVertex);
-    q.push_back(randomVertex);
-    int nVisitMark = 0;
-    visitMark[nVisitMark++] = randomVertex;
-    visited[randomVertex] = true;
-    while (!q.empty()) {
-        int expand = q.front();
-        q.pop_front();
-        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
-            int v = graphTranspose[expand][j];
-            if (!labels[v])
-                continue;
-            if (!this->flipCoinOnEdge(v, expand))
-                continue;
-            if (visited[v])
-                continue;
-            if (!visited[v]) {
-                visitMark[nVisitMark++] = v;
-                visited[v] = true;
-            }
-            q.push_back(v);
-            rrSets[rrSetID].push_back(v);
 
-            NodeinRRsetsWithCounts[v]++;
-        }
-    }
-    for (int i = 0; i < nVisitMark; i++) {
-        visited[visitMark[i]] = false;
-    }
-}
 
 //********** Function only for the influenced graph ********
 void Graph::generateRandomRRSetwithCount(int randomVertex, int rrSetID) {
