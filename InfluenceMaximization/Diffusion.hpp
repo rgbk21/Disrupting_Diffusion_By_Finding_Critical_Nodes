@@ -17,6 +17,7 @@
 #include "TIM-Models/TIMCoverage.hpp"
 #include <assert.h>
 #include <unordered_map>
+#include <memory>
 
 #include "Graph.hpp"
 using namespace std;
@@ -289,7 +290,7 @@ inline pair<pair<int, int>, set<int>> findActivatedSetAndInfluenceUsingDiffusion
     return make_pair(make_pair(targetsActivated, nonTargetsActivated), activated);
 }
 
-inline int oldNewIntersection(Graph *newGraph, set<int> seedSet,vector<int> activatedSet,std::ofstream& resultLogFile){
+inline int oldNewIntersection(unique_ptr<Graph> &newGraph, set<int> seedSet,vector<int> activatedSet,std::ofstream& resultLogFile){
     //again diffusion on old graph after node removal
    // vector<int> NewactivatedSet=performDiffusion(newGraph,seedSet,NULL);
 
@@ -319,7 +320,7 @@ inline int oldNewIntersection(Graph *newGraph, set<int> seedSet,vector<int> acti
     //cout << "\n Old Targets activated = " << activatedSet.size();
     //cout << "\n New Targets activated = " << NewactivatedSet.size();
     
-     cout << "\nNew Targets activated = " << diffusionNum;
+     cout << "\nNew Targets activated = " << diffusionNum << endl;
     resultLogFile<< "\nNew Targets activated = " << diffusionNum;
     //cout << "\n intersection size "<<intersect.size();
     //cout << "\n Percentage of intersect with old " <<double((intersect.size()*100)/activatedSet.size())<<"%";

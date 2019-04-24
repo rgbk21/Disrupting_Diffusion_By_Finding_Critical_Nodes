@@ -49,7 +49,7 @@ int Graph::getPropogationProbabilityNumber() {
     return this->propogationProbabilityNumber;
 }
 
-int Graph::generateRandomNumber(int u, int v) {
+int Graph::generateRandomNumber(int u, int expand) {
 
     int randomNumberLimit;
 
@@ -60,7 +60,7 @@ int Graph::generateRandomNumber(int u, int v) {
     if (this->standardProbability) {
         randomNumberLimit = this->propogationProbabilityNumber;
     } else {
-        randomNumberLimit = inDegree[v];
+        randomNumberLimit = inDegree[expand];
     }
     return rand() % randomNumberLimit;
 //    return distr(eng) % randomNumberLimit;
@@ -605,11 +605,11 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     clock_t end = clock();
 
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-    cout << "\n Generated reverse: " << R << " RR sets" << endl;
+    cout << "\nGenerated reverse: " << R << " RR sets" << endl;
     cout << "Elapsed time: " << elapsed_secs << endl;
-    cout << " Time per RR Set is: " << elapsed_secs / R << endl;
+    cout << "Time per RR Set is: " << elapsed_secs / R << endl;
     cout << "Total Size is: " << totalSize << endl;
-    cout << "\n Average size is: " << (float) totalSize / (float) R;
+    cout << "\nAverage size is: " << (float) totalSize / (float) R << endl;
 
 
     resultLogFile << "\n Generated reverse" << R << " RR sets\n";
@@ -885,6 +885,7 @@ void Graph::calcDependancyMatrix(const int randomVertex, const int rrSetID, cons
 
 //********** Function only for the influenced graph with modular property********
 void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
+
     NodeinRRsetsWithCounts[randomVertex]++;
     q.clear();
     rrSets[rrSetID].push_back(randomVertex);
