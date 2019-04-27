@@ -545,7 +545,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         alreadyVisited = vector<bool>(n, false);
         RRgraph = vector<vector<int>>(n);
         outdegree = vector<int>(n, n);
-        dependancyVector = vector<vector<vector<int>> *>(R);
+        dependancyVector = vector<vector<vector<bool>> *>(R);
         vertexToIndex = vector<unordered_map<int, int> *>(R);
         indexToVertex = vector<vector<int> *>(R);
         visitMark = vector<int>(n);
@@ -710,7 +710,7 @@ void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGr
                                              const unordered_map<int, int>* mappedIndex) {
 
     //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
-    vector<vector<int>> *dependancyMatrix = new vector<vector<int>>(rrSetSize, vector<int>(rrSetSize,1));   //Initialize matrix to contain all 1s initially
+    vector<vector<bool>> *dependancyMatrix = new vector<vector<bool>>(rrSetSize, vector<bool>(rrSetSize,true));   //Initialize matrix to contain all 1s initially
 
     int vertexRemoved = 0;
     vector<vector<int>> myGraph;
@@ -733,14 +733,14 @@ void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGr
 //myGraph is the graph on which you want to perform the BFS.
 //All the outgoing edges from the removedVertex have been removed in this graph
 //startVertex is the vertex from which you want to start the BFS
-void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<int>> *dependancyMatrix, int startVertex, int rrSetSize,
+void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<bool>> *dependancyMatrix, int startVertex, int rrSetSize,
                 int vertexRemoved) {
 
     vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
     deque<int> queue;                                               //Create a queue for BFS
     visitedBFS[startVertex] = true;                                 //Mark the current node as visited
     queue.push_back(startVertex);                                   //And add it to the queue
-    (*dependancyMatrix)[vertexRemoved][startVertex] = 0;
+    (*dependancyMatrix)[vertexRemoved][startVertex] = false;
 
     while (!queue.empty()) {
         int u = queue.front();
@@ -750,8 +750,8 @@ void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<int>> *dependancyMat
             if (!visitedBFS[v]) {
                 visitedBFS[v] = true;
                 queue.push_back(v);
-                if (vertexRemoved != v) {                           //Because reachability of vertexRemoved will depend on itself
-                    (*dependancyMatrix)[vertexRemoved][v] = 0;      //Since v was still reachable after removing vertexRemoved.
+                if (vertexRemoved != v) {                               //Because reachability of vertexRemoved will depend on itself
+                    (*dependancyMatrix)[vertexRemoved][v] = false;      //Since v was still reachable after removing vertexRemoved.
                 }
             }
         }
@@ -856,7 +856,7 @@ void Graph::calcDependancyMatrix(const int randomVertex, const int rrSetID, cons
     }
 
     //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
-    vector<vector<int>> *dependancyMatrix = new vector<vector<int>>(rrSetSize, vector<int>(rrSetSize, 1));//Initialize matrix to contain all 1s initially
+    vector<vector<bool>> *dependancyMatrix = new vector<vector<bool>>(rrSetSize, vector<bool>(rrSetSize, true));//Initialize matrix to contain all 1s initially
 
     for (int i = 0; i < rrSetSize; i++) {                                                                 //for every vertex u in the RRGraph
         int vertexRemoved = mappedIndex->at(rrSets[rrSetID][i]);

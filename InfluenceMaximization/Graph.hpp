@@ -79,7 +79,7 @@ public:
 
     vector<unordered_map<int, int>*> vertexToIndex;
     vector<vector<int>*> indexToVertex;
-    vector<vector<vector<int>>*> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
+    vector<vector<vector<bool>>*> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
 
     vector<bool> labels;
     deque<int> q;
@@ -102,7 +102,7 @@ public:
     vector<unordered_map<int,unordered_set<int>>> pairAssociatedSet;
     vector<int> coverage;
 
-    void BFS(vector<vector<int>> &myGraph, vector<vector<int>>* dependancyMatrix, int u, int rrSetSize, int vertexRemoved);
+    void BFS(vector<vector<int>> &myGraph, vector<vector<bool>>* dependancyMatrix, int u, int rrSetSize, int vertexRemoved);
     void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);

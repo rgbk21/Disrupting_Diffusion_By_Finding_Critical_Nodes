@@ -56,12 +56,13 @@ int initialSeed;
 int newSeed;
 int diffusion;
 ofstream myfile;
+ofstream dependValues;
 bool fullgraph = false;
 ofstream resultLogFile;
 
 //Variables for experimenting
 bool useMaxSeed = true;//Applicable if someCondition = false. Set to false if using random Seed for diffusion instead of using maxSeed => Experiment 3
-bool someCondition = false;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
+bool someCondition = true;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
 bool useRandomSeed  = false;//Set to true if using random Seed instead of max Seed as the initial seed BEFORE finding the vertices to be removed
 
 //These are my global variables for testing
@@ -1145,24 +1146,28 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
             cout << "\n" << k <<" - Mod Results: " << endl;
             resultLogFile << "\nMod Results: " << endl;
             infNum = oldNewIntersection(newGraph, modseedSet, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(newGraph->rrSets);
             modResults.push_back(infNum);
             myfile << infNum << " ";
 
             cout << "\n" << k << " - Sub Mod Results: " << endl;
             resultLogFile << "\nSub Mod Results: " << endl;
             infNum = oldNewIntersection(subNewGraph, subModseedSet, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(subNewGraph->rrSets);
             SubmodResults.push_back(infNum);
             myfile << infNum << " ";
 
             cout << "\n" << k << " - Mod Impact Results: " << endl;
             resultLogFile << "\nMod Impact Results: " << endl;
             infNum = oldNewIntersection(modImpactGraph, modImpactseedSet, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(modImpactGraph->rrSets);
             modImpactResults.push_back(infNum);
             myfile << infNum << " ";
 
             cout << "\n" << k << " - Transposed Graph Results: " << endl;
             resultLogFile << "\nTransposed Graph Results" << endl;
             infNum = oldNewIntersection(tGraph, tGraphSeedSet, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(tGraph->rrSets);
             tGraphResults.push_back(infNum);
             myfile << infNum << "\n";
 
@@ -1186,6 +1191,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
 //reComputeDependencyValues: dont have to redo all the computation from scratch
 void reComputeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> &influencedGraph, vector<pair<int, int>> &ASdegree){
 
+    bool tshoot = true;//Prints values to file
     cout << "ReCalculating Dependency Values" << endl;
 
     ASdegree = vector<pair<int, int>>();//Because we are recalculating the dependency values, we need to initialise ASdegree to empty again
@@ -1194,14 +1200,19 @@ void reComputeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> 
         node.first = i;
         node.second = dependencyValues[i];
         ASdegree.push_back(node);
+        if(tshoot){
+            dependValues << dependencyValues[i] << endl;
+        }
     }
 
+    dependValues << "---------------------------------------" << endl;
     std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
     assert(ASdegree.at(0).second >= ASdegree.at(1).second);
 }
 
 void computeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> &influencedGraph, vector<pair<int, int>> &ASdegree){
 
+    bool tshoot = true;//prints values to file
     cout << "Calculating Dependency Values" << endl;
 
     for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
@@ -1209,7 +1220,11 @@ void computeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> &i
             int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                            //find the vertex that was mapped to that index
             for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {     //for each col in that row
 //                dependencyValues[vertex] += influencedGraph->dependancyVector[rrSetId][rowIdx][colIdx];               //Add the value to the existing dependencyValues of that vertex
-                dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];              //WARNING Check if this can be faster
+                if((*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx]){
+                    dependencyValues[vertex] += 1;
+                }
+                //dependencyValues[vertex] += (*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx];              //WARNING Check if this can be faster
+
             }
         }
     }
@@ -1220,8 +1235,12 @@ void computeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> &i
         node.first = i;
         node.second = dependencyValues[i];
         ASdegree.push_back(node);
-    }
 
+        if(tshoot){
+            dependValues << dependencyValues[i] << endl;
+        }
+    }
+    dependValues << "------------------------------------------------------------" << endl;
     std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
     assert(ASdegree.at(0).second >= ASdegree.at(1).second);
 }
@@ -1284,13 +1303,12 @@ void removeFromDependencyVector(int node, unique_ptr<Graph> &influencedGraph, ve
         if(got !=  influencedGraph->vertexToIndex[rrSetId]->end()){                                                                                     //if vertex is found
             //WARNING: Seemingly both of these work. WHY?
 //            fill(influencedGraph->dependancyVector[rrSetId][got->second].begin(), influencedGraph->dependancyVector[rrSetId][got->second].end(), 0);  //Replace all elements in the vertex row with 0;
-            fill( (*influencedGraph->dependancyVector[rrSetId])[got->second].begin(), (*influencedGraph->dependancyVector[rrSetId])[got->second].end(), 0);
+            fill( (*influencedGraph->dependancyVector[rrSetId])[got->second].begin(), (*influencedGraph->dependancyVector[rrSetId])[got->second].end(), false);
             for(int row = 0; row < influencedGraph->dependancyVector[rrSetId]->size(); row++){                                                          //Replace all elements in the vertex column with 0;
 //                influencedGraph->dependancyVector[rrSetId][row][got->second] = 0;
 //                influencedGraph->dependancyVector[rrSetId]->at(row).at(got->second)= 0;
-
-                if((*influencedGraph->dependancyVector[rrSetId])[row][got->second] == 1){
-                    (*influencedGraph->dependancyVector[rrSetId])[row][got->second]= 0;
+                if((*influencedGraph->dependancyVector[rrSetId])[row][got->second]){
+                    (*influencedGraph->dependancyVector[rrSetId])[row][got->second]= false;
                     dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[row]] -= 1;
                 }
 
@@ -1844,7 +1862,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     set<int> subModNodesToremove = subModularNodesRemove(subInfluencedGraph, activatedSet, removeNodes,
                                                          maxInfluenceSeed,
                                                          removalModImpact);
-
+    vector<vector<int>>().swap(subInfluencedGraph->rrSets);
     cout << "\n \n******* Node removed in all four approaches ******** \n" << flush;
     subInfluencedGraph.reset();
     //delete subInfluencedGraph;
@@ -2045,6 +2063,7 @@ int main(int argc, char **argv) {
     }
 
     string resultFile;
+    string storesResultFile;
     resultFile = graphFileName;
 
     if (fullgraph) {
@@ -2052,8 +2071,11 @@ int main(int argc, char **argv) {
         resultFile =
                 "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\results\\" +
                 resultFile;
+        storesResultFile = resultFile + "_values";
         myfile.open(resultFile, std::ios::app);
+        dependValues.open(storesResultFile, std::ios::app);
         myfile << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
+        dependValues << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
         executeTIMTIMfullGraph(result);
     } else {
         resultFile += "_RRapproach_results.txt";
