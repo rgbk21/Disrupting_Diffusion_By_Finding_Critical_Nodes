@@ -1192,7 +1192,6 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
 void reComputeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> &influencedGraph, vector<pair<int, int>> &ASdegree){
 
     bool tshoot = true;//Prints values to file
-    cout << "ReCalculating Dependency Values" << endl;
 
     ASdegree = vector<pair<int, int>>();//Because we are recalculating the dependency values, we need to initialise ASdegree to empty again
     for (int i = 0; i < dependencyValues.size(); i++) {
@@ -1295,6 +1294,7 @@ void removeFromDependencyVector(int node, unique_ptr<Graph> &influencedGraph, ve
      */
 
     cout << "Removing vertex: " << node << endl;
+    dependValues << "Removing vertex: " << node << endl;
 //    vector<int> dependencyValues = vector<int>(influencedGraph->n, 0);
 
     for(int i = 0; i < influencedGraph->inRRSet[node].size(); i++){                                                                                     //for each RRSet in inRRSet (each RRSet that contains node)
@@ -1343,10 +1343,66 @@ void computeSubModImpactNodes(unique_ptr<Graph> &influencedGraph, int removeNode
     }
 }
 
+
+
+//node is the vertex being deleted from all of the dependencyMatrices
+void testRemoveFromDependencyVector(int node, unique_ptr<Graph> &influencedGraph, vector<int> &testDependencyValues, vector<pair<int,int>> &testASdegree){
+
+    /*Update the dependencyVector datastructure
+     *
+     * In each RRSet
+     *  if node occurs in that RRSet
+     *      set all elements in the row index corresponding to that node to 0
+     *      set all elements in the column index corresponding to that node to 0
+     */
+
+    cout << "Removing vertex: " << node << endl;
+    dependValues << "Removing vertex: " << node << endl;
+    for(int i = 0; i < influencedGraph->inRRSet[node].size(); i++){                                                                                     //for each RRSet in inRRSet (each RRSet that contains node)
+        int rrSetId = influencedGraph->inRRSet[node][i];                                                                                                //get the next RRSet that the node to be removed is in
+        unordered_map<int,int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(node);                                               //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+        if(got !=  influencedGraph->vertexToIndex[rrSetId]->end()){                                                                                     //if vertex is found
+            fill( (*influencedGraph->testDependancyVector[rrSetId])[got->second].begin(), (*influencedGraph->testDependancyVector[rrSetId])[got->second].end(), false);
+            for(int row = 0; row < influencedGraph->testDependancyVector[rrSetId]->size(); row++){                                                          //Replace all elements in the vertex column with 0;
+                if((*influencedGraph->testDependancyVector[rrSetId])[row][got->second]){
+                    (*influencedGraph->testDependancyVector[rrSetId])[row][got->second]= false;
+                    testDependencyValues[(*influencedGraph->indexToVertex[rrSetId])[row]] -= 1;
+                }
+            }
+        }else{
+            assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
+        }
+    }
+
+    testDependencyValues[node] = 0;                                                 //Set the value to be 0 manually because we are using reComputeDependencyValues() and not computeDependencyValues() now.
+    reComputeDependencyValues(testDependencyValues, influencedGraph, testASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
+}
+
+void removingModNodesForTest(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &testDependencyValues, vector<pair<int, int>> &testASdegree, const set<int> &maxSeedSet, vector<int> &testModNodesToremove, set<int> &alreadyinSeed){
+
+    int index = 0;
+    for (int i = 0; i < removeNodes;) {
+        int node = testModNodesToremove[i];
+        if (maxSeedSet.count(node) == 0) {
+            i++;
+            if(i < removeNodes){//Dont call if final vertex to be removed has been found
+                testRemoveFromDependencyVector(node, influencedGraph, testDependencyValues, testASdegree);
+            }
+            index = 0;
+        } else {
+            assert(("Shouldnt have reached here", false));
+            alreadyinSeed.insert(node);
+            index++;
+        }
+    }
+}
+
+
+
 set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> activatedSet, int removeNodes, const set<int> &maxSeedSet,
                                set<int> *removalModImpact) {
 
-    bool tshoot = false;//Prints the outdegree of each node in ASDegree.
+    bool tshoot = true;//Prints the dependency values for each node to the file
     bool tshoot1 = true;//Prints the node being removed in each iteration
     bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
 
@@ -1379,7 +1435,55 @@ set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> a
     cout << endl;
     cout << endl;
 
+    dependValues << "\n\n******* Completed Mod Impact approach ********" << endl;
+    /***************************************************************************************************************************************/
+
+    cout << "Starting the test for removing mod nodes from dependencyVector" << endl;
+    dependValues << "Starting the test for removing mod nodes from dependencyVector" << endl;
+
+    set<int> testModNodesToRemove = set<int>();
+    vector<pair<int, int>> testASdegree;
+    vector<int> testDependencyValues = vector<int>(influencedGraph->n, 0);
+
+    for(int i = 0; i < modNodesToRemoveUnsorted.size(); i++){
+        testModNodesToRemove.insert(modNodesToRemoveUnsorted[i]);
+    }
+    for(int i = 0; i < dependencyValues.size(); i++){
+        testDependencyValues[i] = dependencyValues[i];
+        if(tshoot){//remove this since we are already printing the initial valeus while calculating modImpact nodes
+            dependValues << dependencyValues[i] << endl;
+        }
+    }
+
+    dependValues << "---------------------------------------" << endl;
+
+    for(int i = 0; i < ASdegree.size(); i++){//this is also not reuqired
+        pair<int, int> node = ASdegree.at(i);
+        testASdegree.push_back(node);
+    }
+
+    influencedGraph->testDependancyVector = vector<vector<vector<bool>>*>(R);
+    vector<vector<bool>>* myMatrix;
+    //creating a copy of the dependencyVector
+    for(int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++){
+        myMatrix = new vector<vector<bool>>();
+        for(int rowIdx = 0; rowIdx < (*influencedGraph->dependancyVector[rrSetId]).size(); rowIdx++){
+            myMatrix->push_back(vector<bool>());
+            for(int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++){
+                (*myMatrix)[rowIdx].push_back((*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx]);
+            }
+        }
+        influencedGraph->testDependancyVector[rrSetId] = myMatrix;
+    }
+
+    removingModNodesForTest(influencedGraph, removeNodes, testDependencyValues, testASdegree, maxSeedSet, modNodesToRemoveUnsorted, alreadyinSeed);
+    dependValues << "***************   TEST ENDS HERE   ***************" << endl;
+
+
+    /***************************************************************************************************************************************/
     cout << "******* Running SubMod approach ********" << endl;
+    dependValues << "******* Running SubMod approach ********" << endl;
+
     alreadyinSeed = set<int>();
     computeSubModImpactNodes(influencedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, subModNodesToremove, alreadyinSeed);
 

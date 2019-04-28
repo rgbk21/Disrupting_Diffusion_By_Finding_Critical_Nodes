@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <string>
 #include <random>
+#include <memory>
 #include "RRassociatedGraph.hpp"
 
 using namespace std;
@@ -80,6 +81,7 @@ public:
     vector<unordered_map<int, int>*> vertexToIndex;
     vector<vector<int>*> indexToVertex;
     vector<vector<vector<bool>>*> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
+    vector<vector<vector<bool>>*> testDependancyVector;//Used for the testing of what if modNodes were the ones removed
 
     vector<bool> labels;
     deque<int> q;
