@@ -85,6 +85,8 @@ public:
 
     vector<bool> labels;
     deque<int> q;
+    deque<int> countingNodes_Q;
+    vector<bool> countingNodes_Visited;
     vector<int> inDegree;
     vector<bool> visited;
     vector<int> visitMark;
@@ -108,6 +110,8 @@ public:
     void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
+    void generateRandomRRSetCountingNodes(int randomVertex, int rrSetID);
+    int BFSCountingNodes(int startVertex);
     void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, const int randomVertex, const int rrSetID, const int rrSetSize, const unordered_map<int, int>* mappedIndex);
     void readGraph(string fileName,std::ofstream& resultLogFile);
     void readGraph(string fileName, float percentage,std::ofstream& resultLogFile);

@@ -64,10 +64,11 @@ ofstream resultLogFile;
 bool useMaxSeed = true;//Applicable if someCondition = false. Set to false if using random Seed for diffusion instead of using maxSeed => Experiment 3
 bool someCondition = true;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
 bool useRandomSeed  = false;//Set to true (someCondition should also be set to true) if using random Seed instead of max Seed as the initial seed BEFORE finding the vertices to be removed
-bool useEnvelop = true;//Set to true if someCondition is set to true. Implies you are not removing nodes from the envelopedNodes as well. SeedSet is still fixed.
+bool useEnvelop = false;//Set to true if someCondition is set to true. Implies you are not removing nodes from the envelopedNodes as well. SeedSet is still fixed.
 
 //These are my global variables for testing
 vector<int> modNodesToRemoveUnsorted;
+vector<int> countNodesToRemoveUnsorted;
 vector<int> tGraphNodesToRemoveUnsorted;
 vector<int> modImpactNodesToRemoveUnsorted;
 vector<int> subModNodesToRemoveUnsorted;
@@ -675,11 +676,128 @@ set<int> tGraphRemoveVertices(unique_ptr<Graph> &transposedGraph, unique_ptr<Gra
     return tGraphNodesToRemove;
 }
 
-void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph, unique_ptr<Graph> &tGraph, set<int> modNodes,
-                  set<int> subModNodes,
-                  set<int> *removalModImpact, set<int> tGraphNodes, vector<int> activatedSet, int newSeed,
-                  float percentageTargetsFloat,
-                  string convertedFile, set<int> prevSelectSeed) {
+set<int>
+countNodesRemoveVertices(unique_ptr<Graph> &countingNodesGraph, int removeNodes, const set<int> &maxSeedSet, const set<int> &envelopedNodes, vector<int> activatedSet, string modular) {
+
+    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
+    bool tshoot1 = true;//Controls the assert statements
+    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+
+    //Random RR sets
+    set<int> alreadyinSeed = set<int>();
+    int n = (int) activatedSet.size();
+    double epsilon = (double) EPSILON;
+    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
+    vector<int>().swap(countingNodesGraph->NodeinRRsetsWithCounts);
+    cout << "R = " << R << endl;
+    countingNodesGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+    cout << "\n RRsets done " << flush;
+    resultLogFile << "\n RRsets done " << flush;
+
+    //Find nodes to be removed
+    vector<pair<int, int>> SortedNodeidCounts = vector<pair<int, int>>();
+    for (int i = 0; i < countingNodesGraph->NodeinRRsetsWithCounts.size(); i++) {
+        pair<int, int> node = pair<int, int>();
+        node.first = i;
+        node.second = countingNodesGraph->NodeinRRsetsWithCounts[i];
+        SortedNodeidCounts.push_back(node);
+    }
+
+    std::sort(SortedNodeidCounts.begin(), SortedNodeidCounts.end(), sortbysecdesc);
+    assert(SortedNodeidCounts.at(0).second >= SortedNodeidCounts.at(1).second);
+//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+
+    set<int> nodesToRemove;
+    int count = 0;
+    int j = 0;
+    while (j < removeNodes && j < SortedNodeidCounts.size()) {
+        int nodeid = SortedNodeidCounts.at(count).first;
+        if (nodesToRemove.count(nodeid) == 0 && maxSeedSet.count(nodeid) == 0 && envelopedNodes.count(nodeid) == 0) {
+            nodesToRemove.insert(nodeid);
+            countNodesToRemoveUnsorted.push_back(nodeid);//countNodesToRemoveUnsorted: for printing out the nodes that are being removed in the order that they were added
+            j++;
+        } else {
+            alreadyinSeed.insert(nodeid);
+        }
+        count++;
+    }
+    if(tshoot2){
+        cout << "countNodes Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet" << endl;
+        myfile << "countNodes Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet" << endl;
+        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
+    }
+
+    vector<pair<int, int>>().swap(SortedNodeidCounts);
+    cout << "\nNumber of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    resultLogFile << "\nNumber of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    cout << "\nPrinting the nodes already in seed that were not added to countNodes: " << endl;
+    myfile << "Printing the nodes already in seed that were not added to countNodes: " << endl;
+    printSet(alreadyinSeed);
+
+    int numEdgesAtStart = countingNodesGraph->m;
+    int totalNumEdgesToDelete = 0;
+
+    for (int node:nodesToRemove) {
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < countingNodesGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += countingNodesGraph->graphTranspose[k].size();
+                if (k == node) {
+                    numEdgesToDelete += countingNodesGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < countingNodesGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += countingNodesGraph->graph[k].size();
+                if (k == node) {
+                    numEdgesToDelete += countingNodesGraph->graph[k].size();
+                }
+            }
+        }
+
+        totalNumEdgesToDelete += numEdgesToDelete;
+        countingNodesGraph->removeOutgoingEdges(node);
+        assert(("Here . .. .", countingNodesGraph->graph[node].size() == 0));
+        assert(("Here . .. .", countingNodesGraph->graphTranspose[node].size() == 0));
+        countingNodesGraph->assertCorrectNodesAreDeleted(node, numEdgesToDelete, totalEdgesInOrigGraphPre,
+                                                      totalEdgesInTransGraphPre);
+    }
+    assert(("Mismatch in modNodesToRemove", nodesToRemove.size() == removeNodes));
+
+
+    if (tshoot1) {
+        int totalNumOfEdges = 0;
+        for (int k = 0; k < countingNodesGraph->graph.size(); k++) {
+            totalNumOfEdges += countingNodesGraph->graph[k].size();
+        }
+        assert(("removeVertices() Divergence betn something", totalNumOfEdges ==
+                                                              numEdgesAtStart - totalNumEdgesToDelete));
+    }
+
+    if (tshoot) {
+        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
+        print2DVector(countingNodesGraph->graphTranspose);
+    }
+
+    countingNodesGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
+    int modStrength = 0;
+    for (int i = 0; i < countingNodesGraph->NodeinRRsetsWithCounts.size(); i++) {
+        modStrength += countingNodesGraph->NodeinRRsetsWithCounts[i];
+    }
+    cout << "\n \n After removing Modular Strength is " << modStrength;
+    resultLogFile << "\n \n After removing Modular Strength is " << modStrength;
+    myfile << modStrength << " <-Count Strength\n";
+    vector<vector<int>>().swap(countingNodesGraph->rrSets);
+//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+    return nodesToRemove;
+}
+
+void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph, unique_ptr<Graph> &tGraph, unique_ptr<Graph> &countGraph,
+                set<int> modNodes, set<int> subModNodes, set<int> *removalModImpact, set<int> tGraphNodes, set<int> countGraphNodes,
+                vector<int> activatedSet, int newSeed, float percentageTargetsFloat, string convertedFile, set<int> prevSelectSeed) {
 
     bool tshoot = true;
 
@@ -687,6 +805,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
     vector<int> SubmodResults;
     vector<int> modImpactResults;
     vector<int> tGraphResults;
+    vector<int> countGraphResults;
 
     cout << "\nnodes To remove in mod graph: ";
     resultLogFile << "\nnodes To remove in mod graph: ";
@@ -849,6 +968,39 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
 
     }
 
+    cout << "\nnodes to remove in countGraph: ";
+    resultLogFile << "\nnodes to remove in countGraph: ";
+
+    for (int i:countGraphNodes) {
+        cout << i << " ";
+        resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInCountGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < countGraph->graphTranspose.size(); k++) {
+                totalEdgesInCountGraphPre += countGraph->graphTranspose[k].size();
+                if (k == i) {
+                    numEdgesToDelete += countGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < countGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += countGraph->graph[k].size();
+                if (k == i) {
+                    numEdgesToDelete += countGraph->graph[k].size();
+                }
+            }
+        }
+
+        countGraph->removeOutgoingEdges(i);
+        assert(countGraph->graph[i].size() == 0);
+        assert(countGraph->graphTranspose[i].size() == 0);
+        countGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInCountGraphPre);
+    }
+
     //Print out nodes to be removed only for myfile
     if (tshoot) {
 
@@ -874,7 +1026,11 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
             myfile << i << " ";
         }
         cout << flush;
-
+        myfile << "\nnodes To remove in countNodes graph:\t ";
+        for (int i:countNodesToRemoveUnsorted) {
+            myfile << i << " ";
+        }
+        cout << flush;
     }
 
     cout << endl;
@@ -1018,7 +1174,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
          *      - or using the random seed as the seed set
          *
         */
-        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed\n";
+        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed CountGraph\n";
         while (k < 3) {
 
             /*switch (5) {
@@ -1090,6 +1246,13 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
             infNum = oldNewIntersection(tGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(tGraph->rrSets);
             tGraphResults.push_back(infNum);
+            myfile << infNum << " ";
+
+            cout << k << "---" << "\nCountNodes Graph Results: " << endl;
+            resultLogFile << "\nCountNodes Graph Results" << endl;
+            infNum = oldNewIntersection(countGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(countGraph->rrSets);
+            countGraphResults.push_back(infNum);
             myfile << infNum << "\n";
 
             k++;
@@ -2019,6 +2182,30 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
+    cout << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
+    resultLogFile << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
+
+    set<int> countNodesToremove;
+    unique_ptr<Graph> countingNodesGraph = make_unique<Graph>();
+    countingNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        countingNodesGraph->setPropogationProbability(probability);
+    }
+    activatedSet = vector<int>(countingNodesGraph->n, 0);
+    for (int i = 0; i < countingNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    clock_t countNodesStartTime = clock();
+    countNodesToremove = countNodesRemoveVertices(countingNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
+                                               activatedSet, "countNodes");
+    clock_t countNodesEndTime = clock();
+    double totalCountNodesTime = double(countNodesEndTime - countNodesStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
+    resultLogFile << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
+
+    myfile << totalCountNodesTime << " <-CountNodes Time\n";
+
+    countingNodesGraph.reset();
 
     //******************************************************************************************************************
 
@@ -2055,6 +2242,12 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         tGraph->setPropogationProbability(probability);
     }
 
+    unique_ptr<Graph> countNewGraph = make_unique<Graph>();
+    countNewGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        modNewGraph->setPropogationProbability(probability);
+    }
+
     unique_ptr<Graph> modImpactGraph = make_unique<Graph>();
     modImpactGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
@@ -2070,8 +2263,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     string convertedFile =
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
             graphFileName;
-    newDiffusion(modNewGraph, subNewGraph, modImpactGraph, tGraph, modNodesToremove, subModNodesToremove,
-                 removalModImpact, tGraphNodesToremove,
+    newDiffusion(modNewGraph, subNewGraph, modImpactGraph, tGraph, countNewGraph,
+                 modNodesToremove, subModNodesToremove, removalModImpact, tGraphNodesToremove, countNodesToremove,
                  activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed);
 
     clock_t executionTimeEnd = clock();

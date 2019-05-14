@@ -537,6 +537,34 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
             totalSize += rrSets[i].size();
         }
     }
+    else if (modular == "countNodes"){
+        NodeinRRsetsWithCounts = vector<int>(n, 0);
+        labels = vector<bool>(n, true);
+        if (activatedSet.size() == 0) {
+            assert(("NOPE!NOPE!NOPE!", false));
+            for (int i = 0; i < R; i++) {
+                int randomVertex;
+                randomVertex = rand() % n;
+                while (!labels[randomVertex]) {
+                    randomVertex = rand() % n;
+                }
+                generateRandomRRSetwithCountMod(randomVertex, i);
+                totalSize += rrSets[i].size();
+            }
+        } else {
+            int t = (int) activatedSet.size();
+            for (int i = 0; i < R; i++) {
+                int randomVertex;
+                randomVertex = activatedSet[rand() % t];
+//                randomVertex = distr(eng);
+                countingNodes_Visited = vector<bool>(n, false);
+                generateRandomRRSetCountingNodes(randomVertex, i);
+                if (i == 10) cout << "Completed " << i << " RR Sets" << endl;
+                if ((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
+                totalSize += rrSets[i].size();
+            }
+        }
+    }
         //for modular Impact
     else {
         nodeAS = vector<set<int>>(n);
@@ -919,6 +947,84 @@ void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
     for (int i = 0; i < nVisitMark; i++) {
         visited[visitMark[i]] = false;
     }
+}
+
+
+//********** Function only for the influenced graph with modular property********
+void Graph::generateRandomRRSetCountingNodes(int randomVertex, int rrSetID) {
+
+    q.clear();
+    rrSets[rrSetID].push_back(randomVertex);
+    NodeinRRsetsWithCounts[randomVertex]++;
+    q.push_back(randomVertex);
+    int nVisitMark = 0;
+    visitMark[nVisitMark++] = randomVertex;
+    visited[randomVertex] = true;
+    while (!q.empty()) {
+        int expand = q.front();
+        q.pop_front();
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            int v = graphTranspose[expand][j];
+            if (!labels[v]){
+                assert(("label was false? Why?", false));
+                continue;
+            }
+            if (!this->flipCoinOnEdge(v, expand))
+                continue;
+            if (visited[v])
+                continue;
+            if (!visited[v]) {
+                visitMark[nVisitMark++] = v;
+                visited[v] = true;
+            }
+            NodeinRRsetsWithCounts[v] += BFSCountingNodes(v);
+            NodeinRRsetsWithCounts[randomVertex]++;
+            assert(("Overflow in countNodes", NodeinRRsetsWithCounts[v] > 0));
+            q.push_back(v);
+            rrSets[rrSetID].push_back(v);
+        }
+    }
+    for (int i = 0; i < nVisitMark; i++) {
+        visited[visitMark[i]] = false;
+    }
+}
+
+int Graph::BFSCountingNodes(int startVertex){
+
+    countingNodes_Q.clear();
+    int countNodesVisited = 1;
+    vector<int> nodesVisited = vector<int>();
+
+    nodesVisited.push_back(startVertex);
+    countingNodes_Q.push_back(startVertex);
+    countingNodes_Visited[startVertex] = true;
+
+    while (!countingNodes_Q.empty()) {
+        int expand = countingNodes_Q.front();
+        countingNodes_Q.pop_front();
+
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            int v = graphTranspose[expand][j];
+            if (!labels[v]){
+                assert(("label was false? Why?", false));
+                continue;
+            }
+            if (!this->flipCoinOnEdge(v, expand))
+                continue;
+            if (countingNodes_Visited[v])
+                continue;
+            if (!countingNodes_Visited[v]) {
+                countNodesVisited++;
+                countingNodes_Visited[v] = true;
+                nodesVisited.push_back(v);
+            }
+            countingNodes_Q.push_back(v);
+        }
+    }
+    for(int i = 0; i < nodesVisited.size(); i++){
+        countingNodes_Visited[nodesVisited[i]] = false;
+    }
+    return countNodesVisited;
 }
 
 void Graph::BFSonRRgraphs(int randomVertex, int rrSetID) {
