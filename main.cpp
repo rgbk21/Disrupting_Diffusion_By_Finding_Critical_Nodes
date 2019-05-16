@@ -75,6 +75,16 @@ vector<int> subModNodesToRemoveUnsorted;
 vector<int> nodeMappedToOutdegree;
 //Global variables for testing end here
 
+/*List of warnings:
+ * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
+ * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
+ * are going to run those experiments.
+ *
+ * 2)
+ *
+ *
+ * */
+
 
 void setupLogger() {
     time_t rawtime;
@@ -301,8 +311,7 @@ void checkMod(string graphFileName, float percentageTargetsFloat, Graph *graph, 
 
 set<int>
 getSeed(int numNodes, unique_ptr<Graph> &graph, vector<int> activatedSet, set<int> modNodes, set<int> subModNodes,
-        set<int> removalModImpactNodes, set<int> tGraphNodes,
-        vector<int> *seedOrder) {
+        set<int> removalModImpactNodes, set<int> tGraphNodes, vector<int> *seedOrder) {
     vector<vector<int>> lookupTable;
     TIMCoverage timCoverage(&lookupTable);
     double epsilon = 2;
@@ -332,6 +341,7 @@ removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<in
     bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
     bool tshoot1 = true;//Controls the assert statements
     bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+    bool tshoot3 = false;//Prints the NodeInRRSets values for ALL of the nodes
 
     //Random RR sets
     set<int> alreadyinSeed = set<int>();
@@ -351,6 +361,14 @@ removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<in
     cout << "\n \n Initial Strength is " << modStrength << endl;
     resultLogFile << "\n \n Initial Strength is " << modStrength << endl;
     myfile << modStrength << " <-InitialStrength" << endl;
+
+    if(tshoot3){
+        dependValues << "Printing modular values for all of the nodes:" << endl;
+        for(int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++){
+            dependValues << influencedGraph->NodeinRRsetsWithCounts[i] << endl;
+        }
+        dependValues << "-----DONE PRINTING------" << endl;
+    }
 
     //clearing the memory
 //    vector<vector<int>>().swap(influencedGraph->rrSets);
@@ -795,8 +813,89 @@ countNodesRemoveVertices(unique_ptr<Graph> &countingNodesGraph, int removeNodes,
     return nodesToRemove;
 }
 
-void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph, unique_ptr<Graph> &tGraph, unique_ptr<Graph> &countGraph,
-                set<int> modNodes, set<int> subModNodes, set<int> *removalModImpact, set<int> tGraphNodes, set<int> countGraphNodes,
+set<int>
+topKInflNodesRemoveVertices(unique_ptr<Graph> &topKInflNodesGraph, int removeNodes, const set<int> &maxSeedSet, const set<int> &envelopedNodes, vector<int> activatedSet, string modular) {
+
+    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
+    bool tshoot1 = true;//Controls the assert statements
+    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+
+    //Calculating R
+    double epsilon = (double) EPSILON;
+    int n = (int) activatedSet.size();
+    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
+    cout << "R = " << R << endl;
+
+    set<int> nodesToRemove;
+    nodesToRemove = getSeed(removeNodes, topKInflNodesGraph, activatedSet, maxSeedSet, envelopedNodes, set<int>(), set<int>(),
+                               NULL);
+
+    int numEdgesAtStart = topKInflNodesGraph->m;
+    int totalNumEdgesToDelete = 0;
+
+    for (int node:nodesToRemove) {
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < topKInflNodesGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += topKInflNodesGraph->graphTranspose[k].size();
+                if (k == node) {
+                    numEdgesToDelete += topKInflNodesGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < topKInflNodesGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += topKInflNodesGraph->graph[k].size();
+                if (k == node) {
+                    numEdgesToDelete += topKInflNodesGraph->graph[k].size();
+                }
+            }
+        }
+
+        totalNumEdgesToDelete += numEdgesToDelete;
+        topKInflNodesGraph->removeOutgoingEdges(node);
+        assert(("Here . .. .", topKInflNodesGraph->graph[node].size() == 0));
+        assert(("Here . .. .", topKInflNodesGraph->graphTranspose[node].size() == 0));
+        topKInflNodesGraph->assertCorrectNodesAreDeleted(node, numEdgesToDelete, totalEdgesInOrigGraphPre,
+                                                         totalEdgesInTransGraphPre);
+    }
+    assert(("Mismatch in modNodesToRemove", nodesToRemove.size() == removeNodes));
+
+
+    if (tshoot1) {
+        int totalNumOfEdges = 0;
+        for (int k = 0; k < topKInflNodesGraph->graph.size(); k++) {
+            totalNumOfEdges += topKInflNodesGraph->graph[k].size();
+        }
+        assert(("removeVertices() Divergence betn something", totalNumOfEdges ==
+                                                              numEdgesAtStart - totalNumEdgesToDelete));
+    }
+
+    if (tshoot) {
+        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
+        print2DVector(topKInflNodesGraph->graphTranspose);
+    }
+
+    topKInflNodesGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
+    int modStrength = 0;
+    for (int i = 0; i < topKInflNodesGraph->NodeinRRsetsWithCounts.size(); i++) {
+        modStrength += topKInflNodesGraph->NodeinRRsetsWithCounts[i];
+    }
+    cout << "\n \n After removing Modular Strength is " << modStrength;
+    resultLogFile << "\n \n After removing Modular Strength is " << modStrength;
+    myfile << modStrength << " <-Count Strength\n";
+    vector<vector<int>>().swap(topKInflNodesGraph->rrSets);
+//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+    return nodesToRemove;
+}
+
+
+
+
+void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph, unique_ptr<Graph> &tGraph, unique_ptr<Graph> &countGraph, unique_ptr<Graph> &topKInflGraph,
+                set<int> modNodes, set<int> subModNodes, set<int> *removalModImpact, set<int> tGraphNodes, set<int> countGraphNodes, set<int> topKInflGraphNodes,
                 vector<int> activatedSet, int newSeed, float percentageTargetsFloat, string convertedFile, set<int> prevSelectSeed) {
 
     bool tshoot = true;
@@ -806,6 +905,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
     vector<int> modImpactResults;
     vector<int> tGraphResults;
     vector<int> countGraphResults;
+    vector<int> topKInflGraphResults;
 
     cout << "\nnodes To remove in mod graph: ";
     resultLogFile << "\nnodes To remove in mod graph: ";
@@ -1001,6 +1101,39 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
         countGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInCountGraphPre);
     }
 
+    cout << "\nnodes to remove in topKInflGraph: ";
+    resultLogFile << "\nnodes to remove in topKInflGraph: ";
+
+    for (int i:topKInflGraphNodes) {
+        cout << i << " ";
+        resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInTopKInflGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < topKInflGraph->graphTranspose.size(); k++) {
+                totalEdgesInTopKInflGraphPre += topKInflGraph->graphTranspose[k].size();
+                if (k == i) {
+                    numEdgesToDelete += topKInflGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < topKInflGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += topKInflGraph->graph[k].size();
+                if (k == i) {
+                    numEdgesToDelete += topKInflGraph->graph[k].size();
+                }
+            }
+        }
+
+        topKInflGraph->removeOutgoingEdges(i);
+        assert(topKInflGraph->graph[i].size() == 0);
+        assert(topKInflGraph->graphTranspose[i].size() == 0);
+        topKInflGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTopKInflGraphPre);
+    }
+
     //Print out nodes to be removed only for myfile
     if (tshoot) {
 
@@ -1028,6 +1161,11 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
         cout << flush;
         myfile << "\nnodes To remove in countNodes graph:\t ";
         for (int i:countNodesToRemoveUnsorted) {
+            myfile << i << " ";
+        }
+        cout << flush;
+        myfile << "\nnodes To remove in topKInfl graph (sorted list):\t ";
+        for (int i:topKInflGraphNodes) {
             myfile << i << " ";
         }
         cout << flush;
@@ -1174,7 +1312,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
          *      - or using the random seed as the seed set
          *
         */
-        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed CountGraph\n";
+        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed CountGraph TopKInfl\n";
         while (k < 3) {
 
             /*switch (5) {
@@ -1211,8 +1349,8 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
 
             cout << "\n********** k = " << k << " **********" << endl;
 
-            cout << "\n \nSelected new SeedSet in original graph: " << flush;
-            resultLogFile << "\n \nSelected new SeedSet in original graph: " << flush;
+            cout << "\n\nSelected new SeedSet in original graph: " << flush;
+            resultLogFile << "\n\nSelected new SeedSet in original graph: " << flush;
             for (auto item:maxSeed) {
                 cout << item << " ";
                 resultLogFile << item << " ";
@@ -1253,6 +1391,13 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
             infNum = oldNewIntersection(countGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(countGraph->rrSets);
             countGraphResults.push_back(infNum);
+            myfile << infNum << " ";
+
+            cout << k << "---" << "\nTopKInfl Graph Results: " << endl;
+            resultLogFile << "\nTopKInfl Graph Results" << endl;
+            infNum = oldNewIntersection(topKInflGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(countGraph->rrSets);
+            topKInflGraphResults.push_back(infNum);
             myfile << infNum << "\n";
 
             k++;
@@ -2209,6 +2354,32 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
+    cout << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
+    resultLogFile << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
+    set<int> topKInflNodesToremove;
+    unique_ptr<Graph> topKInflNodesGraph = make_unique<Graph>();
+    topKInflNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        topKInflNodesGraph->setPropogationProbability(probability);
+    }
+    activatedSet = vector<int>(topKInflNodesGraph->n, 0);
+    for (int i = 0; i < topKInflNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    clock_t topKInflNodesStartTime = clock();
+
+    topKInflNodesToremove = topKInflNodesRemoveVertices(topKInflNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
+                                                  activatedSet, "modular");
+    clock_t topKInflNodesEndTime = clock();
+    double totalTopKInflTime = double(topKInflNodesEndTime - topKInflNodesStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
+    resultLogFile << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
+
+    myfile << totalTopKInflTime << " <-topKInfluential Time\n";
+    topKInflNodesGraph.reset();
+
+    //******************************************************************************************************************
+
     cout << "\n \n ******* Running Sub Modular approach ******** \n" << flush;
     resultLogFile << "\n \n ******* Running Sub Modular approach ******** \n" << flush;
 
@@ -2248,6 +2419,12 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         modNewGraph->setPropogationProbability(probability);
     }
 
+    unique_ptr<Graph> topKInflNewGraph = make_unique<Graph>();
+    topKInflNewGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        modNewGraph->setPropogationProbability(probability);
+    }
+
     unique_ptr<Graph> modImpactGraph = make_unique<Graph>();
     modImpactGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
@@ -2263,8 +2440,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     string convertedFile =
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
             graphFileName;
-    newDiffusion(modNewGraph, subNewGraph, modImpactGraph, tGraph, countNewGraph,
-                 modNodesToremove, subModNodesToremove, removalModImpact, tGraphNodesToremove, countNodesToremove,
+    newDiffusion(modNewGraph, subNewGraph, modImpactGraph, tGraph, countNewGraph, topKInflNewGraph,
+                 modNodesToremove, subModNodesToremove, removalModImpact, tGraphNodesToremove, countNodesToremove, topKInflNodesToremove,
                  activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed);
 
     clock_t executionTimeEnd = clock();
