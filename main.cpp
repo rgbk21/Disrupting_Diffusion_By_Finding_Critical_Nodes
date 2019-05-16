@@ -80,7 +80,7 @@ vector<int> nodeMappedToOutdegree;
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
  * are going to run those experiments.
  *
- * 2)
+ * 2) Uncomment the countGraph and the topKInfl metods if you want to run them
  *
  *
  * */
@@ -891,11 +891,103 @@ topKInflNodesRemoveVertices(unique_ptr<Graph> &topKInflNodesGraph, int removeNod
     return nodesToRemove;
 }
 
+void nodesToRemoveInCountGraph(unique_ptr<Graph> &countGraph, set<int> &countGraphNodes){
 
+    cout << "\nnodes to remove in countGraph: ";
+    resultLogFile << "\nnodes to remove in countGraph: ";
+
+    for (int i:countGraphNodes) {
+        cout << i << " ";
+        resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInCountGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < countGraph->graphTranspose.size(); k++) {
+                totalEdgesInCountGraphPre += countGraph->graphTranspose[k].size();
+                if (k == i) {
+                    numEdgesToDelete += countGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < countGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += countGraph->graph[k].size();
+                if (k == i) {
+                    numEdgesToDelete += countGraph->graph[k].size();
+                }
+            }
+        }
+
+        countGraph->removeOutgoingEdges(i);
+        assert(countGraph->graph[i].size() == 0);
+        assert(countGraph->graphTranspose[i].size() == 0);
+        countGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInCountGraphPre);
+    }
+
+}
+
+void nodesToRemoveInTopKInflGraph(unique_ptr<Graph> &topKInflGraph, set<int> &topKInflGraphNodes){
+    cout << "\nnodes to remove in topKInflGraph: ";
+    resultLogFile << "\nnodes to remove in topKInflGraph: ";
+
+    for (int i:topKInflGraphNodes) {
+        cout << i << " ";
+        resultLogFile << i << " ";
+
+        bool tshoot1 = true;
+        int totalEdgesInTopKInflGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < topKInflGraph->graphTranspose.size(); k++) {
+                totalEdgesInTopKInflGraphPre += topKInflGraph->graphTranspose[k].size();
+                if (k == i) {
+                    numEdgesToDelete += topKInflGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < topKInflGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += topKInflGraph->graph[k].size();
+                if (k == i) {
+                    numEdgesToDelete += topKInflGraph->graph[k].size();
+                }
+            }
+        }
+
+        topKInflGraph->removeOutgoingEdges(i);
+        assert(topKInflGraph->graph[i].size() == 0);
+        assert(topKInflGraph->graphTranspose[i].size() == 0);
+        topKInflGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTopKInflGraphPre);
+    }
+}
+
+void inflInCountGraph(int k, unique_ptr<Graph> &countGraph, set<int> &maxSeed, vector<int> &activatedSet, vector<int> &countGraphResults){
+
+    cout << k << "---" << "\nCountNodes Graph Results: " << endl;
+    resultLogFile << "\nCountNodes Graph Results" << endl;
+    int infNum = oldNewIntersection(countGraph, maxSeed, activatedSet, resultLogFile);
+    vector<vector<int>>().swap(countGraph->rrSets);
+    countGraphResults.push_back(infNum);
+    myfile << infNum << " ";
+
+}
+
+void inflInTopKInflGraph(int k, unique_ptr<Graph> &topKInflGraph, set<int> &maxSeed, vector<int> &activatedSet, vector<int> &topKInflGraphResults){
+
+    cout << k << "---" << "\nTopKInfl Graph Results: " << endl;
+    resultLogFile << "\nTopKInfl Graph Results" << endl;
+    int infNum = oldNewIntersection(topKInflGraph, maxSeed, activatedSet, resultLogFile);
+    vector<vector<int>>().swap(topKInflGraph->rrSets);
+    topKInflGraphResults.push_back(infNum);
+    myfile << infNum << "\n";
+
+}
 
 
 void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph, unique_ptr<Graph> &tGraph, unique_ptr<Graph> &countGraph, unique_ptr<Graph> &topKInflGraph,
-                set<int> modNodes, set<int> subModNodes, set<int> *removalModImpact, set<int> tGraphNodes, set<int> countGraphNodes, set<int> topKInflGraphNodes,
+                set<int> modNodes, set<int> subModNodes, set<int> *removalModImpact, set<int> tGraphNodes, set<int> &countGraphNodes, set<int> topKInflGraphNodes,
                 vector<int> activatedSet, int newSeed, float percentageTargetsFloat, string convertedFile, set<int> prevSelectSeed) {
 
     bool tshoot = true;
@@ -1068,72 +1160,15 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
 
     }
 
-    cout << "\nnodes to remove in countGraph: ";
-    resultLogFile << "\nnodes to remove in countGraph: ";
+    /*
+     * Uncomment only if the countNodes method in executeTIMTIMfullGraph() method has been uncommented as well
+     * Also uncomment the if(someCondition) block where you are calculating the infl in the resulting graph
+     * Note that the else condition of that statement has not been written to take into account the additional 2 methods that we wrote
 
-    for (int i:countGraphNodes) {
-        cout << i << " ";
-        resultLogFile << i << " ";
+     nodesToRemoveInCountGraph(countGraph, countGraphNodes);
+    nodesToRemoveInTopKInflGraph(topKInflGraph, topKInflGraphNodes);
 
-        bool tshoot1 = true;
-        int totalEdgesInCountGraphPre = 0;
-        int totalEdgesInOrigGraphPre = 0;
-        int numEdgesToDelete = 0;
-
-        if (tshoot1) {
-            for (int k = 0; k < countGraph->graphTranspose.size(); k++) {
-                totalEdgesInCountGraphPre += countGraph->graphTranspose[k].size();
-                if (k == i) {
-                    numEdgesToDelete += countGraph->graphTranspose[k].size();
-                }
-            }
-            for (int k = 0; k < countGraph->graph.size(); k++) {
-                totalEdgesInOrigGraphPre += countGraph->graph[k].size();
-                if (k == i) {
-                    numEdgesToDelete += countGraph->graph[k].size();
-                }
-            }
-        }
-
-        countGraph->removeOutgoingEdges(i);
-        assert(countGraph->graph[i].size() == 0);
-        assert(countGraph->graphTranspose[i].size() == 0);
-        countGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInCountGraphPre);
-    }
-
-    cout << "\nnodes to remove in topKInflGraph: ";
-    resultLogFile << "\nnodes to remove in topKInflGraph: ";
-
-    for (int i:topKInflGraphNodes) {
-        cout << i << " ";
-        resultLogFile << i << " ";
-
-        bool tshoot1 = true;
-        int totalEdgesInTopKInflGraphPre = 0;
-        int totalEdgesInOrigGraphPre = 0;
-        int numEdgesToDelete = 0;
-
-        if (tshoot1) {
-            for (int k = 0; k < topKInflGraph->graphTranspose.size(); k++) {
-                totalEdgesInTopKInflGraphPre += topKInflGraph->graphTranspose[k].size();
-                if (k == i) {
-                    numEdgesToDelete += topKInflGraph->graphTranspose[k].size();
-                }
-            }
-            for (int k = 0; k < topKInflGraph->graph.size(); k++) {
-                totalEdgesInOrigGraphPre += topKInflGraph->graph[k].size();
-                if (k == i) {
-                    numEdgesToDelete += topKInflGraph->graph[k].size();
-                }
-            }
-        }
-
-        topKInflGraph->removeOutgoingEdges(i);
-        assert(topKInflGraph->graph[i].size() == 0);
-        assert(topKInflGraph->graphTranspose[i].size() == 0);
-        topKInflGraph->assertCorrectNodesAreDeleted(i, numEdgesToDelete, totalEdgesInOrigGraphPre, totalEdgesInTopKInflGraphPre);
-    }
-
+     */
     //Print out nodes to be removed only for myfile
     if (tshoot) {
 
@@ -1192,8 +1227,6 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
     myfile << "\nintersection of submod and modImpact nodes to remove " << B;
     myfile << "\nintersection of submod and transposedGraph nodes to remove " << subModAndTGraph;
     myfile << "\nintersection of modImpact and transposedGraph nodes to remove " << modImpactAndTGraph << "\n";
-
-
 
     //Random RR sets
     int n = (int) activatedSet.size();
@@ -1312,7 +1345,7 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
          *      - or using the random seed as the seed set
          *
         */
-        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed CountGraph TopKInfl\n";
+        myfile << "\n\nMOD SUBMOD MOD-IMPACT Transposed \n";
         while (k < 3) {
 
             /*switch (5) {
@@ -1384,22 +1417,16 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
             infNum = oldNewIntersection(tGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(tGraph->rrSets);
             tGraphResults.push_back(infNum);
-            myfile << infNum << " ";
-
-            cout << k << "---" << "\nCountNodes Graph Results: " << endl;
-            resultLogFile << "\nCountNodes Graph Results" << endl;
-            infNum = oldNewIntersection(countGraph, maxSeed, activatedSet, resultLogFile);
-            vector<vector<int>>().swap(countGraph->rrSets);
-            countGraphResults.push_back(infNum);
-            myfile << infNum << " ";
-
-            cout << k << "---" << "\nTopKInfl Graph Results: " << endl;
-            resultLogFile << "\nTopKInfl Graph Results" << endl;
-            infNum = oldNewIntersection(topKInflGraph, maxSeed, activatedSet, resultLogFile);
-            vector<vector<int>>().swap(countGraph->rrSets);
-            topKInflGraphResults.push_back(infNum);
             myfile << infNum << "\n";
 
+            /*
+             * Uncomment only if the countNodes method in executeTIMTIMfullGraph() method has been uncommented as well
+             * Also uncomment the if(someCondition) block where you are calculating the infl in the resulting graph
+
+             inflInCountGraph(k, countGraph, maxSeed, activatedSet, countGraphResults);
+            inflInTopKInflGraph(k, countGraph, maxSeed, activatedSet, countGraphResults);
+
+             */
             k++;
         }
     }
@@ -2155,6 +2182,70 @@ void executeTIMTIM(cxxopts::ParseResult result) {
 }
 */
 
+void runCountingNodes(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &countNodesToremove){
+
+    cout << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
+    resultLogFile << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
+
+    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
+
+    unique_ptr<Graph> countingNodesGraph = make_unique<Graph>();
+    countingNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        countingNodesGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(countingNodesGraph->n);
+    for (int i = 0; i < countingNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    activatedSet = vector<int>(countingNodesGraph->n, 0);
+    for (int i = 0; i < countingNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    clock_t countNodesStartTime = clock();
+    countNodesToremove = countNodesRemoveVertices(countingNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
+                                                  activatedSet, "countNodes");
+    clock_t countNodesEndTime = clock();
+    double totalCountNodesTime = double(countNodesEndTime - countNodesStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
+    resultLogFile << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
+
+    myfile << totalCountNodesTime << " <-CountNodes Time\n";
+    countingNodesGraph.reset();
+}
+
+void runTopKInfluential(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &topKInflNodesToremove){
+
+    cout << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
+    resultLogFile << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
+
+    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
+    unique_ptr<Graph> topKInflNodesGraph = make_unique<Graph>();
+    topKInflNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        topKInflNodesGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(topKInflNodesGraph->n);
+    for (int i = 0; i < topKInflNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    activatedSet = vector<int>(topKInflNodesGraph->n, 0);
+    for (int i = 0; i < topKInflNodesGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    clock_t topKInflNodesStartTime = clock();
+
+    topKInflNodesToremove = topKInflNodesRemoveVertices(topKInflNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
+                                                        activatedSet, "modular");
+    clock_t topKInflNodesEndTime = clock();
+    double totalTopKInflTime = double(topKInflNodesEndTime - topKInflNodesStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
+    resultLogFile << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
+
+    myfile << totalTopKInflTime << " <-topKInfluential Time\n";
+    topKInflNodesGraph.reset();
+}
+
 void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     clock_t executionTimeBegin = clock();
 
@@ -2327,56 +2418,19 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    cout << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
-    resultLogFile << "\n \n ******* Running CountingNodes approach ******** \n" << endl;
-
     set<int> countNodesToremove;
-    unique_ptr<Graph> countingNodesGraph = make_unique<Graph>();
-    countingNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
-    if (!useIndegree) {
-        countingNodesGraph->setPropogationProbability(probability);
-    }
-    activatedSet = vector<int>(countingNodesGraph->n, 0);
-    for (int i = 0; i < countingNodesGraph->n; i++) {
-        activatedSet[i] = i;
-    }
-    clock_t countNodesStartTime = clock();
-    countNodesToremove = countNodesRemoveVertices(countingNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
-                                               activatedSet, "countNodes");
-    clock_t countNodesEndTime = clock();
-    double totalCountNodesTime = double(countNodesEndTime - countNodesStartTime) / (CLOCKS_PER_SEC * 60);
-    cout << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
-    resultLogFile << "\nCountNodes Graph algorithm time in minutes \n" << totalCountNodesTime << endl;
+    set<int> topKInflNodesToremove;
+    /*
+     * WARNING: Uncomment if you want to run this
+     * You will also have to uncomment the corresponding methods in the newDiffusion() method
 
-    myfile << totalCountNodesTime << " <-CountNodes Time\n";
-
-    countingNodesGraph.reset();
+    runCountingNodes(maxInfluenceSeed, envelopedNodes, countNodesToremove);
+    runTopKInfluential(maxInfluenceSeed, envelopedNodes, topKInflNodesToremove);
+     */
 
     //******************************************************************************************************************
 
-    cout << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
-    resultLogFile << "\n \n ******* Running topKInfluential approach ******** \n" << endl;
-    set<int> topKInflNodesToremove;
-    unique_ptr<Graph> topKInflNodesGraph = make_unique<Graph>();
-    topKInflNodesGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
-    if (!useIndegree) {
-        topKInflNodesGraph->setPropogationProbability(probability);
-    }
-    activatedSet = vector<int>(topKInflNodesGraph->n, 0);
-    for (int i = 0; i < topKInflNodesGraph->n; i++) {
-        activatedSet[i] = i;
-    }
-    clock_t topKInflNodesStartTime = clock();
 
-    topKInflNodesToremove = topKInflNodesRemoveVertices(topKInflNodesGraph, removeNodes, maxInfluenceSeed, envelopedNodes,
-                                                  activatedSet, "modular");
-    clock_t topKInflNodesEndTime = clock();
-    double totalTopKInflTime = double(topKInflNodesEndTime - topKInflNodesStartTime) / (CLOCKS_PER_SEC * 60);
-    cout << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
-    resultLogFile << "\ntopKInfluential Graph algorithm time in minutes \n" << totalTopKInflTime << endl;
-
-    myfile << totalTopKInflTime << " <-topKInfluential Time\n";
-    topKInflNodesGraph.reset();
 
     //******************************************************************************************************************
 
