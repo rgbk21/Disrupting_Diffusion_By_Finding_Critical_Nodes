@@ -161,6 +161,7 @@ public:
     void addSetintoASmatrix(int row, int vertex, int rrSetID);
     void print2DVector(const vector <vector<int>> &myVector);
     void assertCorrectNodesAreDeleted(int vertex, int numOfEdgesToDelete, int totalEdgesInOrigGraphPre, int totalEdgesInTransGraphPre);
+    int storeGraphDataBeforeNodeRemoval(int i);
 };
 
 #endif /* Graph_hpp */

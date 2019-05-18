@@ -509,7 +509,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
                 generateRandomRRSetwithCountMod(randomVertex, i);
                 totalSize += rrSets[i].size();
             }
-        } else {
+        }
+        else {
             int t = (int) activatedSet.size();
             for (int i = 0; i < R; i++) {
                 int randomVertex;
@@ -1293,6 +1294,32 @@ void Graph::assertTransposeIsCorrect() {
     assert(edgeCount == reverseEdgeCount);
     assert(edgeCount == m);
 
+}
+
+
+int Graph::storeGraphDataBeforeNodeRemoval(int i){
+
+    bool tshoot1 = true;
+    int totalEdgesInTopKInflGraphPre = 0;
+    int totalEdgesInOrigGraphPre = 0;
+    int numEdgesToDelete = 0;
+
+    if (tshoot1) {
+        for (int k = 0; k < this->graphTranspose.size(); k++) {
+            totalEdgesInTopKInflGraphPre += this->graphTranspose[k].size();
+            if (k == i) {
+                numEdgesToDelete += this->graphTranspose[k].size();
+            }
+        }
+        for (int k = 0; k < this->graph.size(); k++) {
+            totalEdgesInOrigGraphPre += this->graph[k].size();
+            if (k == i) {
+                numEdgesToDelete += this->graph[k].size();
+            }
+        }
+    }
+
+    return numEdgesToDelete;
 }
 
 //vertex is the vertex that was removed in this iteration of the loop
