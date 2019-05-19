@@ -570,13 +570,14 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     else {
         nodeAS = vector<set<int>>(n);
         //pairAssociatedSet=vector<unordered_map<int,unordered_set<int>>>(n);
-        RRas = new RRassociatedGraph;
+//        RRas = new RRassociatedGraph;
         alreadyVisited = vector<bool>(n, false);
         RRgraph = vector<vector<int>>(n);
         outdegree = vector<int>(n, n);
-        dependancyVector = vector<vector<vector<bool>> *>(R);
-        vertexToIndex = vector<unordered_map<int, int> *>(R);
-        indexToVertex = vector<vector<int> *>(R);
+        dependancyVector = vector<shared_ptr<vector<vector<bool>>>>(R);
+//        vertexToIndex = vector<unordered_map<int, int>* >(R);
+        vertexToIndex = vector<shared_ptr<unordered_map<int, int>>>(R);
+        indexToVertex = vector< shared_ptr<vector<int>> >(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);
@@ -660,11 +661,12 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
     int vertexCount = 0;//vertexCount Counts the number of unique vertices seen in the loop
 
     //mappedIndex: Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
-    unordered_map<int, int> *mappedIndex = new unordered_map<int, int>();
+    shared_ptr<unordered_map<int, int>> mappedIndex = make_shared<unordered_map<int, int>>();
+//    unordered_map<int, int>* mappedIndex = new unordered_map<int, int>();
     mappedIndex->reserve(8);//Reserve the memory size to be sth around average RRSetSize to prevent rehashing
 
     //revMappedIndex: Trying to map - index 0 contains 24 means that index 0 corresponds to vertex 24
-    vector<int> *revMappedIndex = new vector<int>();
+    shared_ptr<vector<int>> revMappedIndex = make_shared<vector<int>>();
 
     rrSets[rrSetID].push_back(randomVertex);
     inRRSet[randomVertex].push_back(rrSetID);
@@ -673,7 +675,7 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
     visited[randomVertex] = true;
 
     mappedIndex->insert(make_pair(randomVertex, vertexCount++));
-    (*revMappedIndex).push_back(randomVertex);
+    revMappedIndex->push_back(randomVertex);
 
     endOfInit = clock();
     initTime += (endOfInit - outerWhileLoopStart);
@@ -704,7 +706,7 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
                 visitMark[nVisitMark++] = v;
                 visited[v] = true;
                 mappedIndex->insert(make_pair(v, vertexCount++));
-                (*revMappedIndex).push_back(v);
+                revMappedIndex->push_back(v);
                 miniRRGraph[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
                 inRRSet[v].push_back(rrSetID);
             }
@@ -736,10 +738,10 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
 void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph,
                                              const int randomVertex, const int rrSetID,
                                              const int rrSetSize,
-                                             const unordered_map<int, int>* mappedIndex) {
+                                             const shared_ptr<unordered_map<int, int>> &mappedIndex) {
 
     //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
-    vector<vector<bool>> *dependancyMatrix = new vector<vector<bool>>(rrSetSize, vector<bool>(rrSetSize,true));   //Initialize matrix to contain all 1s initially
+    shared_ptr<vector<vector<bool>>> dependancyMatrix = make_shared<vector<vector<bool>>>(rrSetSize, vector<bool>(rrSetSize,true));   //Initialize matrix to contain all 1s initially
 
     int vertexRemoved = 0;
     vector<vector<int>> myGraph;
@@ -762,7 +764,7 @@ void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGr
 //myGraph is the graph on which you want to perform the BFS.
 //All the outgoing edges from the removedVertex have been removed in this graph
 //startVertex is the vertex from which you want to start the BFS
-void Graph::BFS(vector<vector<int>> &myGraph, vector<vector<bool>> *dependancyMatrix, int startVertex, int rrSetSize,
+void Graph::BFS(vector<vector<int>> &myGraph, const shared_ptr<vector<vector<bool>>> &dependancyMatrix, int startVertex, int rrSetSize,
                 int vertexRemoved) {
 
     vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
@@ -832,7 +834,7 @@ void Graph::generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID) {
 
 //    BFSonRRgraphs(randomVertex, rrSetID);//THE method
     clock_t start = clock();
-    calcDependancyMatrix(randomVertex, rrSetID, rrSets[rrSetID].size(), visitedNodes);
+//    calcDependancyMatrix(randomVertex, rrSetID, rrSets[rrSetID].size(), visitedNodes);
     clock_t end = clock();
     matrixTime += (end - start);
 
@@ -846,6 +848,7 @@ void Graph::generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID) {
 
 }
 
+/*
 void Graph::calcDependancyMatrix(const int randomVertex, const int rrSetID, const int rrSetSize,
                                  const vector<int> &visitedNodes) {
 
@@ -902,15 +905,16 @@ void Graph::calcDependancyMatrix(const int randomVertex, const int rrSetID, cons
     }
 
     dependancyVector[rrSetID] = dependancyMatrix;
-    /*  Freeing up the memory
-     * In C++ there is a very simple rule of thumb:
-     * All memory is automatically freed when it runs out of scope unless it has been allocated manually.
-//    vector<vector<int>>().swap(dependancyMatrix);
-//    vector<vector<int>>().swap(miniRRGraph);
-//    vector<int>().swap(revMappedIndex);
-//    unordered_map<int, int>().swap(mappedIndex);
-     */
+//    Freeing up the memory
+//     In C++ there is a very simple rule of thumb:
+//     *All memory is automatically freed when it runs out of scope unless it has been allocated manually.
+    vector<vector<int>>().swap(dependancyMatrix);
+    vector<vector<int>>().swap(miniRRGraph);
+    vector<int>().swap(revMappedIndex);
+    unordered_map<int, int>().swap(mappedIndex);
+
 }
+*/
 
 //********** Function only for the influenced graph with modular property********
 void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {

@@ -1262,7 +1262,6 @@ void newDiffusion(unique_ptr<Graph> &newGraph, unique_ptr<Graph> &subNewGraph, u
     //Print out nodes to be removed only for myfile
 
    removingNodesInSubModTopKInflGraph(subModtopKInflGraph, subModTopKInflNodesRemove);
-   cout << calcIntersection(modNodes, subModTopKInflNodesRemove);
 
     if (tshoot) {
 
@@ -2067,6 +2066,33 @@ set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> a
     return subModNodesToremove;
 }
 
+
+set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<int> activatedSet, int removeNodes,
+                               const set<int> &maxSeedSet, const set<int> &envelopedNodes,
+                               set<int> *subModImpactNodesToRemove) {
+
+    bool tshoot = true;//Prints the dependency values for each node to the file
+    bool tshoot1 = true;//Prints the node being removed in each iteration
+    bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
+
+    clock_t subModReverseStartTime = clock();
+
+    set<int> alreadyinSeed = set<int>();
+    set<int> subModTopCritNodesToremove;
+    vector<pair<int, int>> ASdegree;
+    int removalNum = removeNodes;
+    vector<int> dependencyValues = vector<int>(subModTopCritGraph->n, 0);
+
+    //Random RR sets
+    int n = (int) activatedSet.size();
+    double epsilon = (double) EPSILON;
+    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
+    cout << "\nRR sets are: " << R << endl;
+    resultLogFile << "\nRR sets are: " << R << endl;
+    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+
+}
+
 void convertInfluenceFile(string convertedFile, string influenceFile, set<int> seedSet, int n, int newVertices,
                           vector<int> *seedOrder) {
     vector<int> vertexIdMap = vector<int>(n, -1);
@@ -2369,7 +2395,6 @@ void runTopKInfluential(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, se
     topKInflNodesGraph.reset();
 }
 
-
 set<int> subModTopKInflRemoveVertices(unique_ptr<Graph> &subModTopkInflGraph, int removeNodes, const set<int> &maxSeedSet,
                                   const set<int> &envelopedNodes, vector<int> &activatedSet, string modular) {
 
@@ -2608,6 +2633,27 @@ void runSubModTopkInfl(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set
     myfile << totalSubModTopkInfl << " <-subModtopKInfl Time\n";
 }
 
+
+void runSubModTopCrit(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModTopCritNodesToRemove) {
+
+    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
+
+    unique_ptr<Graph> subModTopCritGraph = make_unique<Graph>();
+    subModTopCritGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        subModTopCritGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(subModTopCritGraph->n);
+    for (int i = 0; i < subModTopCritGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    set<int> *subModImpactNodesToRemove = new set<int>();//Stores the nodes removed by Method 3 (if you remember what it actually was...)
+    subModTopCritNodesToRemove = subModTopCritNodesRemove(subModTopCritGraph, activatedSet, removeNodes,
+                                                         maxInfluenceSeed, envelopedNodes, subModImpactNodesToRemove);
+    vector<vector<int>>().swap(subModTopCritGraph->rrSets);
+    subModTopCritGraph.reset();
+}
+
 void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     clock_t executionTimeBegin = clock();
 
@@ -2706,7 +2752,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
             myfile << maxInfluenceNum << " <-Influence of chosen random seed on the original Graph G" << endl;
             cout << "\n \n******* Calculating randomSeed to be used ends ******** \n" << endl;
 
-        } else {
+        }
+        else {
             myfile << "Max influence Seed Set in the original graph: " << endl;
             cout << "Max influence Seed Set in the original graph: " << endl;
 
@@ -2818,12 +2865,17 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                                                          maxInfluenceSeed, envelopedNodes,
                                                          removalModImpact);
     vector<vector<int>>().swap(subInfluencedGraph->rrSets);
-    cout << "\n \n******* Node removed in all four approaches ******** \n" << flush;
     subInfluencedGraph.reset();
     //delete subInfluencedGraph;
 
     //******************************************************************************************************************
 
+    cout << "\n ******* Running the subModular version of topCrit approach ******** \n" << endl;
+    unique_ptr<Graph> subModTopCritGraph = make_unique<Graph>();
+//    set<int> subModTopCritNodesToRemove;
+//    runSubModTopCrit(maxInfluenceSeed, envelopedNodes, subModTopCritNodesToRemove);
+
+    //******************************************************************************************************************
     resultLogFile << "\n \n******* Node removed in all four approaches ******** \n" << flush;
 
     unique_ptr<Graph> modNewGraph = make_unique<Graph>();
@@ -2877,9 +2929,9 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                  activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed);
 
     clock_t executionTimeEnd = clock();
-    double totalExecutionTime = double(executionTimeEnd - executionTimeBegin) / (CLOCKS_PER_SEC * 60);
-    cout << "\n Elapsed time in minutes " << totalExecutionTime;
-    resultLogFile << "\n Elapsed time in minutes " << totalExecutionTime;
+    double totalExecutionTime = double(executionTimeEnd - executionTimeBegin) / (CLOCKS_PER_SEC * 60) ;
+    cout << "\n Elapsed time in minutes " << totalExecutionTime << endl;
+    resultLogFile << "\n Elapsed time in minutes " << totalExecutionTime << endl;
 
 
 }
