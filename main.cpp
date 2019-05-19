@@ -1904,7 +1904,7 @@ void removingModNodesForTest(unique_ptr<Graph> &influencedGraph, int removeNodes
 }
 
 
-set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> activatedSet, int removeNodes,
+set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> &activatedSet, int removeNodes,
                                const set<int> &maxSeedSet, const set<int> &envelopedNodes,
                                set<int> *removalModImpact) {
 
@@ -2078,7 +2078,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     clock_t subModReverseStartTime = clock();
 
     set<int> alreadyinSeed = set<int>();
-    set<int> subModTopCritNodesToremove;
+    set<int> subModTopCritNodesToRemove;
     vector<pair<int, int>> ASdegree;
     int removalNum = removeNodes;
     vector<int> dependencyValues = vector<int>(subModTopCritGraph->n, 0);
@@ -2089,7 +2089,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
     cout << "\nRR sets are: " << R << endl;
     resultLogFile << "\nRR sets are: " << R << endl;
-    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModTopCrit", resultLogFile);
 
 }
 
