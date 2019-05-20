@@ -2089,7 +2089,10 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
     cout << "\nRR sets are: " << R << endl;
     resultLogFile << "\nRR sets are: " << R << endl;
-    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModTopCrit", resultLogFile);
+    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+
+    //Now we need to remove all of the nodes which are in the seedSet from each of the dependencyVector
+    //We are not going to directly call the removeFromDependencyVector() method
 
 }
 
@@ -2865,6 +2868,15 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                                                          maxInfluenceSeed, envelopedNodes,
                                                          removalModImpact);
     vector<vector<int>>().swap(subInfluencedGraph->rrSets);
+
+    for (int rrSetId = 0; rrSetId < subInfluencedGraph->dependancyVector.size(); rrSetId++) {                           //for each RRSet in dependancyVector
+        vector<vector<bool>>().swap((*subInfluencedGraph->dependancyVector[rrSetId]));                                  //https://stackoverflow.com/questions/13944886/is-stdvector-memory-freed-upon-a-clear
+        (*subInfluencedGraph->vertexToIndex[rrSetId]).clear();                                                          //https://stackoverflow.com/questions/2629018/how-do-i-force-my-stdmap-to-deallocate-memory-used
+        vector<int>().swap((*subInfluencedGraph->indexToVertex[rrSetId]));
+    }
+    subInfluencedGraph->dependancyVector.clear();
+    subInfluencedGraph->vertexToIndex.clear();
+    subInfluencedGraph->indexToVertex.clear();
     subInfluencedGraph.reset();
     //delete subInfluencedGraph;
 
@@ -2872,8 +2884,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     cout << "\n ******* Running the subModular version of topCrit approach ******** \n" << endl;
     unique_ptr<Graph> subModTopCritGraph = make_unique<Graph>();
-//    set<int> subModTopCritNodesToRemove;
-//    runSubModTopCrit(maxInfluenceSeed, envelopedNodes, subModTopCritNodesToRemove);
+    set<int> subModTopCritNodesToRemove;
+    runSubModTopCrit(maxInfluenceSeed, envelopedNodes, subModTopCritNodesToRemove);
 
     //******************************************************************************************************************
     resultLogFile << "\n \n******* Node removed in all four approaches ******** \n" << flush;
