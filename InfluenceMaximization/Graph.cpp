@@ -1393,6 +1393,7 @@ vector<int> Graph::oldRRSetGeneration(int randomVertex, int rrSetID) {
     return rrSets[hyperiiid];
 }
 
+//Method is called removeOutgoingEdges() but it removes ALL of the edges incident on the vertex "vertex"
 void Graph::removeOutgoingEdges(int vertex) {
 
     bool tshoot = false;
@@ -1402,19 +1403,19 @@ void Graph::removeOutgoingEdges(int vertex) {
     vector<int> outgoingNodes = vector<int>();
     outgoingNodes = graph[vertex];
 
-    for (int i:outgoingNodes) {
-        vector<int> outgoingEdges = vector<int>();
-        vector<int> incomingEdges = vector<int>();
-        for (int j:graphTranspose[i]) {
-            if (j != vertex)
-                outgoingEdges.push_back(j);
-        }
-        graphTranspose[i] = outgoingEdges;
-
-        for (int j:graph[i]) {
-            if (j != vertex)
-                incomingEdges.push_back(j);
-        }
+    for (int i:outgoingNodes) {                     //for each outgoing edge (vertex, v) in G
+        vector<int> outgoingEdges = vector<int>();  //
+        vector<int> incomingEdges = vector<int>();  //
+        for (int j:graphTranspose[i]) {             //  for each outgoing edge (v, w) in G_T
+            if (j != vertex)                        //      if(w != vertex)
+                outgoingEdges.push_back(j);         //          add w to outgoingEdges
+        }                                           //  set new outgoing edges from v in G_T to be outgoingEdges
+        graphTranspose[i] = outgoingEdges;          //
+                                                    //
+        for (int j:graph[i]) {                      //  for each outgoing edge (v, w) in G
+            if (j != vertex)                        //      if(w != vertex)
+                incomingEdges.push_back(j);         //          add w to incomingEdges
+        }                                           //  set new outgoing edges from v in G to be incomingEdges
         graph[i] = incomingEdges;
     }
     graph[vertex] = vector<int>();
@@ -1423,19 +1424,19 @@ void Graph::removeOutgoingEdges(int vertex) {
     vector<int> incomingNodes = vector<int>();
     incomingNodes = graphTranspose[vertex];
 
-    for (int i:incomingNodes) {
-        vector<int> outgoingEdges = vector<int>();
-        vector<int> incomingEdges = vector<int>();
-        for (int j:graph[i]) {
-            if (j != vertex)
-                outgoingEdges.push_back(j);
-        }
-        graph[i] = outgoingEdges;
-
-        for (int j:graphTranspose[i]) {
-            if (j != vertex)
-                incomingEdges.push_back(j);
-        }
+    for (int i:incomingNodes) {                     //for each outgoing edge (vertex, v) in G_T
+        vector<int> outgoingEdges = vector<int>();  //
+        vector<int> incomingEdges = vector<int>();  //
+        for (int j:graph[i]) {                      //  for each outgoing edge (v, w) in G
+            if (j != vertex)                        //      if(w != vertex)
+                outgoingEdges.push_back(j);         //          add w to outgoingEdges
+        }                                           //  set new outgoing edges from v in G to be outgoingEdges
+        graph[i] = outgoingEdges;                   //
+                                                    //
+        for (int j:graphTranspose[i]) {             //  for each outgoing edge (v, w) in G_T
+            if (j != vertex)                        //      if(w != vertex)
+                incomingEdges.push_back(j);         //          add w to incomingEdges
+        }                                           //  set new outgoing edges from v in G_T to be incomingEdges
         graphTranspose[i] = incomingEdges;
     }
     graphTranspose[vertex] = vector<int>();
