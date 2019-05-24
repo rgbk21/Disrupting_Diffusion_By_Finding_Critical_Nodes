@@ -83,6 +83,7 @@ public:
     vector<unique_ptr<vector<int>>> indexToVertex;
     vector<unique_ptr<vector<vector<bool>>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
     vector<vector<vector<bool>>*> testDependancyVector;//Used for the testing of what if modNodes were the ones removed
+    vector<unique_ptr<vector<vector<int>>>> miniRRGraphsVector;//Stores the RRGraph generated in each RRSet generation
 
     vector<bool> labels;
     deque<int> q;
@@ -110,11 +111,12 @@ public:
     void BFS(vector<vector<int>> &myGraph, const unique_ptr<vector<vector<bool>>> &dependancyMatrix, int u, int rrSetSize, int vertexRemoved);
     void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
-    void generateRRSetWithRRGraphSubModCrit(int randomVertex, int rrSetID);
+    void generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
     void generateRandomRRSetCountingNodes(int randomVertex, int rrSetID);
     int BFSCountingNodes(int startVertex);
     void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, int randomVertex, int rrSetID, int rrSetSize, const unique_ptr<unordered_map<int, int>> &mappedIndex);
+    void calcDependancyMatrixForSubModTopCrit(const unique_ptr<vector<vector<int>>> &miniRRGraph, int randomVertex, int rrSetID, int rrSetSize, const unique_ptr<unordered_map<int, int>> &mappedIndex);
     void readGraph(string fileName,std::ofstream& resultLogFile);
     void readGraph(string fileName, float percentage,std::ofstream& resultLogFile);
     void writeGraphToFile(vector<vector<int>> inputGraph, string graphName, string path, int n, int m);

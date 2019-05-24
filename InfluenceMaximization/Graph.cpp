@@ -566,6 +566,71 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
             }
         }
     }
+    else if (modular == "subModTopCrit"){
+        nodeAS = vector<set<int>>(n);
+        alreadyVisited = vector<bool>(n, false);
+        RRgraph = vector<vector<int>>(n);
+        outdegree = vector<int>(n, n);
+        dependancyVector = vector<unique_ptr<vector<vector<bool>>>>(R);
+        miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
+        vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
+        indexToVertex = vector<unique_ptr<vector<int>>>(R);
+        visitMark = vector<int>(n);
+        inRRSet = vector<vector<int>>(n);
+        labels = vector<bool>(n, true);
+        //Datastructures being used in the code:
+        /* Datstructures:
+         *
+         * vertexToIndex: Stores the vector of pointers to unordered_maps which stores mapping of each vertex to an index
+         * At index 10 of vertexToIndex is the mapping of RRSetId number 10
+         * At index 10: inside the unordered_map
+         * Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+         *
+         * indexToVertex: Stores a vector of pointers to vector<int>. Vector at index i corresponds to RRSetID i.
+         * Inside RRSetID i bucket: each vector is -
+         * Trying to map - index 0 contains 24 means that 0 corresponds to vertex 24
+         *
+         * miniRRGraphsVector: Stores a vector of pointers to the miniRRGraph (vector<vector<int>>) created in each RRSet Generation
+         * Inside RRSetID i bucket: each vector<vector<int>> is -
+         * The graph created by mapping each vertex of the original graph through the vertexToIndex datastructure
+         *
+         * dependancyVector: Stores an Array of Matrices.
+         * Matrix at index i is the dependancyMatrix of RRSet number i
+         * How to read them? Consider the following graph and Matrix:
+         *  0 -> 1 -> 2 -> 3
+         *
+         * Dependence of reachability of 2 starting from 0 given that 1 has been removed is:
+         *
+         *   0  1 (2)  3
+         * 0 1  1  1  1
+         * 1 0  1  1  1
+         * 2 0  0  1  1
+         * 3 0  0  0  1
+         *
+         *
+         * */
+        modImpactTime = 0;
+        coverage = vector<int>(n, 0);
+
+        int t = (int) activatedSet.size();
+        int doneRR = 1;
+        int randomVertex;
+        for (int i = 0; i < R; i++) {
+            if (i == doneRR * 10000) {
+                cout << "\n" << i << " " << flush;
+                doneRR++;
+            }
+
+            randomGenStart = clock();
+            randomVertex = activatedSet[rand() % t];
+            randomNumGen += (clock() - randomGenStart);
+
+//            randomVertex = distr(eng);
+            generateRRSetsForSubModTopCrit(randomVertex, i);
+            totalSize += rrSets[i].size();
+        }
+        totalNumNodesInRRSets = totalSize;
+    }
         //for modular Impact
     else {
         nodeAS = vector<set<int>>(n);
@@ -760,10 +825,10 @@ void Graph::calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGr
 void Graph::BFS(vector<vector<int>> &myGraph, const unique_ptr<vector<vector<bool>>> &dependancyMatrix, int startVertex, int rrSetSize,
                 int vertexRemoved) {
 
-    vector<bool> visitedBFS = vector<bool>(rrSetSize, false);       //Mark all the vertices as not visited
-    deque<int> queue;                                               //Create a queue for BFS
-    visitedBFS[startVertex] = true;                                 //Mark the current node as visited
-    queue.push_back(startVertex);                                   //And add it to the queue
+    vector<bool> visitedBFS = vector<bool>(rrSetSize, false);           //Mark all the vertices as not visited
+    deque<int> queue;                                                   //Create a queue for BFS
+    visitedBFS[startVertex] = true;                                     //Mark the current node as visited
+    queue.push_back(startVertex);                                       //And add it to the queue
     (*dependancyMatrix)[vertexRemoved][startVertex] = false;
 
     while (!queue.empty()) {
@@ -780,6 +845,114 @@ void Graph::BFS(vector<vector<int>> &myGraph, const unique_ptr<vector<vector<boo
             }
         }
     }
+}
+
+void Graph::generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID){
+
+    outerWhileLoopStart = clock();
+
+    q.clear();
+    int nVisitMark = 0;
+    int vertexCount = 0;//vertexCount Counts the number of unique vertices seen in the loop
+
+    //mappedIndex: Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+    unique_ptr<unordered_map<int, int>> mappedIndex = make_unique<unordered_map<int, int>>();
+    mappedIndex->reserve(8);//Reserve the memory size to be sth around average RRSetSize to prevent rehashing
+
+    //revMappedIndex: Trying to map - index 0 contains 24 means that index 0 corresponds to vertex 24
+    unique_ptr<vector<int>> revMappedIndex = make_unique<vector<int>>();
+
+    //ptrToMiniRRGraph: Stores the RRGraph but with mappedVertices instead of original vertices
+    unique_ptr<vector<vector<int>>> ptrToMiniRRGraph = make_unique<vector<vector<int>>>();
+
+    rrSets[rrSetID].push_back(randomVertex);
+    inRRSet[randomVertex].push_back(rrSetID);
+    q.push_back(randomVertex);
+    visitMark[nVisitMark++] = randomVertex;
+    visited[randomVertex] = true;
+
+    mappedIndex->insert(make_pair(randomVertex, vertexCount++));
+    revMappedIndex->push_back(randomVertex);
+
+    endOfInit = clock();
+    initTime += (endOfInit - outerWhileLoopStart);
+
+    //Simultaneously creating RRGraph and miniRRGraph
+    int v;
+    int expand;
+    while (!q.empty()) {
+        expand = q.front();
+        q.pop_front();
+        ptrToMiniRRGraph->emplace_back(vector<int>());
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            v = graphTranspose[expand][j];
+            if (!labels[v]){
+                assert(("label was false_Interleaved? Why?", false));
+                continue;
+            }
+            if (!this->flipCoinOnEdge(v, expand)){
+                continue;
+            }
+
+            if (visited[v]) {
+                (*ptrToMiniRRGraph)[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                continue;
+            }
+
+            if (!visited[v]) {
+                visitMark[nVisitMark++] = v;
+                visited[v] = true;
+                mappedIndex->insert(make_pair(v, vertexCount++));
+                revMappedIndex->push_back(v);
+                (*ptrToMiniRRGraph)[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                inRRSet[v].push_back(rrSetID);
+            }
+            q.push_back(v);
+            rrSets[rrSetID].push_back(v);
+        }
+    }
+
+    vertexToIndex[rrSetID] = move(mappedIndex);
+    indexToVertex[rrSetID] = move(revMappedIndex);
+    miniRRGraphsVector[rrSetID] = move(ptrToMiniRRGraph);
+
+    matrixStart = clock();
+    whileLoopTime += (matrixStart - outerWhileLoopStart);
+    onlyLoopTime += (matrixStart - endOfInit);
+
+    calcDependancyMatrixForSubModTopCrit(miniRRGraphsVector[rrSetID], randomVertex, rrSetID, rrSets[rrSetID].size(),
+                                     vertexToIndex[rrSetID]);
+    matrixTime += (clock() - matrixStart);
+
+    //Freeing and clearing the memory
+    for (int i = 0; i < nVisitMark; i++) {
+        visited[visitMark[i]] = false;
+        visitMark[i] = -1;//WARNING-Doing this because I want to check if this node is ever visited. Code should crash and burn.
+    }
+}
+
+void Graph::calcDependancyMatrixForSubModTopCrit(const unique_ptr<vector<vector<int>>> &ptrToMiniRRGraph,
+                                             const int randomVertex, const int rrSetID,
+                                             const int rrSetSize,
+                                             const unique_ptr<unordered_map<int, int>> &mappedIndex) {
+
+    //dependancyMatrix Stores the dependsOn relation in each RRSet generation step
+    unique_ptr<vector<vector<bool>>> dependancyMatrix = make_unique<vector<vector<bool>>>(rrSetSize, vector<bool>(rrSetSize,true));   //Initialize matrix to contain all 1s initially
+
+    int vertexRemoved = 0;
+    vector<vector<int>> myGraph;
+    for (int i = 0; i < rrSetSize; i++) {                                                                   //for every vertex u in the RRGraph
+        vertexRemoved = mappedIndex->at(rrSets[rrSetID][i]);
+        if (vertexRemoved != mappedIndex->at(randomVertex)) {                                               //if u != randomVertex
+            myGraph = *ptrToMiniRRGraph;                                                                    //Make a copy of the graph being pointed to by the ptrToMiniRRGraph
+            myGraph[vertexRemoved].clear(); //WARNING. WHAT ABOUT THE INCOMING VERTICES INTO vertexRemoved?//Remove u and all its outgoing edges from the graph
+            bfsStart = clock();
+            BFS(myGraph, dependancyMatrix, mappedIndex->at(randomVertex), rrSetSize, vertexRemoved);        //Do a BFS on the resulting graph starting from the randomVertex
+            bfsTime += (clock() - bfsStart);
+        }
+    }
+
+    dependancyVector[rrSetID] = move(dependancyMatrix);
 }
 
 //********** Function only for the influenced graph ********

@@ -348,6 +348,7 @@ removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<in
     cout << "\n RRsets done " << flush;
     resultLogFile << "\n RRsets done " << flush;
 
+
     int modStrength = 0;
     for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
         modStrength += influencedGraph->NodeinRRsetsWithCounts[i];
@@ -1485,43 +1486,43 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
             infNum = oldNewIntersection(newModGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(newModGraph->rrSets);
             modResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t ";
 
             cout << k << "---" << "\nSubModTopK Graph Results: " << endl;
             infNum = oldNewIntersection(subModtopKInflGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(subModtopKInflGraph->rrSets);
             subModTopKInflResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t ";
 
             cout << k << "---" << "\nOld_SubMod Results: " << endl;
             infNum = oldNewIntersection(subNewGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(subNewGraph->rrSets);
             SubmodResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nNew_SubMod Results: " << endl;
             infNum = oldNewIntersection(subModTopCritGraphNew, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(subModTopCritGraphNew->rrSets);
             subModTopCritResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nOld_ModImpact Results: " << endl;
             infNum = oldNewIntersection(modImpactGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(modImpactGraph->rrSets);
             modImpactResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nNew_Mod Impact Results: " << endl;
             infNum = oldNewIntersection(subModImpactTopCritGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(subModImpactTopCritGraph->rrSets);
             subModImpactTopCritResults.push_back(infNum);
-            myfile << infNum << " ";
+            myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nTransposed Graph Results: " << endl;
             infNum = oldNewIntersection(tGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(tGraph->rrSets);
             tGraphResults.push_back(infNum);
-            myfile << infNum << "\n";
+            myfile << infNum << "\t\n";
 
             /*
              * Uncomment only if the countNodes method in executeTIMTIMfullGraph() method has been uncommented as well
@@ -1818,7 +1819,7 @@ void removeFromDependencyVector(int node, unique_ptr<Graph> &influencedGraph, ve
 
 }
 
-void computeSubModImpactNodes(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
+void computeSubModNodes(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
                               vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
                               const set<int> &envelopedNodes, set<int> &subModNodesToremove, vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed) {
 
@@ -1996,11 +1997,11 @@ set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> &
     */
 
     /***************************************************************************************************************************************/
-    cout << "******* Running SubMod approach ********" << endl;
-    dependValues << "******* Running SubMod approach ********" << endl;
+    cout << "******* Running OLD_SubMod approach ********" << endl;
+    dependValues << "******* Running OLD_SubMod approach ********" << endl;
 
     alreadyinSeed = set<int>();
-    computeSubModImpactNodes(influencedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, envelopedNodes,
+    computeSubModNodes(influencedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, envelopedNodes,
                              subModNodesToremove, subModNodesToRemoveUnsorted, alreadyinSeed);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModNodesToremove.size() == removalNum));
@@ -2072,8 +2073,57 @@ set<int> subModularNodesRemove(unique_ptr<Graph> &influencedGraph, vector<int> &
     return subModNodesToremove;
 }
 
-//node is the vertex being removed from the dependencyVector
-void removeSeedSetNodeFromDependencyVector(int node, unique_ptr<Graph> &influencedGraph) {
+//miniRRGraph is the graph that has been created from the original graph after mapping each of the vertices to index
+//node belonging to the seedSet along with all of its outgoing edges has already been removed at this point
+//nodeBeingRemoved is the vertex that has to be removed from the minRRGraph. So, we are basically checking:
+//dependence of reachability of each node in the miniRRGraph (formed after removing outgoing edges from the seedSetNode) starting from the origin given that
+//nodeBeingRemoved is removed
+//both seedSetNode and otherNode are not the actual vertices, but the mapped vertices in this rrSet numbered rrSetId
+void repopulateDependencyMatrix(unique_ptr<Graph> &influencedGraph, unique_ptr<vector<vector<int>>> &miniRRGraph, vector<bool> &reachableFromSeed,
+                                int rrSetId,
+                                int seedSetNode, int nodeBeingRemoved) {
+
+    vector<vector<int>> myGraph = *miniRRGraph;
+    myGraph[nodeBeingRemoved].clear();
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){    //Initialize all row entries to TRUE
+        if(reachableFromSeed[i]){                                                                       //if the particular node was not originally reachable
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = false;                 //from the seedSetNode
+        }else{
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = true;
+        }
+    }
+    (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][seedSetNode] = true;                //because if reachability of the the seedSetNode depends upon the nodeBeingRemoved,
+                                                                                                        //then we want to capture that information in the dependencyMatrix row corresp. to nodeBeingRemoved
+
+    vector<bool> visitedBFS = vector<bool>(miniRRGraph->size(), false);             //Mark all the vertices as not visited
+    deque<int> queue;                                                               //Create a queue for BFS
+    visitedBFS[0] = true;                                                           //Mark the starting node as visited. starting node will always be node numbered 0
+    queue.push_back(0);                                                             //And add it to the queue
+    if(nodeBeingRemoved != 0){
+        (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][0] = false; //since we are starting the BFS from the node 0, dependence of reachability of 0 from 0 given that the ndoeBeingRemoved is removed is "false"
+    }
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++) {
+            int v = myGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if (nodeBeingRemoved != v) {                                                    //Because reachability of vertexRemoved will depend on itself
+                    (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][v] = false; //Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+
+}
+
+//node is the seedSet node being removed from the dependencyVector
+//miniRRGraphsVector contains the miniRRGraphs, not the actual RRgraphs. So all vertices will have to be mapped to indices
+void removeSeedSetNodeFromDependencyVector(int seedSetNode, unique_ptr<Graph> &influencedGraph) {
 
     /*Update the dependencyVector datastructure
      *
@@ -2083,8 +2133,8 @@ void removeSeedSetNodeFromDependencyVector(int node, unique_ptr<Graph> &influenc
      *      set all elements in the column index corresponding to that node to 0
      */
 
-    cout << "Removing seedSet vertex: " << node << endl;
-    dependValues << "Removing seedSet vertex: " << node << endl;
+    cout << "Removing seedSet vertex: " << seedSetNode << endl;
+    dependValues << "Removing seedSet vertex: " << seedSetNode << endl;
 
     /*
 
@@ -2120,16 +2170,29 @@ void removeSeedSetNodeFromDependencyVector(int node, unique_ptr<Graph> &influenc
 
      */
 
-    for (int i = 0; i < influencedGraph->inRRSet[node].size(); i++) {                                                   //for each RRSet in inRRSet (each RRSet that contains node)
-        int rrSetId = influencedGraph->inRRSet[node][i];                                                                //get the next RRSet that the node to be removed is in
-        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(node);              //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
-        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found
-            fill((*influencedGraph->dependancyVector[rrSetId])[got->second].begin(),
-                 (*influencedGraph->dependancyVector[rrSetId])[got->second].end(), false);
-            for (int row = 0; row < influencedGraph->dependancyVector[rrSetId]->size(); row++) {                        //Replace all elements in the vertex column with 0;
-                if ((*influencedGraph->dependancyVector[rrSetId])[row][got->second]) {
-                    (*influencedGraph->dependancyVector[rrSetId])[row][got->second] = false;
-//                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[row]] -= 1;                           //We do not do this step: Reduce the dependencyValue of the vertex in the row by 1
+    for (int i = 0; i < influencedGraph->inRRSet[seedSetNode].size(); i++) {                                            //for each RRSet in inRRSet (each RRSet that contains node)
+
+        int rrSetId = influencedGraph->inRRSet[seedSetNode][i];                                                         //get the next RRSet that the node to be removed is in
+//        cout << "Looking at RRSet Number: " << rrSetId << endl;
+        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(seedSetNode);       //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the seedSet vertex being removed
+            vector<bool> reachableFromSeed;                                                                             //Stores the nodes whose reachability depends ONLY on the seed
+            if ( !(*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].empty() ) {                              //Idea is that if there are NO outgoing edges from the seedSetNode, then removing it will not have any affect on the datastr. So we can just ignore, and move to the next rrSetId
+                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();                                   //remove all the outgoing edges from node in the RRGraph stored in rrSetId bucket
+                reachableFromSeed = (*influencedGraph->dependancyVector[rrSetId])[got->second];//CHECK IF THIS MAKES A COPY OF THE VECTOR OR NOT. WE NEED A COPY!!!!!!
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that node is removed is true && j != node
+                        (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
+                        fill((*influencedGraph->dependancyVector[rrSetId])[j].begin(),
+                             (*influencedGraph->dependancyVector[rrSetId])[j].end(),
+                             false);                                                                                    //fill the entire row of j with false, bec. j is no longer reachable from source since node has been removed. Removing seed set node, hence we do not change dependencyValues
+                        if (!(*influencedGraph->miniRRGraphsVector[rrSetId])[j].empty()) {                              //Remove all outgoing edges from j from this(rrSetId) miniRRGraph since the vertex j  is now no longer reachable from source
+                            (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();
+                        }
+                    } else if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j]) {                        //else if dependence of reachability of j from source given that node is removed is false
+                        repopulateDependencyMatrix(influencedGraph, influencedGraph->miniRRGraphsVector[rrSetId],
+                                                   reachableFromSeed, rrSetId, got->second, j);
+                    }
                 }
             }
         } else {
@@ -2164,7 +2227,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
     cout << "\nRR sets are: " << R << endl;
     resultLogFile << "\nRR sets are: " << R << endl;
-    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
+    subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModTopCrit", resultLogFile);
+    clock_t timeForGeneratingRRSets = clock();
 
     //Now we need to remove all of the nodes which are in the seedSet from each of the dependencyVector
     //We are not going to directly call the removeFromDependencyVector() method
@@ -2173,6 +2237,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     for(int nodeToRemove : maxSeedSet){
         removeSeedSetNodeFromDependencyVector(nodeToRemove, subModTopCritGraph);
     }
+    clock_t timeToRemoveSeedSetNodesEnd = clock();
 
     cout << "\nComputing nodes to remove by the NEW_Mod Impact method" << endl;
     computeModImpactNodes(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, envelopedNodes,
@@ -2197,7 +2262,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 
     alreadyinSeed = set<int>();
 
-    computeSubModImpactNodes(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, envelopedNodes,
+    computeSubModNodes(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet, envelopedNodes,
                              subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModTopCritNodesToRemove.size() == removalNum));
@@ -2252,6 +2317,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     double totalAlgorithmTime = double(subModReverseEndTime - subModReverseStartTime) / (CLOCKS_PER_SEC * 60);
     cout << "\nReverse submodular algorithm time in minutes " << totalAlgorithmTime << endl;
     cout << "Breakup of time taken: " << endl;
+    cout << "Time for generating RRSets: " << (timeForGeneratingRRSets - subModReverseStartTime) / (CLOCKS_PER_SEC * 60) << endl;
+    cout << "Time for removing SeedSet Nodes: " << (timeToRemoveSeedSetNodesEnd - timeForGeneratingRRSets) / (CLOCKS_PER_SEC * 60) << endl;
     cout << "Total time taken by randomNumGenerator: " << subModTopCritGraph->randomNumGen / (CLOCKS_PER_SEC * 60) << endl;
     cout << "Total time taken by outer while Loop: " << subModTopCritGraph->whileLoopTime / (CLOCKS_PER_SEC * 60) << endl;
     cout << endl;
@@ -2262,8 +2329,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     cout << "Total time taken by calcDependancyMatrix(): " << subModTopCritGraph->matrixTime / (CLOCKS_PER_SEC * 60)
          << endl;
     cout << "Total time taken by BFS(): " << subModTopCritGraph->bfsTime / (CLOCKS_PER_SEC * 60) << endl;
-    resultLogFile << "\n Reverse submodular algorithm time in minutes " << totalAlgorithmTime;
-    myfile << totalAlgorithmTime << " <-SubModTime\n";
+
+    myfile << totalAlgorithmTime << " <-NEW_SubModTime\n";
     return subModTopCritNodesToRemove;
 }
 

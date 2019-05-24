@@ -22,7 +22,9 @@ void TIMCoverage::incrementCountForVertex(int u, int randomRRSetID) {
 }
 
 int TIMCoverage::countForVertex(int u) {
-    assert(u<this->lookupTable->size());
+
+    assert(("assert added later by rgbk21", u >= 0));
+    assert((unsigned)u < this->lookupTable->size());
     return (int)(*lookupTable)[u].size();
 }
 
@@ -39,12 +41,14 @@ void TIMCoverage::offsetCoverage(int vertex, int offset) {
 }
 
 void TIMCoverage::initializeLookupTable(vector<vector<int>>* randomRRSets, int n) {
-    
-    for(int i=0;i<n; i++) {
+
+    assert(("assert added later by rgbk21", n >= 0));
+
+    for(int i = 0; i < n; i++) {
         (*lookupTable).push_back(vector<int>());
     }
     
-    for(int rrSetID=0; rrSetID<randomRRSets->size();rrSetID++) {
+    for(int rrSetID=0; rrSetID < randomRRSets->size();rrSetID++) {
         
         for(int vertex: (*randomRRSets)[rrSetID]) {
             incrementCountForVertex(vertex, rrSetID);
