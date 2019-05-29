@@ -575,6 +575,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
+        reachableNodesVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);
@@ -593,6 +594,18 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
          * miniRRGraphsVector: Stores a vector of pointers to the miniRRGraph (vector<vector<int>>) created in each RRSet Generation
          * Inside RRSetID i bucket: each vector<vector<int>> is -
          * The graph created by mapping each vertex of the original graph through the vertexToIndex datastructure
+         *
+         *  miniRRGraphsVector: Stores the miniRRGraph vector<vector<int>>
+         *  miniRRGraph at rrSetId i corresponds to the miniRRGraph generated in rrSetId number i
+         *  miniRRgraph is different from normal RRGraph in the sense that each vertex has been mapped to index
+         *  using the vertexToIndex[rrSetId] datastructure
+         *
+         *  reachableNodesVector: stores a vector<vector<bool>> Stores a vector of unique_pointer to vector<bool>
+         *  Inside RRSetID i bucket: each vector is -
+         *  if the entry at index 3 is TRUE, it means that the node 3 is already reachable from some seedSetNode.
+         *  It thus keeps track of the set of nodes that are reachable from every seedSetNode seen so far.
+         *  Nodes are mapped through the vertexToIndex datastructure
+         *
          *
          * dependancyVector: Stores an Array of Matrices.
          * Matrix at index i is the dependancyMatrix of RRSet number i
@@ -640,6 +653,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         dependancyVector = vector<unique_ptr<vector<vector<bool>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
+        reachableNodesVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);
@@ -659,6 +673,17 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
          * Matrix at index i is the dependancyMatrix of RRSet number i
          * How to read them? Consider the following graph and Matrix:
          *  0 -> 1 -> 2 -> 3
+         *
+         *  miniRRGraphsVector: Stores the miniRRGraph vector<vector<int>>
+         *  miniRRGraph at rrSetId i corresponds to the miniRRGraph generated in rrSetId number i
+         *  miniRRgraph is different from normal RRGraph in the sense that each vertex has been mapped to index
+         *  using the vertexToIndex[rrSetId] datastructure
+         *
+         *  reachableNodesVector: stores a vector<vector<bool>> Stores a vector of unique_pointer to vector<bool>
+         *  Inside RRSetID i bucket: each vector is -
+         *  if the entry at index 3 is TRUE, it means that the node 3 is already reachable from some seedSetNode.
+         *  It thus keeps track of the set of nodes that are reachable from every seedSetNode seen so far.
+         *  Nodes are mapped through the vertexToIndex datastructure
          *
          * Dependence of reachability of 2 starting from 0 given that 1 has been removed is:
          *
@@ -774,8 +799,12 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
         }
     }
 
+    unique_ptr<vector<bool>> reachableNodes = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+
     vertexToIndex[rrSetID] = move(mappedIndex);
     indexToVertex[rrSetID] = move(revMappedIndex);
+    reachableNodesVector[rrSetID] = move(reachableNodes);
+
 
     matrixStart = clock();
     whileLoopTime += (matrixStart - outerWhileLoopStart);
@@ -912,9 +941,12 @@ void Graph::generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID){
         }
     }
 
+    unique_ptr<vector<bool>> reachableNodes = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+
     vertexToIndex[rrSetID] = move(mappedIndex);
     indexToVertex[rrSetID] = move(revMappedIndex);
     miniRRGraphsVector[rrSetID] = move(ptrToMiniRRGraph);
+    reachableNodesVector[rrSetID] = move(reachableNodes);
 
     matrixStart = clock();
     whileLoopTime += (matrixStart - outerWhileLoopStart);
