@@ -81,7 +81,8 @@ public:
 //    vector<unordered_map<int, int>*> vertexToIndex;
     vector<unique_ptr<unordered_map<int, int>>> vertexToIndex;
     vector<unique_ptr<vector<int>>> indexToVertex;
-    vector<unique_ptr<vector<bool>>> reachableNodesVector;
+    vector<unique_ptr<vector<bool>>> reachableFromSeedVector;
+    vector<unique_ptr<vector<bool>>> reachableFromCritNodeVector;
     vector<unique_ptr<vector<vector<bool>>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
     vector<vector<vector<bool>>*> testDependancyVector;//Used for the testing of what if modNodes were the ones removed
     vector<unique_ptr<vector<vector<int>>>> miniRRGraphsVector;//Stores the RRGraph generated in each RRSet generation

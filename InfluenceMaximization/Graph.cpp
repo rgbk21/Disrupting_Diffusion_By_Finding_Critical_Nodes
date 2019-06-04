@@ -575,7 +575,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
-        reachableNodesVector = vector<unique_ptr<vector<bool>>>(R);
+        reachableFromSeedVector = vector<unique_ptr<vector<bool>>>(R);
+        reachableFromCritNodeVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);
@@ -653,7 +654,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         dependancyVector = vector<unique_ptr<vector<vector<bool>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
-        reachableNodesVector = vector<unique_ptr<vector<bool>>>(R);
+        reachableFromSeedVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);
@@ -726,7 +727,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     cout << "Elapsed time: " << elapsed_secs << endl;
     cout << "Time per RR Set is: " << elapsed_secs / R << endl;
     cout << "Total Size is: " << totalSize << endl;
-    cout << "\nAverage size is: " << (float) totalSize / (float) R << endl;
+    cout << "Average size is: " << (float) totalSize / (float) R << endl;
 
 
     resultLogFile << "\n Generated reverse" << R << " RR sets\n";
@@ -799,11 +800,13 @@ void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rr
         }
     }
 
-    unique_ptr<vector<bool>> reachableNodes = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+    unique_ptr<vector<bool>> reachableNodesFromSeed = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+    unique_ptr<vector<bool>> reachableNodesFromCritNode = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
 
     vertexToIndex[rrSetID] = move(mappedIndex);
     indexToVertex[rrSetID] = move(revMappedIndex);
-    reachableNodesVector[rrSetID] = move(reachableNodes);
+    reachableFromSeedVector[rrSetID] = move(reachableNodesFromSeed);
+    reachableFromSeedVector[rrSetID] = move(reachableNodesFromCritNode);
 
 
     matrixStart = clock();
@@ -941,12 +944,14 @@ void Graph::generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID){
         }
     }
 
-    unique_ptr<vector<bool>> reachableNodes = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+    unique_ptr<vector<bool>> reachableNodesFromSeed = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+    unique_ptr<vector<bool>> reachableNodesFromCritNode = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
 
     vertexToIndex[rrSetID] = move(mappedIndex);
     indexToVertex[rrSetID] = move(revMappedIndex);
     miniRRGraphsVector[rrSetID] = move(ptrToMiniRRGraph);
-    reachableNodesVector[rrSetID] = move(reachableNodes);
+    reachableFromSeedVector[rrSetID] = move(reachableNodesFromSeed);
+    reachableFromCritNodeVector[rrSetID] = move(reachableNodesFromCritNode);
 
     matrixStart = clock();
     whileLoopTime += (matrixStart - outerWhileLoopStart);

@@ -309,6 +309,7 @@ inline int oldNewIntersection(unique_ptr<Graph> &newGraph, set<int> seedSet,vect
             }
         }
     }
+//    cout << "The value of n was:" << n << endl;
     diffusionNum=((double)diffusionNum/R)*n;
     
     //find intersection of new and old activated set
