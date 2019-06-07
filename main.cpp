@@ -71,8 +71,8 @@ vector<int> modNodesToRemoveUnsorted;
 vector<int> subModTopKInflNodesToRemoveUnsorted;
 vector<int> countNodesToRemoveUnsorted;
 vector<int> tGraphNodesToRemoveUnsorted;
-vector<int> modImpactNodesToRemoveUnsorted;
-vector<int> nodeMappedToOutdegree;
+vector<int> testMaxInfluenceSeed;
+vector<int> testSubModNodesToRemove;
 double removeCritNodeFromDependencyVectorTopCritTime = 0;
 double reComputeDependencyValuesTime = 0;
 double repopulateDependencyMatrixAfterCritNodeRemovalTime = 0;
@@ -2395,7 +2395,7 @@ void repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST1_V1(uni
         }
     }
 
-    cout << "Starting Values: ";
+//    cout << "Starting Values: ";
     for(int i = 0; i < copyOfDependencyVector[rrSetId][nodeBeingRemoved].size(); i++){                    //Initialize all row entries to TRUE
         cout << copyOfDependencyVector[rrSetId][nodeBeingRemoved][i] << " ";
     }
@@ -2434,6 +2434,7 @@ void repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST1_V1(uni
     }
 
 }
+
 
 void removeCritNodeWithMatrixUpdate_TEST1(int critNode, unique_ptr<Graph> &influencedGraph,
                                           vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree,
@@ -2507,13 +2508,13 @@ void removeCritNodeWithMatrixUpdate_TEST1(int critNode, unique_ptr<Graph> &influ
                 if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j] && !(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !copyOfDependentOnCritNodes[rrSetId][j]) {
                     cout << "Called for dependancyVector[" << rrSetId << "][" << got->second << "][" << j << "]" << endl;
                     repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST1_V1(influencedGraph,
-                                                                                         copyOfMiniRRGraphsVector[rrSetId],
-                                                                                         influencedGraph->reachableFromSeedVector[rrSetId],
-                                                                                         rrSetId, got->second, j,
-                                                                                         dependencyValues,
-                                                                                         valuesChangedInOrig,
-                                                                                         valuesChangedInCopy,
-                                                                                         copyOfDependencyVector, copyOfDependentOnCritNodes);
+                                                                                            copyOfMiniRRGraphsVector[rrSetId],
+                                                                                            influencedGraph->reachableFromSeedVector[rrSetId],
+                                                                                            rrSetId, got->second, j,
+                                                                                            dependencyValues,
+                                                                                            valuesChangedInOrig,
+                                                                                            valuesChangedInCopy,
+                                                                                            copyOfDependencyVector, copyOfDependentOnCritNodes);
                 }
             }
 
@@ -2524,195 +2525,7 @@ void removeCritNodeWithMatrixUpdate_TEST1(int critNode, unique_ptr<Graph> &influ
             /**************************** Version which directly makes changes to the dependencyValues Starts *****************************************/
 
 
-            if ( !(*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]) {
-                //critNode was NOT in reachableFromSeedVector and NOT in reachableFromCritNodeVector either. So critNode has not been accounted for.
-                //So for every every vertex v in the row of critNode, if M[critNode][v] = 1, we should decrement the dependencyValue of critNode by 1
 
-                //Without changing the Matrix
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing critNode
-                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
-                        dependencyValues[critNode] -= 1;                                                                //Since reachableFromSeedVector[rrSetId][critNode] and reachableFromCritNodeVector[rrSetId][critNode] are both FALSE, it means that critNode has been seen for the first time. Since critNode is being removed, we need to reduce its dependencyValue.
-                        valuesChangedInOrig[got->second]--;
-                        if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] ){//j was not inCrit or inSeed then this implies, vertex j has been seen for the first time. reachability of j depended on critNode implies removal of critNode would make j unreachable and hence, in turn, any vertex that was reachable from j would become unreachable as well. Hence, reduce dependencyValue for j for every vertex k for which M[rrSetId][j][k] = 1
-                            for (int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++) {         //for each vertex k in the row containing the vertex j
-                                if ((*influencedGraph->dependancyVector[rrSetId])[j][k]){
-                                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;
-                                    valuesChangedInOrig[j]--;
-                                }
-                            }
-                        }
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edges from every node j whose reachability depends on the critNode being removed
-                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since we have removed all outgoing edges from j and also decreased the dependencyValue for j, we have in effect accounted for j. Hence we change it to TRUE.
-                    }
-                }
-                //Doing this because of the (... && j != got->second) in the if condition
-                dependencyValues[critNode] -= 1;
-                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
-                (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second] = true;
-                valuesChangedInOrig[got->second]--;
-
-                // the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
-                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
-                        //this case has already been handled above
-                        //Not handling it over here because then it would have messed up the repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate() method
-                        //..because we would not have known which vertices were deleted and are no longer reachable
-                    } else if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j]){//if the reachability of j does NOT depend on critNode
-                        // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode. There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
-                        // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
-                        //THEN recompute the dependencyValues of j
-                        if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
-                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST1_V2(influencedGraph,
-                                                                                                 influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                                                 influencedGraph->reachableFromSeedVector[rrSetId],
-                                                                                                 rrSetId, got->second,
-                                                                                                 j,
-                                                                                                 dependencyValues,
-                                                                                                 valuesChangedInOrig,
-                                                                                                 valuesChangedInCopy,
-                                                                                                 copyOfDependencyVector);
-                        }
-                    }
-                }
-
-
-
-
-            } else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){//critNode was in reachable ---- I THINK THIS IS DOUBLE COUNTING
-                //Since critNode was already in reachableFromSeedVector, it means that for every node j in the row of critNode for which M[critNode][j] == 1, the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
-                //So dependencyValue of critNode should certainly not be reduced in this case
-                /*
-                This needs to be done here because of some case like 0->1->2->3
-                If 1 and 3 were in the seedSetNode and 2 was selected as the critNode, then we would be in this else if condition
-                Dependency matrix:
-                 1 1 1 1
-                 0 0 0 0
-                 0 0 0 0
-                 0 0 0 0
-                After removal of 2, the row containing 0 should be
-                 1 1 0 0
-                 0 0 0 0
-                 0 0 0 0
-                 0 0 0 0
-                which would only be possible if all the vertices whose reachability depended on 2 were already added to reachableFromCritNodeVector at this point
-                */
-
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
-                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j]) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
-                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
-                    }
-                }
-
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {
-                    //if dependancyVector[rrSetId][critNode][j] is TRUE, then I do not have to do anything since critNode was in reachableFromSeedVector, which implies that j was also in reachableFromSeedVector which means j is already accounted for
-                    // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode (which was dependent on some other seed node since reachableFromSeedVector[rrSetId][critNode] was TRUE). There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
-                    // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
-                    //THEN recompute the dependencyValues of j
-                    if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j] ) {                              //if dependence of reachability of j from source given that node is removed is false
-                        if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
-                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST1_V2(influencedGraph,
-                                                                                                 influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                                                 influencedGraph->reachableFromSeedVector[rrSetId],
-                                                                                                 rrSetId, got->second,
-                                                                                                 j,
-                                                                                                 dependencyValues,
-                                                                                                 valuesChangedInOrig,
-                                                                                                 valuesChangedInCopy,
-                                                                                                 copyOfDependencyVector);
-                        }
-                    }else{
-                        //Nothing to do here?!
-                        //Since critNode is in reachableFromSeedVector and dependancyVector[rrSetId][critNode][j] is TRUE
-                        //that means that reachability of j depends on critNode in which case
-                        //j has already been accounted for and we do not have to do anything?
-                    }
-                }
-
-
-
-            } else if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){
-
-                //Nothing to do in this case!!
-                /*
-                Since critNode is NOT in reachableFromCritNodeVector, BUT it is in reachableFromCritNodeVector, it means that for every vertex v in the row of critNode
-                if M[critNode][v] == 1, then
-                a) all the outgoing edges from v have been deleted
-                b) and for every vertex w whose reachability depends on w, their outgoing edges have been deleted as well. But thsi is an overlap with the above point
-
-                Since critNode was already in reachableFromCritNodeVector, it means that for every node j in the row of critNode for which M[critNode][j] == 1, the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
-                So dependencyValue of critNode should certainly not be reduced in this case
-                Since all outgoing edges from critNode, v, w have already been deleted, we do not need to do this either
-
-                Also, since critNode was already in reachableFromCritNodeVector, it means that all the outgoing edges from that vertex have been deleted already.
-                So, in a way, the critNode is the "last" vertex. There are no outgoing edges from it.
-                THe idea of recalcualting the dependencyMatrix was: delete the critNode, and check how it affects the reachability of other nodes by deleting every other node turn by turn
-                Since critNode is already the "last" vertex, deleting it is not going to affect the reachability of ANY other node.
-                So there is n point in recomputing the dependencyMatrix in this case, as all the values will eventually turn out to be the same as the previous values
-
-                The algorithm that we were following was as follows. We do not need to do anything in any of the cases.
-                for every vertex in the row containing critNode
-                  if(!M[critNode][v]){
-                      if(!inSeed[v] && !inCrit[v]){
-
-                      }
-                      if(inSeed[v] && !inCrit[v]){
-
-                      }
-                      if(!inSeed[v] && inCrit[v]){
-
-                      }
-                      if(inSeed[v] && inCrit[v]){
-
-                      }
-                  }
-                  if(M[critNode][v]){
-                      if(!inSeed[v] && !inCrit[v]){
-
-                      }
-                      if(inSeed[v] && !inCrit[v]){
-
-                      }
-                      if(!inSeed[v] && inCrit[v]){
-
-                      }
-                      if(inSeed[v] && inCrit[v]){
-
-                      }
-                  }
-                  */
-                /*
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
-                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j]) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
-                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
-                    }
-                }
-
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {
-                    //if dependancyVector[rrSetId][critNode][j] is TRUE, then I do not have to do anything since critNode was in reachableFromSeedVector, which implies that j was also in reachableFromSeedVector which means j is already accounted for
-                    // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode (which was dependent on some other seed node since reachableFromSeedVector[rrSetId][critNode] was TRUE). There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
-                    // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
-                    //THEN recompute the dependencyValues of j
-                    if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j] ) {                              //if dependence of reachability of j from source given that node is removed is false
-                        if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
-                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate(influencedGraph,
-                                                                                           influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                                           influencedGraph->reachableFromSeedVector[rrSetId],
-                                                                                           rrSetId, got->second, j,
-                                                                                           dependencyValues);
-                        }
-                    }else{
-                        //Nothing to do here?!
-                        //Since critNode is in reachableFromSeedVector and dependancyVector[rrSetId][critNode][j] is TRUE
-                        //that means that reachability of j depends on critNode in which case
-                        //j has already been accounted for and we do not have to do anything?
-                    }
-                }
-                */
-            } else if((*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){
-                //Nothing ot do in this case, because of the same reasons described in the previous else if condition.
-            }
 
             /**************************** Version which directly makes changes to the dependencyValues Ends *****************************************/
 
@@ -2793,6 +2606,620 @@ void removeCritNodeWithMatrixUpdate_TEST1(int critNode, unique_ptr<Graph> &influ
 }
 
 
+/*********************************************************************************************************************************************************/
+
+void
+repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes_TEST2(unique_ptr<Graph> &influencedGraph,
+                                                                                   unique_ptr<vector<vector<int>>> &miniRRGraph,
+                                                                                   unique_ptr<vector<bool>> &reachableFromSeed,
+                                                                                   int rrSetId,
+                                                                                   int idxOfCritNode, int nodeBeingRemoved,
+                                                                                   vector<int> &dependencyValues,
+                                                                                   vector<vector<vector<bool>>> &copyOfDependencyVector) {
+
+    clock_t startTime = clock();
+    vector<vector<int>> myGraph = *miniRRGraph;
+    vector<bool> oldDependencyValues = (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved];                //Store the previous values so that they can be compared for the dependencyValues vector to be changed
+    myGraph[nodeBeingRemoved].clear();
+
+    /*
+ * So suppose you had a chain like so: 0->1->2->3 Suppose 1 was in the seedSetNode and 2 was selected as the critNode
+ * The dependencyMatrix even after nulling out the rows corresponding to the seedSet vertices as well as the nodes whose reachability
+ * depended on the seedVertex would have looked like this:
+ *  1 1 1 1
+ *  0 1 1 1
+ *  0 0 1 1
+ *  0 0 0 1
+ *
+ *  Now if you removed 2, the row corresponding to vertex 1 would have looked like this:
+ *  0 1 0 0
+ *  implying that the dependencyValue of 1 should be reduced by 2. But recall that in the removeSeedSetNodeWithoutMatrixUpdate() method
+ *  we had already reduced the dependencyValue of 1 by 3. So we would in effect be double counting, which we do not want.
+ */
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){                    //Initialize all row entries to TRUE
+        if((*influencedGraph->reachableFromCritNodeVector[rrSetId])[i] ){                                               //if the node i has already been deleted i.e. its outgoing edges have been cleared
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = false;                                                                             //remove i as a node that could have been dependent upon nodeBeingRemoved for its reachability
+        }else{
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = true;
+        }
+    }
+
+    vector<bool> visitedBFS = vector<bool>(miniRRGraph->size(), false);                                                 //Mark all the vertices as not visited
+    deque<int> queue;                                                                                                   //Create a queue for BFS
+    visitedBFS[0] = true;                                                                                               //Mark the starting node as visited. starting node will always be node numbered 0
+    queue.push_back(0);                                                                                                 //And add it to the queue
+    if(nodeBeingRemoved != 0){
+        (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][0] = false;                                                                                 //since we are starting the BFS from the node 0, dependence of reachability of 0 from 0 given that the ndoeBeingRemoved is removed is "false"
+    }
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++) {
+            int v = myGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if (nodeBeingRemoved != v) {                                                                            //Because reachability of vertexRemoved will depend on itself
+                    (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][v] = false;                                                                     //Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+
+    /*
+     * If reachability of the critNode depends on nodeBeingRemoved, then the vertices that will no longer be reachable from the nodeBeingRemoved
+     * will be a subset of the vertices that are reachable from the nodeBeingRemoved. So we can do this:
+     */
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){
+
+        if(!oldDependencyValues[i] && ((*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i]) ){
+            //If reachability of i did not depend on seed, but now after deleting the critNodes, the reachability of i does in fact depend on seed
+            //then increment the dependency value of the seedSetNode
+            dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] += 1;                        //Increase the dependencyValue for the node nodeBeingRemoved
+        }else if ( (oldDependencyValues[i]) && !(*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] ){   //else if
+            /*
+            reachability of i depended on the seedSetNode, but now after deleting the critNodes, the reachability of i no longer depends on seedSetNodes
+            then we have to make the additional check if i depended on the seedSetNode for its reachability.
+             If it did, then it implies that it was already accounted for when updateMatrixForReachableFromSeedSet() was called
+            in which case we would not want to double count them and reduce the dependency value of seedSetNode all over again.
+             Also not that, it is not possible for a vertex v whose reachability depended
+             Reachability of vertex v depended on seedSetNode
+             critNodes were removed
+             Reachability of vertex v no longer depends on seedSetNode
+             No matter what happens now, the reachability of vertex is cannot again depend on seedSetNode
+             What this means is that, once you have changed M[rrSetId][seedSetNode][v] to 0, there is NO WAY that that value
+             is going back to be 1 again. Hopefully, or else I AM FUCKED>
+             */
+            if(!copyOfDependencyVector[rrSetId][nodeBeingRemoved][i]){
+                dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] -= 1;                    //Decrease the dependencyValue for the node nodeBeingRemoved
+            }
+        }
+    }
+
+    repopulateDependencyMatrixAfterCritNodeRemovalTime += (clock() - startTime);
+}
+
+//This method is different from repopulateDependencyMatrix() because: --------------------------------------------------
+//critNode is the node that was removed since it was chosen as the most critical vertex
+//miniRRGraph is the graph that has been created from the original graph after mapping each of the vertices to index
+//node belonging to the critNode along with all of its outgoing edges has already been removed at this point
+//nodeBeingRemoved is the vertex in the row of critNode (which did not depend upon the critNode for reachability) that has to be removed from the minRRGraph. So, we are basically checking:
+//dependence of reachability of each node in the miniRRGraph (formed after removing outgoing edges from the critNode) starting from the origin given that
+//nodeBeingRemoved is removed
+//both critNode and nodeBeingRemoved are not the actual vertices, but the mapped vertices in this rrSet numbered rrSetId
+void repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST2(unique_ptr<Graph> &influencedGraph,
+                                                                    unique_ptr<vector<vector<int>>> &miniRRGraph,
+                                                                    unique_ptr<vector<bool>> &reachableFromSeed,
+                                                                    int rrSetId,
+                                                                    int critNode, int nodeBeingRemoved, vector<int> &dependencyValues) {
+
+    clock_t startTime = clock();
+    vector<vector<int>> myGraph = *miniRRGraph;
+    vector<bool> oldDependencyValues = (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved];                //Store the previous values so that they can be compared for the dependencyValues vector to be changed
+    myGraph[nodeBeingRemoved].clear();
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){                    //Initialize all row entries to TRUE
+        if((*influencedGraph->reachableFromCritNodeVector[rrSetId])[i] ){                                               //if the node i has already been deleted i.e. its outgoing edges have been cleared
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = false;                                                                             //remove i as a node that could have been dependent upon nodeBeingRemoved for its reachability
+        }else{
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = true;
+        }
+    }
+
+    vector<bool> visitedBFS = vector<bool>(miniRRGraph->size(), false);                                                 //Mark all the vertices as not visited
+    deque<int> queue;                                                                                                   //Create a queue for BFS
+    visitedBFS[0] = true;                                                                                               //Mark the starting node as visited. starting node will always be node numbered 0
+    queue.push_back(0);                                                                                                 //And add it to the queue
+    if(nodeBeingRemoved != 0){
+        (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][0] = false;                                                                                 //since we are starting the BFS from the node 0, dependence of reachability of 0 from 0 given that the ndoeBeingRemoved is removed is "false"
+    }
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++) {
+            int v = myGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if (nodeBeingRemoved != v) {                                                                            //Because reachability of vertexRemoved will depend on itself
+                    (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][v] = false;                                                                     //Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){
+        if(!oldDependencyValues[i] && ((*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i]) ){          //If in the dependencyMatrix of the row containing nodeBeingRemoved, if the earlier value for vertex w was TRUE but the new value is FALSE
+            dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] += 1;                        //Reduce the dependencyValue for the node nodeBeingRemoved
+        }else if ( (oldDependencyValues[i]) && !(*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] ){  //else if
+            dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] -= 1;                        //Increase the dependencyValue for the node nodeBeingRemoved
+//            cout << "dependencyValue increased!!" << endl;
+        }
+    }
+
+    repopulateDependencyMatrixAfterCritNodeRemovalTime += (clock() - startTime);
+}
+
+//Remove all the outgoing edges from the removedNodes
+//if idxOfCritNode is reachable from the source after removing edges
+//it means that the reachableFromRemovedNodes[rrSetId][idxOfCritNode] is FALSE
+//In that case we are returning TRUE!! Confuse yourself even more...
+bool testDependenceOfReachability(unique_ptr<Graph> &influencedGraph, vector<int> &removedNodes, int rrSetId,
+                                  int idxOfCritNode, vector<vector<int>> testMiniRRGraph) {
+
+    vector<int> indicesOfSeed;
+    //Find the indices corresponding to each of the seedSetVertices, if they exist, in this rrSet
+    for(int i = 0; i < removedNodes.size(); i++) {
+        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(removedNodes[i]);
+        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
+            indicesOfSeed.push_back(got->second);
+        }
+    }
+
+    if(indicesOfSeed.empty()) return true;
+
+    //Remove all the outgoing edges from the seedSetNodes
+    for(int i = 0; i < indicesOfSeed.size(); i++){
+        vector<vector<int>> myMiniRRGraph = testMiniRRGraph;
+        bool vertexFound = false;
+        myMiniRRGraph[indicesOfSeed[i]].clear();
+        //Check if the critNode is still reachable
+        vector<bool> visitedBFS = vector<bool>(myMiniRRGraph.size(), false);                                              //Mark all the vertices as not visited
+        deque<int> queue;                                                                                                   //Create a queue for BFS
+        visitedBFS[0] = true;                                                                                               //Mark the starting node as visited. starting node will always be node numbered 0
+        queue.push_back(0);                                                                                                 //And add it to the queue
+        if (idxOfCritNode == 0) return true;
+
+        while (!queue.empty()) {
+            int u = queue.front();
+            queue.pop_front();
+            for (int j = 0; j < myMiniRRGraph[u].size(); j++) {
+                int v = myMiniRRGraph[u][j];
+                if (!visitedBFS[v]) {
+                    visitedBFS[v] = true;
+                    queue.push_back(v);
+                    if (idxOfCritNode == v) {                                                                            //Because reachability of vertexRemoved will depend on itself
+                        vertexFound = true;                                                                     //Since v was still reachable after removing vertexRemoved.
+                    }
+                }
+            }
+        }
+        if(!vertexFound) return false;
+    }
+
+    return true;
+}
+
+void printStuff(unique_ptr<Graph> &influencedGraph, int rrSetId, int critNode, vector<vector<vector<int>>> &copyOfMiniRRGraphsVector, vector<vector<vector<bool>>> &copyOfDependencyVector){
+
+    cout << "Inside PrintStuff" << endl;
+    cout << "Removing critNode: " << critNode << endl;
+    cout << "RRSetID:" << rrSetId << endl;
+    cout << endl;
+    cout << "Nodes: ";
+    for(int k = 0; k < (influencedGraph->rrSets[rrSetId]).size(); k++){
+        cout << influencedGraph->rrSets[rrSetId][k] << " ";
+
+
+
+
+
+    }
+    cout << endl;
+
+    cout << "Original Graph: " << endl;
+    for(int k = 0; k < copyOfMiniRRGraphsVector[rrSetId].size(); k++){
+        cout << k << " -> ";
+        for(int l = 0; l < copyOfMiniRRGraphsVector[rrSetId][k].size(); l++){
+            cout << copyOfMiniRRGraphsVector[rrSetId][k][l] << " ";
+        }
+        cout << endl;
+    }
+    cout << "Modified Graph: " << endl;
+    for(int k = 0; k < (influencedGraph->miniRRGraphsVector[rrSetId])->size(); k++){
+        cout << k << " -> ";
+        for(int l = 0; l < (*influencedGraph->miniRRGraphsVector[rrSetId])[k].size(); l++){
+            cout << (*influencedGraph->miniRRGraphsVector[rrSetId])[k][l] << " ";
+        }
+        cout << endl;
+    }
+    cout << "reachableFromSeed: ";
+    for(int k = 0; k < (*influencedGraph->reachableFromSeedVector[rrSetId]).size(); k++){
+        cout << (*influencedGraph->reachableFromSeedVector[rrSetId])[k] << " ";
+    }
+    cout << endl;
+    cout << "reachableFromCritNode: ";
+    for(int k = 0; k < (*influencedGraph->reachableFromCritNodeVector[rrSetId]).size(); k++){
+        cout << (*influencedGraph->reachableFromCritNodeVector[rrSetId])[k] << " ";
+    }
+    cout << endl;
+    cout << "original-DependencyMatrix: " << endl;
+    for(int k = 0; k < copyOfDependencyVector[rrSetId].size(); k++){
+        for(int l = 0; l < copyOfDependencyVector[rrSetId][k].size(); l++){
+            cout << copyOfDependencyVector[rrSetId][k][l] << " ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+    cout << "Modified DependencyMatrix: " << endl;
+    for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId]).size(); k++){
+        for(int l = 0; l < (*influencedGraph->dependancyVector[rrSetId])[k].size(); l++){
+            cout << (*influencedGraph->dependancyVector[rrSetId])[k][l] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void removeCritNodeWithMatrixUpdate_TEST2(int critNode, unique_ptr<Graph> &influencedGraph,
+                                          vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree,
+                                          vector<vector<vector<bool>>> &copyOfDependencyVector,
+                                          vector<vector<vector<int>>> &copyOfMiniRRGraphsVector,
+                                          vector<vector<bool>> &copyOfDependentOnCritNodes) {
+
+    bool tshoot = false;//WARNING:controls assert statement
+    bool tshoot1 = false;//Controls PAUUUUUZZZE
+
+    cout << "-------------------------------------------" << endl;
+    cout << "Removing critNode: " << critNode << endl;
+
+    for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains node)
+
+        int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
+
+        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);          //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the seedSet vertex being removed
+            if ( !(*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]) {
+                //critNode was NOT in reachableFromSeedVector and NOT in reachableFromCritNodeVector either. So critNode has not been accounted for.
+                //So for every every vertex v in the row of critNode, if M[critNode][v] = 1, we should decrement the dependencyValue of critNode by 1
+                //This for loop is only for handling those vertices whose reachability depends upon the critNode, i.e. the node bbein removed
+
+                cout << "critNode was not inSeed && not inCrit" << endl;
+                printStuff(influencedGraph, rrSetId, critNode, copyOfMiniRRGraphsVector, copyOfDependencyVector);
+                assert(("1 - reachabilityTest from inSeed failed", testDependenceOfReachability(influencedGraph, testMaxInfluenceSeed, rrSetId, got->second, (*influencedGraph->miniRRGraphsVector[rrSetId]))));
+                assert(("1 - reachabilityTest from inCrit failed", testDependenceOfReachability(influencedGraph, testSubModNodesToRemove, rrSetId, got->second, (*influencedGraph->miniRRGraphsVector[rrSetId]))));
+
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing critNode
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
+                        (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
+                        dependencyValues[critNode] -= 1;                                                                //Since reachableFromSeedVector[rrSetId][critNode] and reachableFromCritNodeVector[rrSetId][critNode] are both FALSE, it means that critNode has been seen for the first time. Since critNode is being removed, we need to reduce its dependencyValue.
+
+                        if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] ){//j was not inCrit or inSeed then this implies, vertex j has been seen for the first time. reachability of j depended on critNode implies removal of critNode would make j unreachable and hence, in turn, any vertex that was reachable from j would become unreachable as well. Hence, reduce dependencyValue for j for every vertex k for which M[rrSetId][j][k] = 1
+
+                            cout << "M[critNode][v] => v was was not inSeed && not inCrit" << endl;
+                            printStuff(influencedGraph, rrSetId, critNode, copyOfMiniRRGraphsVector, copyOfDependencyVector);
+                            assert(("2 - reachabilityTest from inSeed failed", testDependenceOfReachability(influencedGraph, testMaxInfluenceSeed, rrSetId, j, (*influencedGraph->miniRRGraphsVector[rrSetId]))));
+                            assert(("2 - reachabilityTest from inCrit failed", testDependenceOfReachability(influencedGraph, testSubModNodesToRemove, rrSetId, j, (*influencedGraph->miniRRGraphsVector[rrSetId]))));
+
+                            for (int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++) {         //for each vertex k in the row containing the vertex j
+                                if ((*influencedGraph->dependancyVector[rrSetId])[j][k]){
+                                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;
+                                    (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
+                                }
+                            }
+                        }
+                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edges from every node j whose reachability depends on the critNode being removed
+                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since we have removed all outgoing edges from j and also decreased the dependencyValue for j, we have in effect accounted for j. Hence we change it to TRUE.
+                    }
+                }
+                //Doing this because of the (... && j != got->second) in the if condition
+                dependencyValues[critNode] -= 1;
+                (*influencedGraph->dependancyVector[rrSetId])[got->second][got->second] = false;
+                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
+                (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second] = true;
+
+                // the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
+                //This for loop is only for handling only those vertices whose reachability DOES NOT depend upon the critNode
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
+                        //this case has already been handled above
+                        //Not handling it over here because then it would have messed up the repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate() method
+                        //..because we would not have known which vertices were deleted and are no longer reachable
+                    } else if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
+                        //if the reachability of j does NOT depend on critNode
+
+                        // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode. There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
+                        // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
+                        //THEN recompute the dependencyValues of j
+                        /*
+                         * We are concerned with two cases then:
+                         * a) j was not inSeed && not inCrit
+                         * b) j was inSeed && not inCrit
+                         *
+                         * We are not concerned with the 2 cases in which j is inCrit, becasue that would imply that all of the outgoing edges from j
+                         * have been deleted. Since j have no outgoing edges, deleting the critNode is not going to affect the reachability of any nodes
+                         * from j (because j has no outgoing edges.)
+                        */
+                        if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST2(influencedGraph,
+                                                                                           influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                                           influencedGraph->reachableFromSeedVector[rrSetId],
+                                                                                           rrSetId, got->second, j,
+                                                                                           dependencyValues);
+                        } else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]){
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes_TEST2(
+                                    influencedGraph,
+                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                    influencedGraph->reachableFromSeedVector[rrSetId],
+                                    rrSetId, got->second, j,
+                                    dependencyValues, copyOfDependencyVector);
+                        }
+                    }
+                }
+            } else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){//critNode was in reachable ---- I THINK THIS IS DOUBLE COUNTING
+                //Since critNode was already in reachableFromSeedVector, it means that for every node j in the row of critNode for which M[critNode][j] == 1, the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
+                //So dependencyValue of critNode should certainly not be reduced in this case
+
+                //This for loop is only for handling those vertices whose reachability depends upon the critNode, i.e. the node being removed
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
+                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
+                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
+                        (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
+
+                        //Consider M[critNode][j]. If M[critNode][j] = 1
+                        //For every vertex k in the row containing j, if M[j][k] == 1, change it to 0
+                        for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
+                            if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
+                                (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
+                            }
+                        }
+                    }
+                }
+                //Doing this because of the (... && j != got->second) condition
+                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
+                (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second] = true;
+                (*influencedGraph->dependancyVector[rrSetId])[got->second][got->second] = false;
+
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {
+                    //if dependancyVector[rrSetId][critNode][j] is TRUE, then I do not have to do anything since critNode was in reachableFromSeedVector, which implies that j was also in reachableFromSeedVector which means j is already accounted for
+                    // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode (which was dependent on some other seed node since reachableFromSeedVector[rrSetId][critNode] was TRUE). There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
+                    // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
+                    //THEN recompute the dependencyValues of j
+                    if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j] ) {                              //if dependence of reachability of j from source given that node is removed is false
+                        if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_TEST2(influencedGraph,
+                                                                                           influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                                           influencedGraph->reachableFromSeedVector[rrSetId],
+                                                                                           rrSetId, got->second, j,
+                                                                                           dependencyValues);
+                        }else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]){
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes_TEST2(
+                                    influencedGraph,
+                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                    influencedGraph->reachableFromSeedVector[rrSetId],
+                                    rrSetId, got->second, j,
+                                    dependencyValues, copyOfDependencyVector);
+                        }
+                    }else{
+                        //Nothing to do here?!
+                        //Since critNode is in reachableFromSeedVector and dependancyVector[rrSetId][critNode][j] is TRUE
+                        //that means that reachability of j depends on critNode in which case
+                        //j has already been accounted for and we do not have to do anything?
+                    }
+                }
+
+            } else if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){
+
+                //Nothing to do in this case!!
+                /*
+                Since critNode is NOT in reachableFromCritNodeVector, BUT it is in reachableFromCritNodeVector, it means that for every vertex v in the row of critNode
+                if M[critNode][v] == 1, then
+                a) all the outgoing edges from v have been deleted
+                b) and for every vertex w whose reachability depends on w, their outgoing edges have been deleted as well. But thsi is an overlap with the above point
+
+                Since critNode was already in reachableFromCritNodeVector, it means that for every node j in the row of critNode for which M[critNode][j] == 1, the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
+                So dependencyValue of critNode should certainly not be reduced in this case
+                Since all outgoing edges from critNode, v, w have already been deleted, we do not need to do this either
+
+                Also, since critNode was already in reachableFromCritNodeVector, it means that all the outgoing edges from that vertex have been deleted already.
+                So, in a way, the critNode is the "last" vertex. There are no outgoing edges from it.
+                THe idea of recalcualting the dependencyMatrix was: delete the critNode, and check how it affects the reachability of other nodes by deleting every other node turn by turn
+                Since critNode is already the "last" vertex, deleting it is not going to affect the reachability of ANY other node.
+                So there is n point in recomputing the dependencyMatrix in this case, as all the values will eventually turn out to be the same as the previous values
+
+                The algorithm that we were following was as follows. We do not need to do anything in any of the cases.
+                for every vertex in the row containing critNode
+                  if(!M[critNode][v]){
+                      if(!inSeed[v] && !inCrit[v]){
+
+                      }
+                      if(inSeed[v] && !inCrit[v]){
+
+                      }
+                      if(!inSeed[v] && inCrit[v]){
+
+                      }
+                      if(inSeed[v] && inCrit[v]){
+
+                      }
+                  }
+                  if(M[critNode][v]){
+                      if(!inSeed[v] && !inCrit[v]){
+
+                      }
+                      if(inSeed[v] && !inCrit[v]){
+
+                      }
+                      if(!inSeed[v] && inCrit[v]){
+
+                      }
+                      if(inSeed[v] && inCrit[v]){
+
+                      }
+                  }
+                  */
+                /*
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j]) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
+                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
+                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
+                    }
+                }
+
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {
+                    //if dependancyVector[rrSetId][critNode][j] is TRUE, then I do not have to do anything since critNode was in reachableFromSeedVector, which implies that j was also in reachableFromSeedVector which means j is already accounted for
+                    // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode (which was dependent on some other seed node since reachableFromSeedVector[rrSetId][critNode] was TRUE). There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
+                    // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
+                    //THEN recompute the dependencyValues of j
+                    if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j] ) {                              //if dependence of reachability of j from source given that node is removed is false
+                        if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate(influencedGraph,
+                                                                                           influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                                           influencedGraph->reachableFromSeedVector[rrSetId],
+                                                                                           rrSetId, got->second, j,
+                                                                                           dependencyValues);
+                        }
+                    }else{
+                        //Nothing to do here?!
+                        //Since critNode is in reachableFromSeedVector and dependancyVector[rrSetId][critNode][j] is TRUE
+                        //that means that reachability of j depends on critNode in which case
+                        //j has already been accounted for and we do not have to do anything?
+                    }
+                }
+                */
+            } else if((*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){
+                //Nothing ot do in this case, because of the same reasons described in the previous else if condition.
+            }
+
+            /******************************************** Comparing the results of both the versions starts *****************************************/
+
+            printStuff(influencedGraph, rrSetId, critNode, copyOfMiniRRGraphsVector, copyOfDependencyVector);
+
+            /******************************************** Comparing the results of both the versions ends *****************************************/
+
+
+
+        } else {
+            assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
+        }
+
+    }
+
+    reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
+
+    assert(("Woohoo!!!", dependencyValues[critNode] == 0));
+}
+
+
+
+//This method is different from repopulateDependencyMatrix() because: --------------------------------------------------
+void
+repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes(unique_ptr<Graph> &influencedGraph,
+                                                                                   unique_ptr<vector<vector<int>>> &miniRRGraph,
+                                                                                   unique_ptr<vector<bool>> &reachableFromSeed,
+                                                                                   int rrSetId,
+                                                                                   int idxOfCritNode, int nodeBeingRemoved,
+                                                                                   vector<int> &dependencyValues,
+                                                                                   vector<vector<vector<bool>>> &copyOfDependencyVector) {
+
+    clock_t startTime = clock();
+    vector<vector<int>> myGraph = *miniRRGraph;
+    vector<bool> oldDependencyValues = (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved];                //Store the previous values so that they can be compared for the dependencyValues vector to be changed
+    myGraph[nodeBeingRemoved].clear();
+
+    /*
+ * So suppose you had a chain like so: 0->1->2->3 Suppose 1 was in the seedSetNode and 2 was selected as the critNode
+ * The dependencyMatrix even after nulling out the rows corresponding to the seedSet vertices as well as the nodes whose reachability
+ * depended on the seedVertex would have looked like this:
+ *  1 1 1 1
+ *  0 1 1 1
+ *  0 0 1 1
+ *  0 0 0 1
+ *
+ *  Now if you removed 2, the row corresponding to vertex 1 would have looked like this:
+ *  0 1 0 0
+ *  implying that the dependencyValue of 1 should be reduced by 2. But recall that in the removeSeedSetNodeWithoutMatrixUpdate() method
+ *  we had already reduced the dependencyValue of 1 by 3. So we would in effect be double counting, which we do not want.
+ */
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){                    //Initialize all row entries to TRUE
+        if((*influencedGraph->reachableFromCritNodeVector[rrSetId])[i] ){                                               //if the node i has already been deleted i.e. its outgoing edges have been cleared
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = false;                                                                             //remove i as a node that could have been dependent upon nodeBeingRemoved for its reachability
+        }else{
+            (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] = true;
+        }
+    }
+
+    vector<bool> visitedBFS = vector<bool>(miniRRGraph->size(), false);                                                 //Mark all the vertices as not visited
+    deque<int> queue;                                                                                                   //Create a queue for BFS
+    visitedBFS[0] = true;                                                                                               //Mark the starting node as visited. starting node will always be node numbered 0
+    queue.push_back(0);                                                                                                 //And add it to the queue
+    if(nodeBeingRemoved != 0){
+        (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][0] = false;                                                                                 //since we are starting the BFS from the node 0, dependence of reachability of 0 from 0 given that the ndoeBeingRemoved is removed is "false"
+    }
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myGraph[u].size(); i++) {
+            int v = myGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if (nodeBeingRemoved != v) {                                                                            //Because reachability of vertexRemoved will depend on itself
+                    (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][v] = false;                                                                     //Since v was still reachable after removing vertexRemoved.
+                }
+            }
+        }
+    }
+
+    /*
+     * If reachability of the critNode depends on nodeBeingRemoved, then the vertices that will no longer be reachable from the nodeBeingRemoved
+     * will be a subset of the vertices that are reachable from the nodeBeingRemoved. So we can do this:
+     */
+
+    for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved].size(); i++){
+
+        if(!oldDependencyValues[i] && ((*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i]) ){
+            //If reachability of i did not depend on seed, but now after deleting the critNodes, the reachability of i does in fact depend on seed
+            //then increment the dependency value of the seedSetNode
+            dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] += 1;                        //Increase the dependencyValue for the node nodeBeingRemoved
+        }else if ( (oldDependencyValues[i]) && !(*influencedGraph->dependancyVector[rrSetId])[nodeBeingRemoved][i] ){   //else if
+            /*
+            reachability of i depended on the seedSetNode, but now after deleting the critNodes, the reachability of i no longer depends on seedSetNodes
+            then we have to make the additional check if i depended on the seedSetNode for its reachability.
+             If it did, then it implies that it was already accounted for when updateMatrixForReachableFromSeedSet() was called
+            in which case we would not want to double count them and reduce the dependency value of seedSetNode all over again.
+             Also not that, it is not possible for a vertex v whose reachability depended
+             Reachability of vertex v depended on seedSetNode
+             critNodes were removed
+             Reachability of vertex v no longer depends on seedSetNode
+             No matter what happens now, the reachability of vertex is cannot again depend on seedSetNode
+             What this means is that, once you have changed M[rrSetId][seedSetNode][v] to 0, there is NO WAY that that value
+             is going back to be 1 again. Hopefully, or else I AM FUCKED>
+             */
+            if(!copyOfDependencyVector[rrSetId][nodeBeingRemoved][i]){
+                dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[nodeBeingRemoved]] -= 1;                    //Decrease the dependencyValue for the node nodeBeingRemoved
+            }
+        }
+    }
+
+    repopulateDependencyMatrixAfterCritNodeRemovalTime += (clock() - startTime);
+}
 
 //This method is different from repopulateDependencyMatrix() because: --------------------------------------------------
 //critNode is the node that was removed since it was chosen as the most critical vertex
@@ -2857,7 +3284,8 @@ void repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate(unique_ptr<G
 }
 
 void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
-                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
+                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree,
+                                    vector<vector<vector<bool>>> &copyOfDependencyVector) {
 
     bool tshoot = false;//WARNING:controls assert statement
     bool tshoot1 = false;//Controls PAUUUUUZZZE
@@ -2879,13 +3307,16 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
             if ( !(*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]) {
                 //critNode was NOT in reachableFromSeedVector and NOT in reachableFromCritNodeVector either. So critNode has not been accounted for.
                 //So for every every vertex v in the row of critNode, if M[critNode][v] = 1, we should decrement the dependencyValue of critNode by 1
+                //This for loop is only for handling those vertices whose reachability depends upon the critNode, i.e. the node bbein removed
                 for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing critNode
                     if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
+                        (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
                         dependencyValues[critNode] -= 1;                                                                //Since reachableFromSeedVector[rrSetId][critNode] and reachableFromCritNodeVector[rrSetId][critNode] are both FALSE, it means that critNode has been seen for the first time. Since critNode is being removed, we need to reduce its dependencyValue.
                         if(!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] ){//j was not inCrit or inSeed then this implies, vertex j has been seen for the first time. reachability of j depended on critNode implies removal of critNode would make j unreachable and hence, in turn, any vertex that was reachable from j would become unreachable as well. Hence, reduce dependencyValue for j for every vertex k for which M[rrSetId][j][k] = 1
                             for (int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++) {         //for each vertex k in the row containing the vertex j
                                 if ((*influencedGraph->dependancyVector[rrSetId])[j][k]){
                                     dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;
+                                    (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
                                 }
                             }
                         }
@@ -2895,31 +3326,73 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                 }
                 //Doing this because of the (... && j != got->second) in the if condition
                 dependencyValues[critNode] -= 1;
+                (*influencedGraph->dependancyVector[rrSetId])[got->second][got->second] = false;
                 (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
                 (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second] = true;
 
                 // the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
+                //This for loop is only for handling only those vertices whose reachability DOES NOT depend upon the critNode
                 for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
                     if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {            //if dependence of reachability of j from source given that critNode is removed is true && j != critNode
                         //this case has already been handled above
                         //Not handling it over here because then it would have messed up the repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate() method
                         //..because we would not have known which vertices were deleted and are no longer reachable
-                    } else if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j]){//if the reachability of j does NOT depend on critNode
+                    } else if (!(*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
+                        //if the reachability of j does NOT depend on critNode
+
                         // if dependancyVector[rrSetId][critNode][j] is FALSE, it means reachableFromSeedVector[rrSetId][j] will also be FALSE. NOOOOO!!! If dependancyVector[rrSetId][critNode][j] is FALSE all it says is that reachability of j does not depend on THIS critNode. There might be some other seedSetNode for which dependancyVector[rrSetId])[seedSetNode][j] is TRUE which implies reachableFromSeedVector[rrSetId][j] is TRUE as well.
                         // AND reachableFromCritNodeVector[rrSetId])[j] is also FALSE, meaning to say that j was not already deleted by some other critNode removal
                         //THEN recompute the dependencyValues of j
+                        /*
+                         * We are concerned with two cases then:
+                         * a) j was not inSeed && not inCrit
+                         * b) j was inSeed && not inCrit
+                         *
+                         * We are not concerned with the 2 cases in which j is inCrit, becasue that would imply that all of the outgoing edges from j
+                         * have been deleted. Since j have no outgoing edges, deleting the critNode is not going to affect the reachability of any nodes
+                         * from j (because j has no outgoing edges.)
+                        */
                         if (!(*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]) {
                             repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate(influencedGraph,
                                                                                            influencedGraph->miniRRGraphsVector[rrSetId],
                                                                                            influencedGraph->reachableFromSeedVector[rrSetId],
                                                                                            rrSetId, got->second, j,
                                                                                            dependencyValues);
+                        } else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]){
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes(
+                                    influencedGraph,
+                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                    influencedGraph->reachableFromSeedVector[rrSetId],
+                                    rrSetId, got->second, j,
+                                    dependencyValues, copyOfDependencyVector);
                         }
                     }
                 }
             } else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[got->second] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second]){//critNode was in reachable ---- I THINK THIS IS DOUBLE COUNTING
                 //Since critNode was already in reachableFromSeedVector, it means that for every node j in the row of critNode for which M[critNode][j] == 1, the dependencyValue of critNode has already been reduced. So we shouldnt be doing that again.
                 //So dependencyValue of critNode should certainly not be reduced in this case
+
+                //This for loop is only for handling those vertices whose reachability depends upon the critNode, i.e. the node being removed
+                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
+                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
+                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
+                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
+                        (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
+
+                        //Consider M[critNode][j]. If M[critNode][j] = 1
+                        //For every vertex k in the row containing j, if M[j][k] == 1, change it to 0
+                        for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
+                            if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
+                                (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
+                            }
+                        }
+                    }
+                }
+
+                //Doing this because of the (... && j != got->second) condition
+                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
+                (*influencedGraph->reachableFromCritNodeVector[rrSetId])[got->second] = true;
+                (*influencedGraph->dependancyVector[rrSetId])[got->second][got->second] = false;
 
                 for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {
                     //if dependancyVector[rrSetId][critNode][j] is TRUE, then I do not have to do anything since critNode was in reachableFromSeedVector, which implies that j was also in reachableFromSeedVector which means j is already accounted for
@@ -2933,19 +3406,19 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                                                                                            influencedGraph->reachableFromSeedVector[rrSetId],
                                                                                            rrSetId, got->second, j,
                                                                                            dependencyValues);
+                        }else if ((*influencedGraph->reachableFromSeedVector[rrSetId])[j] && !(*influencedGraph->reachableFromCritNodeVector[rrSetId])[j]){
+                            repopulateDependencyMatrixAfterCritNodeRemovalWithMatrixUpdate_onlyForSeedSetNodes(
+                                    influencedGraph,
+                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                    influencedGraph->reachableFromSeedVector[rrSetId],
+                                    rrSetId, got->second, j,
+                                    dependencyValues, copyOfDependencyVector);
                         }
                     }else{
                         //Nothing to do here?!
                         //Since critNode is in reachableFromSeedVector and dependancyVector[rrSetId][critNode][j] is TRUE
                         //that means that reachability of j depends on critNode in which case
                         //j has already been accounted for and we do not have to do anything?
-                    }
-                }
-
-                for (int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++) {           //for each vertex j in the row containing the vertex to to be removed
-                    if ((*influencedGraph->dependancyVector[rrSetId])[got->second][j]) {                                //if dependence of reachability of j from source given that node is removed is true && j != node
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[j].clear();                                     //Remove the outgoing edge to every node j whose reachability depends on the critNode being removed
-                        (*influencedGraph->reachableFromCritNodeVector[rrSetId])[j] = true;                             //Since the value for j is TRUE, hence you know that j will not be reachable from any other vertex. Hence you will want to initialise the dependencyValue of j to FALSE to prevent any errors in the dependencyValue calcualtions.
                     }
                 }
 
@@ -3042,6 +3515,15 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     assert(("Woohoo!!!", dependencyValues[critNode] == 0));
 }
 
+//In this version, we do the following:
+//a) change the dependencyValue of critNodeto 0
+//b) change the dependencyValue of every node that depends on its reachability on critNode to 0
+//c) write this later: change the column containing the critNode to all 0's
+void removeCritNodeWithMatrixUpdate_V2(int critNode, unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues) {
+
+}
+
+
 
 void
 computeSubModNodesUsingTopCrit_TEST(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
@@ -3060,11 +3542,14 @@ computeSubModNodesUsingTopCrit_TEST(unique_ptr<Graph> &influencedGraph, int remo
             i++;
             subModNodesToremove.insert(node);
             nodesToRemoveUnsorted.push_back(node);
+            testSubModNodesToRemove.push_back(node);
             if (i < removeNodes) {//Dont call if final vertex to be removed has been found
 //                removeCritNodeFromDependencyVectorTopCrit(node, influencedGraph, dependencyValues, ASdegree);
 //                removeCritNodeFromDependencyVectorNew(node, influencedGraph, dependencyValues, ASdegree);
 //                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree);
-                removeCritNodeWithMatrixUpdate_TEST1(node, influencedGraph, dependencyValues, ASdegree, copyOfDependencyVector, copyOfMiniRRGraphsVector, copyOfDependentOnCritNodes);
+                removeCritNodeWithMatrixUpdate_TEST2(node, influencedGraph, dependencyValues, ASdegree,
+                                                     copyOfDependencyVector, copyOfMiniRRGraphsVector,
+                                                     copyOfDependentOnCritNodes);
             }
             index = 0;
         } else {
@@ -3085,7 +3570,9 @@ computeSubModNodesUsingTopCrit_TEST(unique_ptr<Graph> &influencedGraph, int remo
 
 void computeSubModNodesUsingTopCrit(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
                                     vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
-                                    const set<int> &envelopedNodes, set<int> &subModNodesToremove, vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed) {
+                                    const set<int> &envelopedNodes, set<int> &subModNodesToremove,
+                                    vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed,
+                                    vector<vector<vector<bool>>> copyOfDependencyVector) {
 
     bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
 
@@ -3099,7 +3586,8 @@ void computeSubModNodesUsingTopCrit(unique_ptr<Graph> &influencedGraph, int remo
             if (i < removeNodes) {//Dont call if final vertex to be removed has been found
 //                removeCritNodeFromDependencyVectorTopCrit(node, influencedGraph, dependencyValues, ASdegree);
 //                removeCritNodeFromDependencyVectorNew(node, influencedGraph, dependencyValues, ASdegree);
-                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree);
+                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree, copyOfDependencyVector);
+//                removeCritNodeWithMatrixUpdate_V2(node, influencedGraph, dependencyValues, ASdegree);
             }
             index = 0;
         } else {
@@ -3862,10 +4350,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     clock_t timeToComputeInitialDependencyValues = clock();
 
     clock_t timeToRemoveSeedSetNodesStart = clock();
-    //Now we need to remove all of the nodes which are in the seedSet from each of the dependencyVector
-    //For each vertex in the seedset, remove that vertex from all of the matrices in the dependancyVector
 
-    //FOR TESTING ONLY::::::::
+    //Well this is now REQUIRED. Because of THE CASE.
     vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
     for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
         copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
@@ -3874,6 +4360,18 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
         }
     }
 
+    /*
+
+    //FOR TESTING ONLY::::::::
+
+    vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
+    for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
+        copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
+        for(int j = 0; j < (*subModTopCritGraph->dependancyVector[rrSetId]).size(); j++){
+            copyOfDependencyVector[rrSetId][j] = (*subModTopCritGraph->dependancyVector[rrSetId])[j];
+        }
+    }
+    */
     vector<vector<vector<int>>> copyOfMiniRRGraphsVector = vector<vector<vector<int>>>(subModTopCritGraph->dependancyVector.size());
     for(int rrSetId = 0; rrSetId < copyOfMiniRRGraphsVector.size(); rrSetId++){
         copyOfMiniRRGraphsVector[rrSetId] = vector<vector<int>>((*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size());
@@ -3883,11 +4381,15 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     }
 
 
+
+    //Now we need to remove all of the nodes which are in the seedSet from each of the dependencyVector
+    //For each vertex in the seedset, remove that vertex from all of the matrices in the dependancyVector
     for(int nodeToRemove : maxSeedSet){
 //        removeSeedSetNodeFromDependencyVector_2(nodeToRemove, subModTopCritGraph);
 //        removeSeedSetNodeWithoutMatrixUpdate_TEST2(nodeToRemove, subModTopCritGraph, dependencyValues, copyOfDependencyVector);
 //        removeSeedSetNodeWithoutMatrixUpdate_TEST(nodeToRemove, subModTopCritGraph, dependencyValues, copyOfDependencyVector);
         removeSeedSetNodeWithoutMatrixUpdate(nodeToRemove, subModTopCritGraph, dependencyValues);
+//        removeSeedSetNodeFromAllRRGraphs(nodeToRemove, subModTopCritGraph, dependencyValues);
     }
 
     //Computing the dependencyValues ONLY FOR TESTING removeSeedSetNodeWithoutMatrixUpdate_TEST2
@@ -3913,8 +4415,6 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 
     clock_t timeToRemoveSeedSetNodesEnd = clock();
     clock_t modImpactTimeStart = clock();
-
-//    dependencyValues = vector<int>(subModTopCritGraph->n, 0);//THE MOTHERFUCKING LINE!!!!
 
     cout << "\nComputing nodes to remove by the NEW_Mod Impact method" << endl;
     dependValues << "\nsubModTopCritNodesRemove()-Populating dependency values AFTER removing the seedSet Nodes:" << endl;
@@ -3952,19 +4452,19 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     alreadyinSeed = set<int>();
     clock_t sumModCritTimeStart = clock();
 
-    computeSubModNodesUsingTopCrit(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
-                                   envelopedNodes,
-                                   subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed);
+//    computeSubModNodesUsingTopCrit(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
+//                                   envelopedNodes,
+//                                   subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed, copyOfDependencyVector);
 
 
     vector<vector<bool>> copyOfDependentOnCritNodes = vector<vector<bool>>(subModTopCritGraph->dependancyVector.size());
     for(int i = 0; i < copyOfDependentOnCritNodes.size(); i++){
         copyOfDependentOnCritNodes[i] = vector<bool>((*subModTopCritGraph->indexToVertex[i]).size(), false);
     }
-//    computeSubModNodesUsingTopCrit_TEST(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
-//                                        envelopedNodes,
-//                                        subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed,
-//                                        copyOfDependencyVector, copyOfMiniRRGraphsVector, copyOfDependentOnCritNodes);
+    computeSubModNodesUsingTopCrit_TEST(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
+                                        envelopedNodes,
+                                        subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed,
+                                        copyOfDependencyVector, copyOfMiniRRGraphsVector, copyOfDependentOnCritNodes);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModTopCritNodesToRemove.size() == removalNum));
     clock_t sumModCritTimeEnd = clock();
@@ -4741,9 +5241,11 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                                        NULL);
             vector<vector<int>>().swap(maxSeedGraph->rrSets);
             maxInfluenceNum = oldNewIntersection(maxSeedGraph, maxInfluenceSeed, activatedSet, resultLogFile);
+            testMaxInfluenceSeed = vector<int>();
             cout << "Chosen maxSeedSet: ";
             for(int i:maxInfluenceSeed){
                 cout << i << " ";
+                testMaxInfluenceSeed.push_back(i);
             }
             cout << endl;
             cout << maxInfluenceNum << " <-MaxInfluence Num " << endl;
