@@ -81,8 +81,9 @@ public:
 //    vector<unordered_map<int, int>*> vertexToIndex;
     vector<unique_ptr<unordered_map<int, int>>> vertexToIndex;
     vector<unique_ptr<vector<int>>> indexToVertex;
-    vector<unique_ptr<vector<bool>>> reachableFromSeedVector;
-    vector<unique_ptr<vector<bool>>> reachableFromCritNodeVector;
+    vector<unique_ptr<vector<bool>>> dependentOnSeedSetVector;
+    vector<unique_ptr<vector<bool>>> dependentOnCritNodesVector;
+    vector<unique_ptr<vector<bool>>> reachableFromSourceVector;
     vector<unique_ptr<vector<vector<bool>>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
     vector<vector<vector<bool>>*> testDependancyVector;//Used for the testing of what if modNodes were the ones removed
     vector<unique_ptr<vector<vector<int>>>> miniRRGraphsVector;//Stores the RRGraph generated in each RRSet generation
@@ -117,6 +118,7 @@ public:
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
     void generateRandomRRSetCountingNodes(int randomVertex, int rrSetID);
     int BFSCountingNodes(int startVertex);
+    void assertDependencyMatrixIsCorrect(const unique_ptr<vector<vector<int>>> &myMiniRRGraph, const unique_ptr<vector<vector<bool>>> &myDependencyMatrix, int rrSetID);
     void calcDependancyMatrix_Interleaved(const vector<vector<int>> &miniRRGraph, int randomVertex, int rrSetID, int rrSetSize, const unique_ptr<unordered_map<int, int>> &mappedIndex);
     void calcDependancyMatrixForSubModTopCrit(const unique_ptr<vector<vector<int>>> &miniRRGraph, int randomVertex, int rrSetID, int rrSetSize, const unique_ptr<unordered_map<int, int>> &mappedIndex);
     void readGraph(string fileName,std::ofstream& resultLogFile);
