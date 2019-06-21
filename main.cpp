@@ -2013,6 +2013,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                 printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
             }
             if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){                                   //this if condition is triggered if the critNode was reachable From Source
+                tshootingFile << "rrSetId: " <<rrSetId << " - critNode reachable from Source" << endl;
                 //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
                 for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){             //for every vertex v in the row M[critNode]
                     if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second){              //if M[critNode][v] == 1 and v != critNode
@@ -2074,6 +2075,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                  * In this case, the critNode will have no outgoing edges.
                  * And its dependencyValues will not be considered in this case either.
                  * */
+                tshootingFile << "rrSetId: " <<rrSetId << " - critNode NOT reachable from Source" << endl;
                 //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
                 for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
                     if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second) {             //if M[critNode][v] == 1 and v != critNode
@@ -2110,7 +2112,6 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
 
         //Updating the dependencyMatrix for the vertices that were deleted since they either they were the critNode or
         //vertices whose reachability depended on the critNode
-
         for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
             if((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second){
                 for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
@@ -2128,7 +2129,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
 
         /*
         We have removed seedSetNodes and critNode at this point. There might have been a vertex v that had an edge from a seedSetNode and critNode.
-        Therefore, the reachability of vertex v would not ahve been dependent on critNode.
+        Therefore, the reachability of vertex v would not have been dependent on critNode.
         Hence, deleting critNode would not have changed reachableFromSource[v] to FALSE.
         However, v now only has an edge from seedSetNode. Hence it is no longer reachable from the source. So we have an error, and we need to correct it.
         This is what checkForNewVerticesNotReachableFromSource() method does.
