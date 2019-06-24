@@ -47,7 +47,7 @@ private:
     vector<int> nonTargets;
     int numberOfTargets;
     int numberOfNonTargets;
-
+    mt19937 gen{std::random_device{}()};
     
 
 public:
@@ -84,6 +84,8 @@ public:
     vector<unique_ptr<vector<bool>>> dependentOnSeedSetVector;
     vector<unique_ptr<vector<bool>>> dependentOnCritNodesVector;
     vector<unique_ptr<vector<bool>>> reachableFromSourceVector;
+    vector<unique_ptr<vector<bool>>> isSeedVector;//isSeedVector - For every rrSetId, it stores - isSeed <1,1,0,0,1> : This means in this particular miniRRGraph, vertices 0,1,4 have been selected as the overall seed
+    vector<unique_ptr<vector<bool>>> isCriticalVector;//isCriticalVector - For every rrSetId, it stores - isCritical <1,0,0,1,0> : This means in this particular miniRRGraph, removing vertices 0 and 3 (separately, not at the same time) caused the seedSetNodes to become disconnected from the source
     vector<unique_ptr<vector<vector<bool>>>> dependancyVector;//Stores the dependancyMatrix generated in each RRSet Generation
     vector<vector<vector<bool>>*> testDependancyVector;//Used for the testing of what if modNodes were the ones removed
     vector<unique_ptr<vector<vector<int>>>> miniRRGraphsVector;//Stores the RRGraph generated in each RRSet generation
@@ -115,6 +117,7 @@ public:
     void generateRandomRRSetwithRRgraphs(int randomVertex, int rrSetID);
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
     void generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID);
+    void generateRRSetsForSubModGivenSeedSet(int randomVertex, int rrSetID);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
     void generateRandomRRSetCountingNodes(int randomVertex, int rrSetID);
     int BFSCountingNodes(int startVertex);

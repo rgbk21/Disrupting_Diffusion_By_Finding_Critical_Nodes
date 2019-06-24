@@ -91,6 +91,8 @@ int nodeNumBeingRemovedGlobal = 20;
  *
  * 3) In removeSeedSetNodeFromDependencyVector() there is an assert statement. Set tshoot to false when actually running the program.
  * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually runnning.
+ * 5) generateRRSetsForSubModTopCrit() has an assert statement that has been commented out. Reintroduce if testing code.
+ * 6) removed a bunch of testMethods from the subModTopCrit method. Reintroduce if testing the code?
  *
  * */
 
@@ -743,14 +745,17 @@ int calcIntersection(const set<int> &set1, const set<int> &set2){
 void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph, unique_ptr<Graph> &modImpactGraph,
                   unique_ptr<Graph> &tGraph, unique_ptr<Graph> &subModtopKInflGraph,
                   unique_ptr<Graph> &subModImpactTopCritGraph,
-                  unique_ptr<Graph> &subModTopCritGraphNew,
+                  unique_ptr<Graph> &subModTopCritGraphNew, unique_ptr<Graph> &modImpactGivenSeedGraph,
+                  unique_ptr<Graph> &subModGivenSeedGraph,
                   set<int> modNodes, set<int> &subModNodes, set<int> *removalModImpact, set<int> tGraphNodes,
                   set<int> &subModTopKInflNodesRemove,
                   set<int> *subModImpactNodesToRemove, set<int> &subModTopCritNodesToRemove,
+                  set<int> &modImpactGivenSeedNodesToRemove, set<int> &subModGivenSeedNodesToRemove,
                   vector<int> &activatedSet, int newSeed, float percentageTargetsFloat, string convertedFile,
-                  set<int> prevSelectSeed, vector<int> &subModImpactNodesToRemoveUnsorted,
+                  set<int> &prevSelectSeed, vector<int> &subModImpactNodesToRemoveUnsorted,
                   vector<int> &subModNodesToRemoveUnsorted, vector<int> &subModImpactTopCritNodesToRemoveUnsorted,
-                  vector<int> &subModTopCritNodesToRemoveUnsorted) {
+                  vector<int> &subModTopCritNodesToRemoveUnsorted, vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
+                  vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
 
     bool tshoot = true;
 
@@ -764,6 +769,8 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
     vector<int> subModTopKInflResults;
     vector<int> subModImpactTopCritResults;
     vector<int> subModTopCritResults;
+    vector<int> modImpactGivenSeedResults;
+    vector<int> subModGivenSeedResults;
 
     cout << "\nnodes To remove in mod graph: ";
     removingNodesFromGraph(newModGraph, modNodes);
@@ -809,16 +816,6 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
     cout << "\nnodes to remove in transposedGraph: ";
     removingNodesFromGraph(tGraph, tGraphNodes);
 
-    /*
-     * Uncomment only if the countNodes method in executeTIMTIMfullGraph() method has been uncommented as well
-     * Also uncomment the if(someCondition) block where you are calculating the infl in the resulting graph
-     * Note that the else condition of that statement has not been written to take into account the additional 2 methods that we wrote
-
-     nodesToRemoveInCountGraph(countGraph, countGraphNodes);
-    nodesToRemoveInTopKInflGraph(topKInflGraph, topKInflGraphNodes);
-
-     */
-
     cout << "\nnodes to remove in SubModtopKInflGraph: ";
     removingNodesFromGraph(subModtopKInflGraph, subModTopKInflNodesRemove);
 
@@ -827,6 +824,12 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
                                             subModImpactTopCritNodesRemove);
     cout << "\nnodes to remove in subModTopCritGraphNew: ";
     removingNodesFromGraph(subModTopCritGraphNew, subModTopCritNodesToRemove);
+
+    cout << "\nnodes to remove in modImpactGivenSeedGraph: ";
+    removingNodesFromGraph(modImpactGivenSeedGraph, modImpactGivenSeedNodesToRemove);
+
+    cout << "\nnodes to remove in subModGivenSeedGraph: ";
+    removingNodesFromGraph(subModGivenSeedGraph, subModGivenSeedNodesToRemove);
 
     //Print out nodes to be removed only for myfile
     if (tshoot) {
@@ -869,50 +872,87 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
             myfile << i << " ";
         }
         cout << flush;
+        myfile << "\nnodes To remove in modImpactGivenSeedGraph graph: ";
+        for (int i:modImpactGivenSeedNodesToRemoveUnsorted) {
+            myfile << i << " ";
+        }
+        cout << flush;
+        myfile << "\nnodes To remove in subModGivenSeedGraph graph: ";
+        for (int i:subModGivenSeedNodesToRemoveUnsorted) {
+            myfile << i << " ";
+        }
+        cout << flush;
 
     }
 
     cout << endl;
     myfile << endl;
-    cout << "\nintersection of modTopKInfl and transposedGraph nodes to remove "    << calcIntersection(modNodes, tGraphNodes);
-    cout << "\nintersection of modTopKInfl and SubModTopKInfl nodes to remove "     << calcIntersection(modNodes, subModTopKInflNodesRemove);
-    cout << "\nintersection of modTopKInfl and submod nodes to remove "             << calcIntersection(modNodes, subModNodes);
-    cout << "\nintersection of modTopKInfl and modImpact nodes to remove "          << calcIntersection(modNodes, removalModImpactNodes);
-    cout << "\nintersection of modTopKInfl and subModImpactTopCrit nodes to remove "<< calcIntersection(modNodes, subModImpactTopCritNodesRemove);
-    cout << "\nintersection of modTopKInfl and subModTopCrit nodes to remove "      << calcIntersection(modNodes, subModTopCritNodesToRemove) << endl;
-    cout << "\nintersection of submod and transposedGraph nodes to remove "         << calcIntersection(subModNodes, tGraphNodes);
-    cout << "\nintersection of submod and SubModTopKInfl nodes to remove "          << calcIntersection(subModNodes, subModTopKInflNodesRemove);
-    cout << "\nintersection of submod and modImpact nodes to remove "               << calcIntersection(subModNodes, removalModImpactNodes);
-    cout << "\nintersection of submod and subModImpactTopCrit nodes to remove "     << calcIntersection(subModNodes, subModImpactTopCritNodesRemove);
-    cout << "\nintersection of submod and subModTopCrit nodes to remove "           << calcIntersection(subModNodes, subModTopCritNodesToRemove) << endl;
-    cout << "\nintersection of modImpact and transposedGraph nodes to remove "      << calcIntersection(removalModImpactNodes, tGraphNodes);
-    cout << "\nintersection of modImpact and SubModTopKInfl nodes to remove "       << calcIntersection(removalModImpactNodes, subModTopKInflNodesRemove);
-    cout << "\nintersection of modImpact and subModImpactTopCrit nodes to remove "  << calcIntersection(removalModImpactNodes, subModImpactTopCritNodesRemove);
-    cout << "\nintersection of modImpact and subModTopCrit nodes to remove "        << calcIntersection(removalModImpactNodes, subModTopCritNodesToRemove) << endl;
-    cout << "\nintersection of SubModTopKInfl and subModImpactTopCrit nodes to remove " << calcIntersection(subModTopKInflNodesRemove, subModImpactTopCritNodesRemove);
-    cout << "\nintersection of SubModTopKInfl and subModTopCrit nodes to remove "   << calcIntersection(subModTopKInflNodesRemove, subModTopCritNodesToRemove) << endl;
-    cout << "\nintersection of subModImpactTopCrit and subModTopCrit nodes to remove " << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of modTopKInfl and transposedGraph nodes to remove "            << calcIntersection(modNodes, tGraphNodes);
+    cout << "\nintersection of modTopKInfl and SubModTopKInfl nodes to remove "             << calcIntersection(modNodes, subModTopKInflNodesRemove);
+    cout << "\nintersection of modTopKInfl and submod nodes to remove "                     << calcIntersection(modNodes, subModNodes);
+    cout << "\nintersection of modTopKInfl and modImpact nodes to remove "                  << calcIntersection(modNodes, removalModImpactNodes);
+    cout << "\nintersection of modTopKInfl and subModImpactTopCrit nodes to remove "        << calcIntersection(modNodes, subModImpactTopCritNodesRemove);
+    cout << "\nintersection of modTopKInfl and subModTopCrit nodes to remove "              << calcIntersection(modNodes, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "         << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "            << calcIntersection(modNodes, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of submod and transposedGraph nodes to remove "                 << calcIntersection(subModNodes, tGraphNodes);
+    cout << "\nintersection of submod and SubModTopKInfl nodes to remove "                  << calcIntersection(subModNodes, subModTopKInflNodesRemove);
+    cout << "\nintersection of submod and modImpact nodes to remove "                       << calcIntersection(subModNodes, removalModImpactNodes);
+    cout << "\nintersection of submod and subModImpactTopCrit nodes to remove "             << calcIntersection(subModNodes, subModImpactTopCritNodesRemove);
+    cout << "\nintersection of submod and subModTopCrit nodes to remove "                   << calcIntersection(subModNodes, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of submod and modImpactGivenSeed nodes to remove "              << calcIntersection(subModNodes, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of submod and subModGivenSeed nodes to remove "                 << calcIntersection(subModNodes, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of modImpact and transposedGraph nodes to remove "              << calcIntersection(removalModImpactNodes, tGraphNodes);
+    cout << "\nintersection of modImpact and SubModTopKInfl nodes to remove "               << calcIntersection(removalModImpactNodes, subModTopKInflNodesRemove);
+    cout << "\nintersection of modImpact and subModImpactTopCrit nodes to remove "          << calcIntersection(removalModImpactNodes, subModImpactTopCritNodesRemove);
+    cout << "\nintersection of modImpact and subModTopCrit nodes to remove "                << calcIntersection(removalModImpactNodes, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of modImpact and modImpactGivenSeed nodes to remove "           << calcIntersection(removalModImpactNodes, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of modImpact and subModGivenSeed nodes to remove "              << calcIntersection(removalModImpactNodes, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of SubModTopKInfl and subModImpactTopCrit nodes to remove "     << calcIntersection(subModTopKInflNodesRemove, subModImpactTopCritNodesRemove);
+    cout << "\nintersection of SubModTopKInfl and subModTopCrit nodes to remove "           << calcIntersection(subModTopKInflNodesRemove, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of SubModTopKInfl and modImpactGivenSeed nodes to remove "      << calcIntersection(subModTopKInflNodesRemove, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of SubModTopKInfl and subModGivenSeed nodes to remove "         << calcIntersection(subModTopKInflNodesRemove, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of subModImpactTopCrit and subModTopCrit nodes to remove "      << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove) << endl;
+    cout << "\nintersection of subModImpactTopCrit and modImpactGivenSeed nodes to remove " << calcIntersection(subModImpactTopCritNodesRemove, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of subModImpactTopCrit and subModGivenSeed nodes to remove "    << calcIntersection(subModImpactTopCritNodesRemove, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of subModTopCrit and modImpactGivenSeed nodes to remove "       << calcIntersection(subModTopCritNodesToRemove, modImpactGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of subModTopCrit and subModGivenSeed nodes to remove "          << calcIntersection(subModTopCritNodesToRemove, subModGivenSeedNodesToRemove) << endl;
+    cout << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "     << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove) << endl;
 
 
     cout << endl;
-    myfile << "\nintersection of modTopKInfl and transposedGraph nodes to remove "    << calcIntersection(modNodes, tGraphNodes);
-    myfile << "\nintersection of modTopKInfl and SubModTopKInfl nodes to remove "     << calcIntersection(modNodes, subModTopKInflNodesRemove);
-    myfile << "\nintersection of modTopKInfl and submod nodes to remove "             << calcIntersection(modNodes, subModNodes);
-    myfile << "\nintersection of modTopKInfl and modImpact nodes to remove "          << calcIntersection(modNodes, removalModImpactNodes);
-    myfile << "\nintersection of modTopKInfl and subModImpactTopCrit nodes to remove "<< calcIntersection(modNodes, subModImpactTopCritNodesRemove);
-    myfile << "\nintersection of modTopKInfl and subModTopCrit nodes to remove "      << calcIntersection(modNodes, subModTopCritNodesToRemove) << endl;
-    myfile << "\nintersection of submod and transposedGraph nodes to remove "         << calcIntersection(subModNodes, tGraphNodes);
-    myfile << "\nintersection of submod and SubModTopKInfl nodes to remove "          << calcIntersection(subModNodes, subModTopKInflNodesRemove);
-    myfile << "\nintersection of submod and modImpact nodes to remove "               << calcIntersection(subModNodes, removalModImpactNodes);
-    myfile << "\nintersection of submod and subModImpactTopCrit nodes to remove "     << calcIntersection(subModNodes, subModImpactTopCritNodesRemove);
-    myfile << "\nintersection of submod and subModTopCrit nodes to remove "           << calcIntersection(subModNodes, subModTopCritNodesToRemove) << endl;
-    myfile << "\nintersection of modImpact and transposedGraph nodes to remove "      << calcIntersection(removalModImpactNodes, tGraphNodes);
-    myfile << "\nintersection of modImpact and SubModTopKInfl nodes to remove "       << calcIntersection(removalModImpactNodes, subModTopKInflNodesRemove);
-    myfile << "\nintersection of modImpact and subModImpactTopCrit nodes to remove "  << calcIntersection(removalModImpactNodes, subModImpactTopCritNodesRemove);
-    myfile << "\nintersection of modImpact and subModTopCrit nodes to remove "        << calcIntersection(removalModImpactNodes, subModTopCritNodesToRemove) << endl;
-    myfile << "\nintersection of SubModTopKInfl and subModImpactTopCrit nodes to remove " << calcIntersection(subModTopKInflNodesRemove, subModImpactTopCritNodesRemove);
-    myfile << "\nintersection of SubModTopKInfl and subModTopCrit nodes to remove "   << calcIntersection(subModTopKInflNodesRemove, subModTopCritNodesToRemove) << endl;
-    myfile << "\nintersection of subModImpactTopCrit and subModTopCrit nodes to remove " << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove) << endl;
+    myfile << "\nintersection of modTopKInfl and transposedGraph nodes to remove "            << calcIntersection(modNodes, tGraphNodes);
+    myfile << "\nintersection of modTopKInfl and SubModTopKInfl nodes to remove "             << calcIntersection(modNodes, subModTopKInflNodesRemove);
+    myfile << "\nintersection of modTopKInfl and submod nodes to remove "                     << calcIntersection(modNodes, subModNodes);
+    myfile << "\nintersection of modTopKInfl and modImpact nodes to remove "                  << calcIntersection(modNodes, removalModImpactNodes);
+    myfile << "\nintersection of modTopKInfl and subModImpactTopCrit nodes to remove "        << calcIntersection(modNodes, subModImpactTopCritNodesRemove);
+    myfile << "\nintersection of modTopKInfl and subModTopCrit nodes to remove "              << calcIntersection(modNodes, subModTopCritNodesToRemove) ;
+    myfile << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "         << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "            << calcIntersection(modNodes, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of submod and transposedGraph nodes to remove "                 << calcIntersection(subModNodes, tGraphNodes);
+    myfile << "\nintersection of submod and SubModTopKInfl nodes to remove "                  << calcIntersection(subModNodes, subModTopKInflNodesRemove);
+    myfile << "\nintersection of submod and modImpact nodes to remove "                       << calcIntersection(subModNodes, removalModImpactNodes);
+    myfile << "\nintersection of submod and subModImpactTopCrit nodes to remove "             << calcIntersection(subModNodes, subModImpactTopCritNodesRemove);
+    myfile << "\nintersection of submod and subModTopCrit nodes to remove "                   << calcIntersection(subModNodes, subModTopCritNodesToRemove) ;
+    myfile << "\nintersection of submod and modImpactGivenSeed nodes to remove "              << calcIntersection(subModNodes, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of submod and subModGivenSeed nodes to remove "                 << calcIntersection(subModNodes, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of modImpact and transposedGraph nodes to remove "              << calcIntersection(removalModImpactNodes, tGraphNodes);
+    myfile << "\nintersection of modImpact and SubModTopKInfl nodes to remove "               << calcIntersection(removalModImpactNodes, subModTopKInflNodesRemove);
+    myfile << "\nintersection of modImpact and subModImpactTopCrit nodes to remove "          << calcIntersection(removalModImpactNodes, subModImpactTopCritNodesRemove);
+    myfile << "\nintersection of modImpact and subModTopCrit nodes to remove "                << calcIntersection(removalModImpactNodes, subModTopCritNodesToRemove) ;
+    myfile << "\nintersection of modImpact and modImpactGivenSeed nodes to remove "           << calcIntersection(removalModImpactNodes, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of modImpact and subModGivenSeed nodes to remove "              << calcIntersection(removalModImpactNodes, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of SubModTopKInfl and subModImpactTopCrit nodes to remove "     << calcIntersection(subModTopKInflNodesRemove, subModImpactTopCritNodesRemove);
+    myfile << "\nintersection of SubModTopKInfl and subModTopCrit nodes to remove "           << calcIntersection(subModTopKInflNodesRemove, subModTopCritNodesToRemove);
+    myfile << "\nintersection of SubModTopKInfl and modImpactGivenSeed nodes to remove "      << calcIntersection(subModTopKInflNodesRemove, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of SubModTopKInfl and subModGivenSeed nodes to remove "         << calcIntersection(subModTopKInflNodesRemove, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of subModImpactTopCrit and subModTopCrit nodes to remove "      << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove);
+    myfile << "\nintersection of subModImpactTopCrit and modImpactGivenSeed nodes to remove " << calcIntersection(subModImpactTopCritNodesRemove, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of subModImpactTopCrit and subModGivenSeed nodes to remove "    << calcIntersection(subModImpactTopCritNodesRemove, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of subModTopCrit and modImpactGivenSeed nodes to remove "       << calcIntersection(subModTopCritNodesToRemove, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of subModTopCrit and subModGivenSeed nodes to remove "          << calcIntersection(subModTopCritNodesToRemove, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "     << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove);
+
     myfile << endl;
 
     //Random RR sets
@@ -965,8 +1005,6 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
 
     set<int> maxSeed;//Stores the seedSet that will be used for diffusion in all of the 4 processes
 
-
-
     if (someCondition) {
         cout << "Setting max Seed to be the previously selected maxSeed" << endl;
         maxSeed = prevSelectSeed;
@@ -992,7 +1030,7 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
          *      - or using the random seed as the seed set
          *
         */
-        myfile << "\n\nmodTopK SubModTopK Old_SubMod New_SubMod Old_ModImpact New_ModImpact Transposed \n";
+        myfile << "\n\nmodTopK SubModTopK Old_SubMod New_SubMod Old_ModImpact New_ModImpact ModImpactGivenSeed SubModGivenSeed Transposed \n";
         while (k < 3) {
 
             cout << "\n********** k = " << k << " **********" << endl;
@@ -1040,6 +1078,18 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
             infNum = oldNewIntersection(subModImpactTopCritGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(subModImpactTopCritGraph->rrSets);
             subModImpactTopCritResults.push_back(infNum);
+            myfile << infNum << "\t\t ";
+
+            cout << k << "---" << "\nModImpactGivenSeed Results: " << endl;
+            infNum = oldNewIntersection(modImpactGivenSeedGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(modImpactGivenSeedGraph->rrSets);
+            modImpactGivenSeedResults.push_back(infNum);
+            myfile << infNum << "\t\t ";
+
+            cout << k << "---" << "\nsubModGivenSeed Results: " << endl;
+            infNum = oldNewIntersection(subModGivenSeedGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
+            subModGivenSeedResults.push_back(infNum);
             myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nTransposed Graph Results: " << endl;
@@ -1134,18 +1184,25 @@ void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &subNewGraph
     double ImapctGain = 0;
     double newSubModGain = 0;
     double newImpactGain = 0;
+    double modImpactGivenSeedGain = 0;
+    double subModGivenSeedGain = 0;
     for (int i = 0; i < k; i++) {
-        subModGain += float(modResults[i] - SubmodResults[i]) / float(modResults[i]);
-        ImapctGain += float(modResults[i] - modImpactResults[i]) / float(modResults[i]);
-        newSubModGain += float(subModTopKInflResults[i] - subModTopCritResults[i]) / float(subModTopKInflResults[i]);
-        newImpactGain += float(subModTopKInflResults[i] - subModImpactTopCritResults[i]) / float(subModTopKInflResults[i]);
+        subModGain              += float(modResults[i] - SubmodResults[i]) / float(modResults[i]);
+        ImapctGain              += float(modResults[i] - modImpactResults[i]) / float(modResults[i]);
+        newSubModGain           += float(subModTopKInflResults[i] - subModTopCritResults[i]) / float(subModTopKInflResults[i]);
+        newImpactGain           += float(subModTopKInflResults[i] - subModImpactTopCritResults[i]) / float(subModTopKInflResults[i]);
+        modImpactGivenSeedGain  += float(subModImpactTopCritResults[i] - modImpactGivenSeedResults[i]) / float(subModImpactTopCritResults[i]);
+        subModGivenSeedGain     += float(subModTopCritResults[i] - subModGivenSeedResults[i]) / float(subModTopCritResults[i]);
     }
-    subModGain = (float) subModGain / k;
-    ImapctGain = (float) ImapctGain / k;
-    newSubModGain = (float) newSubModGain / k;
-    newImpactGain = (float) newImpactGain / k;
+    subModGain              = (float) subModGain / k;
+    ImapctGain              = (float) ImapctGain / k;
+    newSubModGain           = (float) newSubModGain / k;
+    newImpactGain           = (float) newImpactGain / k;
+    modImpactGivenSeedGain  = (float) modImpactGivenSeedGain / k;
+    subModGivenSeedGain     = (float) subModGivenSeedGain / k;
     myfile << subModGain << " <-subModGain\n" << ImapctGain << " <-ModImpactGain\n";
     myfile << newSubModGain << " <-newSubModGain\n" << newImpactGain << " <-newImpactGain\n";
+    myfile << modImpactGivenSeedGain << " <-modImpactGivenSeedGain\n" << subModGivenSeedGain << " <-subModGivenSeedGain\n";
 }
 
 
@@ -1970,9 +2027,9 @@ void repopulateMatrixRowWithDependencyValueUpdate(unique_ptr<Graph> &influencedG
 }
 
 void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
-                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree,
+                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree/*,
                                     vector<vector<vector<bool>>> &copyOfDependencyVector,
-                                    vector<vector<vector<int>>> &copyOfMiniRRGraphsVector) {
+                                    vector<vector<vector<int>>> &copyOfMiniRRGraphsVector*/) {
 
     bool tshoot = false;//WARNING:controls assert statement
     bool tshoot1 = false;//Controls PAUUUUUZZZE
@@ -2145,7 +2202,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
             if((*influencedGraph->reachableFromSourceVector[rrSetId])[j] && !newRFS[j]){
                 for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
                     if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
-                        cout << "Triggerred" << endl;
+//                        cout << "Triggerred" << endl;
                         dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;                           //dependencyValue[v] -= 1
                     }
                 }
@@ -2155,9 +2212,9 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
             }*/
         }
 
-        assertDependencyMatrixIsCorrect(influencedGraph, copyOfDependencyVector[rrSetId],
-                                        copyOfMiniRRGraphsVector[rrSetId], influencedGraph->dependancyVector[rrSetId],
-                                        rrSetId, critNode);
+//        assertDependencyMatrixIsCorrect(influencedGraph, copyOfDependencyVector[rrSetId],
+//                                        copyOfMiniRRGraphsVector[rrSetId], influencedGraph->dependancyVector[rrSetId],
+//                                        rrSetId, critNode);
 
         if(nodeNumBeingRemovedGlobal < 5){
             tshootingFile << "\nPost Values in rrSet: " << rrSetId << endl;
@@ -2177,9 +2234,9 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
 void computeSubModNodesUsingTopCrit(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
                                     vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
                                     const set<int> &envelopedNodes, set<int> &subModNodesToremove,
-                                    vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed,
+                                    vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed/*,
                                     vector<vector<vector<bool>>> &copyOfDependencyVector,
-                                    vector<vector<vector<int>>> &copyOfMiniRRGraphsVector) {
+                                    vector<vector<vector<int>>> &copyOfMiniRRGraphsVector*/) {
 
     bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
 
@@ -2191,8 +2248,7 @@ void computeSubModNodesUsingTopCrit(unique_ptr<Graph> &influencedGraph, int remo
             subModNodesToremove.insert(node);
             nodesToRemoveUnsorted.push_back(node);
             if (i <= removeNodes) {//WARNING --- Dont call if final vertex to be removed has been found
-//                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree);//Actual method
-                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree, copyOfDependencyVector, copyOfMiniRRGraphsVector);//Test MEthod
+                removeCritNodeWithMatrixUpdate(node, influencedGraph, dependencyValues, ASdegree/*, copyOfDependencyVector, copyOfMiniRRGraphsVector*/);
             }
             index = 0;
         } else {
@@ -2201,7 +2257,7 @@ void computeSubModNodesUsingTopCrit(unique_ptr<Graph> &influencedGraph, int remo
         }
     }
 
-    inSanityCheck_2(influencedGraph, dependencyValues, nodesToRemoveUnsorted, copyOfDependencyVector, copyOfMiniRRGraphsVector);
+//    inSanityCheck_2(influencedGraph, dependencyValues, nodesToRemoveUnsorted, copyOfDependencyVector, copyOfMiniRRGraphsVector);
 
     if (tshoot2 && useEnvelop) {
         cout << "SubMod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
@@ -2468,6 +2524,13 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 
     clock_t timeForGeneratingRRSets = clock();
 
+//
+//    cout << "Counting the number of times this particular node was picked" << endl;
+//
+//    for(int i = 0; i < subModTopCritGraph->timesThisNodeWasPicked.size(); i++){
+//        cout << i << " " << subModTopCritGraph->timesThisNodeWasPicked[i] << endl;
+//    }
+
 //    cout << "Printing All RRSets" << endl;
 //    for(int i = 0; i < subModTopCritGraph->rrSets.size(); i++){
 //        for(int j = 0; j < subModTopCritGraph->rrSets[i].size(); j++){
@@ -2487,7 +2550,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     clock_t timeToComputeInitialDependencyValues = clock();
     clock_t timeToRemoveSeedSetNodesStart = clock();
 
-    countingSeedSetNodesInEachRRGraph(subModTopCritGraph, maxSeedSet);
+//    countingSeedSetNodesInEachRRGraph(subModTopCritGraph, maxSeedSet);//You said this was a test method only?
     removeSeedSetNodesFromAllRRGraphs(subModTopCritGraph, maxSeedSet);
 
     clock_t timeToRemoveSeedSetNodesEnd = clock();
@@ -2533,21 +2596,21 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     alreadyinSeed = set<int>();
     clock_t sumModCritTimeStart = clock();
 
-    vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
-    for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
-        copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
-        for(int j = 0; j < (*subModTopCritGraph->dependancyVector[rrSetId]).size(); j++){
-            copyOfDependencyVector[rrSetId][j] = (*subModTopCritGraph->dependancyVector[rrSetId])[j];
-        }
-    }
-
-    vector<vector<vector<int>>> copyOfMiniRRGraphVector = vector<vector<vector<int>>>(subModTopCritGraph->miniRRGraphsVector.size());
-    for(int rrSetId = 0; rrSetId < copyOfMiniRRGraphVector.size(); rrSetId++){
-        copyOfMiniRRGraphVector[rrSetId] = vector<vector<int>>((*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size());
-        for(int j = 0; j < (*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size(); j++){
-            copyOfMiniRRGraphVector[rrSetId][j] = (*subModTopCritGraph->miniRRGraphsVector[rrSetId])[j];
-        }
-    }
+//    vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
+//    for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
+//        copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
+//        for(int j = 0; j < (*subModTopCritGraph->dependancyVector[rrSetId]).size(); j++){
+//            copyOfDependencyVector[rrSetId][j] = (*subModTopCritGraph->dependancyVector[rrSetId])[j];
+//        }
+//    }
+//
+//    vector<vector<vector<int>>> copyOfMiniRRGraphVector = vector<vector<vector<int>>>(subModTopCritGraph->miniRRGraphsVector.size());
+//    for(int rrSetId = 0; rrSetId < copyOfMiniRRGraphVector.size(); rrSetId++){
+//        copyOfMiniRRGraphVector[rrSetId] = vector<vector<int>>((*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size());
+//        for(int j = 0; j < (*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size(); j++){
+//            copyOfMiniRRGraphVector[rrSetId][j] = (*subModTopCritGraph->miniRRGraphsVector[rrSetId])[j];
+//        }
+//    }
     /*
 
     computeSubModNodesUsingTopCrit_old(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
@@ -2556,8 +2619,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     */
     computeSubModNodesUsingTopCrit(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
                                    envelopedNodes,
-                                   subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed,
-                                   copyOfDependencyVector, copyOfMiniRRGraphVector);
+                                   subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed /*,
+                                   copyOfDependencyVector, copyOfMiniRRGraphVector */);
 
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModTopCritNodesToRemove.size() == removalNum));
@@ -2631,6 +2694,463 @@ void runSubModTopCrit(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<
 }
 
 /************************************************ SUB MODULAR TOP CRIT NEW METHOD ENDS *******************************************************/
+
+/************************************************ SUB MODULAR GIVEN THE SEED SET NODES STARTS *******************************************************/
+
+//This check validates that every vertex does in fact have its dependencyValue equal to the sum of
+//all its rows of the dependencyMatrices.
+void checkIfDValuesAreCorrectForGivenSeedMethod(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues){
+
+    vector<int> testDValues = vector<int>(influencedGraph->n, 0);
+    for(int rrSetId = 0; rrSetId < influencedGraph->isCriticalVector.size(); rrSetId++){
+        for(int i = 0; i < (*influencedGraph->isCriticalVector[rrSetId]).size(); i++){
+            if((*influencedGraph->isCriticalVector[rrSetId])[i]){
+                testDValues[(*influencedGraph->indexToVertex[rrSetId])[i]]++;
+            }
+        }
+    }
+
+    for(int i = 0; i < dependencyValues.size(); i++){
+        assert(("Mismatch in dependencyValues", dependencyValues[i] == testDValues[i]));
+    }
+}
+
+//This method checks if every vertex that has been removed because it was the critNode infact does have all the values in its dependencyMatrix
+//to be FALSE.
+void
+inSanityCheck_22(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues, vector<int> &nodesToRemoveUnsorted) {
+
+    for(int rrSetId = 0; rrSetId < influencedGraph->rrSets.size(); rrSetId++){                                          //For every rrSet
+        for(int i = 0; i < nodesToRemoveUnsorted.size(); i++) {                                                         //for every critNode c that has been removed
+            int critNode = nodesToRemoveUnsorted[i];
+            unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                //if the current rrSet contains c
+                bool rrSetContainsSeed = false;
+                for(int j = 0; j < (*influencedGraph->isSeedVector[rrSetId]).size(); j++){                              //if that rrSet also contained some seedSetNode
+                    if ((*influencedGraph->isSeedVector[rrSetId])[j]) rrSetContainsSeed = true;
+                }
+                if (rrSetContainsSeed){
+                    for(int j = 0; j < (*influencedGraph->isCriticalVector[rrSetId]).size(); j++){                      //every entry in the isCritical of that particular rrSet is FALSE
+                        assert(("Removed critNode but entry in isCritical still TRUE", !(*influencedGraph->isCriticalVector[rrSetId])[j]));
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+    for(int rrSetId = 0; rrSetId < influencedGraph->rrSets.size(); rrSetId++){
+        vector<bool> isCritNode = vector<bool>(influencedGraph->rrSets[rrSetId].size(), false);
+        for(int i = 0; i < nodesToRemoveUnsorted.size(); i++) {
+            int critNode = nodesToRemoveUnsorted[i];
+            unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
+                copyOfMiniRRGraphsVector[rrSetId][got->second].clear();
+                isCritNode[got->second] = true;
+            }
+        }
+        for(int i = 0; i < copyOfMiniRRGraphsVector[rrSetId].size(); i++){
+            vector<vector<int>> myMiniRRGraph = copyOfMiniRRGraphsVector[rrSetId];
+            myMiniRRGraph[i].clear();
+            vector<bool> dependencyRow = vector<bool>(copyOfMiniRRGraphsVector[rrSetId].size());
+            //Initialization
+            for(int j = 0; j < dependencyRow.size(); j++){
+                if(isCritNode[j]){
+                    dependencyRow[j] = false;
+                }else{
+                    dependencyRow[j] = true;
+                }
+            }
+
+        }
+    }
+    */
+
+    //WE want to validate that every vertex that does have not have a non zero entry in the dependencyValueVector does in fact have the value equal to
+    //the sum of the rows or whatever it is you are summing up this time.
+    vector<int> testDValues = vector<int>(influencedGraph->n, 0);
+    for(int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++){
+        for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId]).size(); i++){
+            if((*influencedGraph->reachableFromSourceVector[rrSetId])[i]){
+                for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[i].size(); j++){
+                    if((*influencedGraph->dependancyVector[rrSetId])[i][j]){
+                        testDValues[(*influencedGraph->indexToVertex[rrSetId])[i]]++;
+                    }
+                }
+            }
+        }
+    }
+
+    for(int i = 0; i < dependencyValues.size(); i++){
+        assert(("Final Mismatch in dependencyValues", dependencyValues[i] == testDValues[i] ));
+    }
+
+}
+
+
+//This method removes all the outgoing edges from the nodeBeingRemoved. Then we do a BFS from the source, and check if the seedSetNode is still reachable
+//If it is, it means the nodeBeingRemoved is not critical and hence we return FALSE.
+//If no seedSetNodes can be reached, it means the nodeBeingRemoved was critical, in which case we return TRUE.
+bool isVertexCritical(unique_ptr<Graph> &influencedGraph, int nodeBeingRemoved, int rrSetId, vector<vector<int>> myMiniRRGraph,
+                      unique_ptr<vector<bool>> &isSeed) {
+
+    if((*isSeed)[0]) return false;
+    myMiniRRGraph[nodeBeingRemoved].clear();                                        //Remove all outgoing edges from the nodeBeingRemoved
+    vector<bool> visitedBFS = vector<bool>(myMiniRRGraph.size(), false);            //Mark all the vertices as not visited
+    deque<int> queue;                                                               //Create a queue for BFS
+    visitedBFS[0] = true;                                                           //Mark the current node as visited
+    queue.push_back(0);                                                             //And add it to the queue
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myMiniRRGraph[u].size(); i++) {
+            int v = myMiniRRGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if((*isSeed)[v]){
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+void populateCriticalityVector(unique_ptr<Graph> &subModGivenSeedGraph, vector<int> &dependencyValues, const set<int> &maxSeedSet){
+
+    for(int rrSetId = 0; rrSetId < subModGivenSeedGraph->dependancyVector.size(); rrSetId++){
+        unordered_map<int, int>::const_iterator got;
+        unique_ptr<vector<bool>> isSeed = make_unique<vector<bool>>((*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]).size(), false);//isSeed <1,1,0,0,1> : This means in this particular miniRRGraph, vertices 0,1,4 have been selected as the overall seed
+        bool rrSetContainsSeed = false;
+        for (int seedSetNode : maxSeedSet) {
+            got = subModGivenSeedGraph->vertexToIndex[rrSetId]->find(seedSetNode);                                      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the seedSetNode
+            if (got != subModGivenSeedGraph->vertexToIndex[rrSetId]->end()) {
+                (*isSeed)[got->second] = true;
+                rrSetContainsSeed = true;
+            }
+        }
+        subModGivenSeedGraph->isSeedVector[rrSetId] = move(isSeed);
+        if(rrSetContainsSeed){
+            vector<vector<int>> myMiniRRGraph = (*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]);
+            for(int i = 0; i < (*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]).size(); i++){
+                if (isVertexCritical(subModGivenSeedGraph, i, rrSetId, myMiniRRGraph, subModGivenSeedGraph->isSeedVector[rrSetId])) {
+                    (*subModGivenSeedGraph->isCriticalVector[rrSetId])[i] = true;
+                }
+            }
+        }
+    }
+
+}
+
+void computeDependencyValuesGivenSeedSet(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues,
+                                         vector<pair<int, int>> &ASdegree){
+
+    bool tshoot = true;//prints values to file
+    cout << "Calculating Dependency Values Given SeedSet" << endl;
+
+    for (int rrSetId = 0; rrSetId < influencedGraph->isCriticalVector.size(); rrSetId++) {                              //for each RRSet in isCriticalVector
+        for (int index = 0; index < influencedGraph->isCriticalVector[rrSetId]->size(); index++) {                      //for each index in the isCriticalVector
+            if ((*influencedGraph->isCriticalVector[rrSetId])[index]) {                                                 //if the index (vertex) was critical to the reachability of the seedSet nodes
+                int vertex = (*influencedGraph->indexToVertex[rrSetId])[index];                                         //find the vertex that was mapped to that index
+                dependencyValues[vertex] += 1;                                                                  //Add the value to the existing dependencyValues of that vertex
+            }
+        }
+    }
+
+
+    for (int i = 0; i < dependencyValues.size(); i++) {
+        if (tshoot) {
+            dependValues << dependencyValues[i] << endl;
+        }
+    }
+    if (tshoot) dependValues << "------------------------------------------------------------" << endl;
+
+    ASdegree = vector<pair<int, int>>();
+    for (int i = 0; i < dependencyValues.size(); i++) {
+        pair<int, int> node = pair<int, int>();
+        node.first = i;
+        node.second = dependencyValues[i];
+        ASdegree.push_back(node);
+    }
+
+    std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
+    assert(ASdegree.at(0).second >= ASdegree.at(1).second);
+    cout << "Impact Nodes Sorted!" << endl;
+}
+
+//Newer version of the method. Use this method only if the dependencyValues have been already updated,
+//and all you have to do is sort them in orfder to find out the top-k nodes to be removed by the subModImpactTopCrit method.
+void computeModImpactGivenSeedNodesToRemove(unique_ptr<Graph> &subModGivenSeedGraph, int removeNodes, vector<int> &dependencyValues,
+                                  vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
+                                  const set<int> &envelopedNodes,
+                                  set<int> &removalModImpact, vector<int> &nodesToRemoveUnsorted) {
+
+    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+
+    set<int> alreadyinSeed = set<int>();
+
+    cout << "Selected modImpactGivenSeed Nodes to remove: " << endl;
+
+    int index = 0;
+    for (int i = 0; i < removeNodes;) {
+        int node = ASdegree.at(index).first;
+        if (maxSeedSet.count(node) == 0 && envelopedNodes.count(node) == 0) {
+            i++;
+            removalModImpact.insert(node);
+            nodesToRemoveUnsorted.push_back(node);
+            cout << node << endl;
+        } else {
+            alreadyinSeed.insert(node);
+        }
+        index++;
+    }
+
+    if (tshoot2 && useEnvelop) {
+        cout    << "ModImpact Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+                << endl;
+        myfile  << "ModImpact Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+                << endl;
+        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
+    }
+
+    assert(("Mismatch - removalModImpact and removeNodes", removalModImpact.size() == removeNodes));
+
+//    cout << "Node to be removed by the mod Impact process" << endl;
+//    printVector(modImpactNodesToRemoveUnsorted);
+
+    cout << "\nassociated value is: " << alreadyinSeed.size() << endl;
+    cout << "Number of nodes for (modImpactGivenSeed method) already present in seed set = " << alreadyinSeed.size() << endl;
+
+    cout << "Printing nodes not added to modImpactGivenSeed method because they were in seedSet: " << endl;
+    myfile << "Printing nodes not added to modImpactGivenSeed method because they were in seedSet: " << endl;
+    printSet(alreadyinSeed);
+
+    //Clearing alreadyinSeed because it contains the modImpact nodes at this point
+    alreadyinSeed.clear();
+}
+
+void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
+                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
+
+    bool tshoot = false;//WARNING:controls assert statement
+    bool tshoot1 = false;//Controls PAUUUUUZZZE
+
+    cout << "Removing critNode: " << critNode << endl;
+    dependValues << "Removing critNode: " << critNode << endl;
+    tshootingFile << " -------------------------- " << endl;
+
+    for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains critNode)
+        int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
+        bool rrSetContainsSeed = false;
+        for(int j = 0; j < (*influencedGraph->isSeedVector[rrSetId]).size(); j++){                                      //First we need to check if this rrSet actually contains some seedSetNode or not.
+            if((*influencedGraph->isSeedVector[rrSetId])[j]){
+                rrSetContainsSeed = true;
+                break;
+            }
+        }
+        if(rrSetContainsSeed){                                                                                          //Reduce the dependencyValue of the nodes in this rrSet only if they contains some seed
+            for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
+                if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
+                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[index]] -= 1;                           //..and should have their dependencyValue reduced
+                    (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
+                }
+            }
+        }
+    }
+    assert(("WELL. FUCKING. DONE.", dependencyValues[critNode] == 0));
+    reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
+    inSanityCheck(influencedGraph, dependencyValues);
+    checkIfDValuesAreCorrectForGivenSeedMethod(influencedGraph, dependencyValues);
+    nodeNumBeingRemovedGlobal++;
+}
+
+void computeSubModGivenSeedNodesToRemove(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
+                                    vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
+                                    const set<int> &envelopedNodes, set<int> &subModNodesToremove,
+                                    vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed) {
+
+    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+
+    int index = 0;
+    testCritNodesRemovedSoFar.clear();
+    for (int i = 0; i < removeNodes;) {
+        int node = ASdegree.at(index).first;
+        if (maxSeedSet.count(node) == 0 && envelopedNodes.count(node) == 0) {
+            i++;
+            subModNodesToremove.insert(node);
+            nodesToRemoveUnsorted.push_back(node);
+            if (i <= removeNodes) {//WARNING --- Dont call if final vertex to be removed has been found
+                removeCritNodeWithCriticalityUpdate(node, influencedGraph, dependencyValues, ASdegree);
+            }
+            index = 0;
+        } else {
+            alreadyinSeed.insert(node);
+            index++;
+        }
+    }
+
+//    inSanityCheck_22(influencedGraph, dependencyValues, nodesToRemoveUnsorted);//write this method!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    if (tshoot2 && useEnvelop) {
+        cout << "SubMod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+             << endl;
+        myfile
+                << "SubMod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+                << endl;
+        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
+    }
+}
+
+
+set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
+                                  const set<int> &maxSeedSet, const set<int> &envelopedNodes,
+                                  set<int> &modImpactGivenSeedNodesToRemove,
+                                  vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
+                                  vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
+
+    bool tshoot = true;//Prints the dependency values for before the seedSetNodes are removed to the file
+    bool tshoot1 = true;//Prints the node being removed in each iteration
+    bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
+
+    clock_t subModReverseStartTime = clock();
+
+    set<int> alreadyinSeed = set<int>();
+    set<int> subModGivenSeedNodesToRemove;
+    vector<pair<int, int>> ASdegree;
+    int removalNum = removeNodes;
+    vector<int> dependencyValues = vector<int>(subModGivenSeedGraph->n, 0);
+    vector<int> testDependencyValues = vector<int>(subModGivenSeedGraph->n, 0);
+
+    //Random RR sets
+    int n = (int) activatedSet.size();
+    double epsilon = (double) EPSILON;
+    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
+    cout << "\nRR sets are: " << R << endl;
+    resultLogFile << "\nRR sets are: " << R << endl;
+    subModGivenSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModGivenSeed", resultLogFile);
+
+    clock_t timeForGeneratingRRSets = clock();
+    populateCriticalityVector(subModGivenSeedGraph, dependencyValues, maxSeedSet);
+    clock_t timeToPopulateCriticalityVector = clock();
+    computeDependencyValuesGivenSeedSet(subModGivenSeedGraph, dependencyValues, ASdegree);
+    testDependencyValues = dependencyValues;
+    clock_t timeToComputeDependencyValues = clock();
+
+    cout << "\nComputing nodes to remove by the modImpactGivenSeed method" << endl;
+    dependValues << "\nPopulating dependency values for modImpactGivenSeed method" << endl;
+
+    computeModImpactGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
+                                   envelopedNodes, modImpactGivenSeedNodesToRemove,
+                                   modImpactGivenSeedNodesToRemoveUnsorted);
+
+    clock_t ModImpactEndTime = clock();
+
+//    checkIfModImpactValuesWereCorrect(subModTopCritGraph, maxSeedSet, dependencyValues, testDependencyValues);
+
+    double totalModImpactTime = double(
+            (timeForGeneratingRRSets - subModReverseStartTime) +
+            (timeToPopulateCriticalityVector - timeForGeneratingRRSets) +
+            (timeToComputeDependencyValues - timeToPopulateCriticalityVector) +
+            (ModImpactEndTime - timeToComputeDependencyValues))
+                                / (CLOCKS_PER_SEC * 60);
+
+    cout << "modImpactGivenSeed algorithm time in minutes " << totalModImpactTime << endl;
+    myfile << totalModImpactTime << " <-modImpactGivenSeed_Time\n";
+
+    cout << "Breakup of time taken: " << endl;
+    cout << "Time for generating RRSets: " << double (timeForGeneratingRRSets - subModReverseStartTime) / (CLOCKS_PER_SEC * 60) << endl;
+    cout << "Time for populating criticalityVector: " << double (timeToPopulateCriticalityVector - timeForGeneratingRRSets) / (CLOCKS_PER_SEC * 60) << endl;
+    cout << "Time to compute dValue by iterating over all RRSets: " << double(timeToComputeDependencyValues - timeToPopulateCriticalityVector) / (CLOCKS_PER_SEC * 60) << endl;
+    cout << endl;
+
+    cout << "******* Completed modImpactGivenSeed approach ********" << endl;
+    cout << endl;
+    cout << endl;
+
+    dependValues << "\n\n******* Completed modImpactGivenSeed approach ********" << endl;
+
+
+
+    cout << "******* Running SubMod GivenSeed approach ********" << endl;
+    dependValues << "******* Running SubMod GivenSeed approach ********" << endl;
+
+    alreadyinSeed = set<int>();
+    clock_t sumModGivenSeedTimeStart = clock();
+
+    computeSubModGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
+                                   envelopedNodes,
+                                   subModGivenSeedNodesToRemove, subModGivenSeedNodesToRemoveUnsorted, alreadyinSeed);
+
+    assert(("Mismatch - subModNodesToremove and removeNodes", subModGivenSeedNodesToRemove.size() == removalNum));
+    clock_t sumModGivenSeedTimeEnd = clock();
+
+    vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
+    cout << endl;
+    cout << "Removed subModTopCrit Nodes from Graph: ";
+    removingNodesFromGraph(subModGivenSeedGraph, subModGivenSeedNodesToRemove);
+    cout << endl;
+
+    cout << endl;
+    subModGivenSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
+    int subModStrength = 0;
+    for (int i = 0; i < subModGivenSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
+        subModStrength += subModGivenSeedGraph->NodeinRRsetsWithCounts[i];
+    }
+
+    cout << "\nRecalculated Initial strength was = " << subModGivenSeedGraph->totalNumNodesInRRSets << endl;
+    cout << "\nNumber of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    cout << "Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:" << endl;
+    myfile << "Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:" << endl;
+    printSet(alreadyinSeed);
+    cout << "\nsubModStrengthGivenSeed = " << subModStrength;
+
+    myfile << subModGivenSeedGraph->totalNumNodesInRRSets << " <-subModStrengthGivenSeed Init Strength\n";
+    myfile << subModStrength << " <-subModStrengthGivenSeed\n";
+
+    double totalAlgorithmTime = totalModImpactTime + (double(sumModGivenSeedTimeEnd - sumModGivenSeedTimeStart)/ (CLOCKS_PER_SEC * 60));
+    cout << "\nsubModGivenSeed algorithm time in minutes " << totalAlgorithmTime << endl;
+    cout << "Breakup of time taken: " << endl;
+    cout << "modImpact Time: " << totalModImpactTime << endl;
+    cout << "subMod Time: " << (double (sumModGivenSeedTimeEnd - sumModGivenSeedTimeStart) / (CLOCKS_PER_SEC * 60)) << endl;
+
+    myfile << totalAlgorithmTime << " <- subModGivenSeed Time\n";
+    return subModGivenSeedNodesToRemove;
+}
+
+void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
+                      set<int> &modImpactGivenSeedNodesToRemove,
+                      vector<int> &subModGivenSeedNodesToRemoveUnsorted,
+                      vector<int> &modImpactGivenSeedNodesToRemoveUnsorted){
+
+    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
+
+    unique_ptr<Graph> subModGivenSeedGraph = make_unique<Graph>();
+    subModGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        subModGivenSeedGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(subModGivenSeedGraph->n);
+    for (int i = 0; i < subModGivenSeedGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    subModGivenSeedNodesToRemove = subModGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
+                                                            maxInfluenceSeed, envelopedNodes,
+                                                            modImpactGivenSeedNodesToRemove,
+                                                            modImpactGivenSeedNodesToRemoveUnsorted,
+                                                            subModGivenSeedNodesToRemoveUnsorted);
+
+    vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
+    subModGivenSeedGraph->dependancyVector.clear();
+    subModGivenSeedGraph->vertexToIndex.clear();
+    subModGivenSeedGraph->indexToVertex.clear();
+    subModGivenSeedGraph.reset();
+}
+
+
+/************************************************ SUB MODULAR GIVEN THE SEED SET NODES ENDS *******************************************************/
 
 set<int> subModTopKInflRemoveVertices(unique_ptr<Graph> &subModTopkInflGraph, int removeNodes, const set<int> &maxSeedSet,
                                       const set<int> &envelopedNodes, vector<int> &activatedSet, string modular) {
@@ -3076,7 +3596,20 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                      subModImpactTopCritNodesToRemoveUnsorted, subModTopCritNodesToRemoveUnsorted);
 
     //******************************************************************************************************************
-    resultLogFile << "\n \n******* Node removed in all four approaches ******** \n" << flush;
+
+    cout << "\n ******* Running the subModular algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
+
+    set<int> subModGivenSeedNodesToRemove;
+    set<int> modImpactGivenSeedNodesToRemove;
+    vector<int> subModGivenSeedNodesToRemoveUnsorted;
+    vector<int> modImpactGivenSeedNodesToRemoveUnsorted;
+
+    runSubModGivenSeed(maxInfluenceSeed, envelopedNodes, subModGivenSeedNodesToRemove, modImpactGivenSeedNodesToRemove,
+                       subModGivenSeedNodesToRemoveUnsorted, modImpactGivenSeedNodesToRemoveUnsorted);
+
+    //******************************************************************************************************************
+
+    resultLogFile << "\n\n******* Node removed in all four approaches ********\n" << flush;
 
     unique_ptr<Graph> modNewGraph = make_unique<Graph>();
     modNewGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
@@ -3120,16 +3653,30 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         subModTopCritGraphNew->setPropogationProbability(probability);
     }
 
+    unique_ptr<Graph> modImpactGivenSeedGraph = make_unique<Graph>();
+    modImpactGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        modImpactGivenSeedGraph->setPropogationProbability(probability);
+    }
+
+    unique_ptr<Graph> subModGivenSeedGraph = make_unique<Graph>();
+    subModGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        subModGivenSeedGraph->setPropogationProbability(probability);
+    }
+
     string convertedFile =
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
             graphFileName;
     newDiffusion(modNewGraph, subNewGraph, modImpactGraph, tGraph, subModtopKInflGraph,
-                 subModImpactTopCritGraph, subModTopCritGraphNew,
+                 subModImpactTopCritGraph, subModTopCritGraphNew, modImpactGivenSeedGraph, subModGivenSeedGraph,
                  modNodesToremove, subModNodesToremove, removalModImpact, tGraphNodesToremove,
                  subModTopKInflNodesRemove, subModImpactTopCritNodesToRemove, subModTopCritNodesToRemove,
+                 modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove,
                  activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed,
                  subModImpactNodesToRemoveUnsorted, subModNodesToRemoveUnsorted,
-                 subModImpactTopCritNodesToRemoveUnsorted, subModTopCritNodesToRemoveUnsorted);
+                 subModImpactTopCritNodesToRemoveUnsorted, subModTopCritNodesToRemoveUnsorted,
+                 modImpactGivenSeedNodesToRemoveUnsorted, subModGivenSeedNodesToRemoveUnsorted);
 
     clock_t executionTimeEnd = clock();
     double totalExecutionTime = double(executionTimeEnd - executionTimeBegin) / (CLOCKS_PER_SEC * 60) ;

@@ -49,26 +49,32 @@ int Graph::getPropogationProbabilityNumber() {
     return this->propogationProbabilityNumber;
 }
 
-int Graph::generateRandomNumber(int u, int expand) {
+//int Graph::generateRandomNumber(int u, int expand) {
+//
+//    int randomNumberLimit;
+//
+////    random_device rd; // obtain a random number from hardware
+////    mt19937 eng(rd()); // seed the generator
+////    uniform_int_distribution<> distr(0, INT_MAX); // define the range
+//
+//    if (this->standardProbability) {
+//        randomNumberLimit = this->propogationProbabilityNumber;
+//    } else {
+//        randomNumberLimit = inDegree[expand];
+//    }
+//    return rand() % randomNumberLimit;
+////    return distr(eng) % randomNumberLimit;
+//}
 
-    int randomNumberLimit;
-
-//    random_device rd; // obtain a random number from hardware
-//    mt19937 eng(rd()); // seed the generator
-//    uniform_int_distribution<> distr(0, INT_MAX); // define the range
-
-    if (this->standardProbability) {
-        randomNumberLimit = this->propogationProbabilityNumber;
-    } else {
-        randomNumberLimit = inDegree[expand];
-    }
-    return rand() % randomNumberLimit;
-//    return distr(eng) % randomNumberLimit;
-}
+//bool Graph::flipCoinOnEdge(int u, int v) {
+//    int randomNumber = generateRandomNumber(u, v);
+//    return randomNumber == 0;
+//}
 
 bool Graph::flipCoinOnEdge(int u, int v) {
-    int randomNumber = generateRandomNumber(u, v);
-    return randomNumber == 0;
+    uniform_int_distribution<> dis(1, inDegree[v]);
+    int randomNumber = dis(gen);
+    return randomNumber == 1;
 }
 
 void Graph::readReverseGraph(string fileName, float percentage) {
@@ -485,9 +491,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     long totalSize = 0;
     timesThisNodeWasPicked = vector<int>(n, 0);
 
-//    std::random_device rd; // obtain a random number from hardware
-//    std::mt19937 eng(rd()); // seed the generator
-//    std::uniform_int_distribution<> distr(0, n-1); // define the range
+//    random_device rd;  //Will be used to obtain a seed for the random number engine
+//    mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
 
     this->rrSets = vector<vector<int>>();
     while (rrSets.size() < R) {
@@ -496,8 +501,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     //for mod influence
     if (modular == "modular") {
         NodeinRRsetsWithCounts = vector<int>(n, 0);
-        labels = vector<bool>(n, true);
-        if (activatedSet.size() == 0) {
+        uniform_int_distribution<> dis(0, n-1);
+        if (activatedSet.empty()) {
             assert(("NOPE!NOPE!NOPE!", false));
             for (int i = 0; i < R; i++) {
                 int randomVertex;
@@ -513,9 +518,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
             int t = (int) activatedSet.size();
             for (int i = 0; i < R; i++) {
                 int randomVertex;
-                randomVertex = activatedSet[rand() % t];
-                timesThisNodeWasPicked[randomVertex]++;
-//                randomVertex = distr(eng);
+//                randomVertex = activatedSet[rand() % t];
+                randomVertex = dis(gen);
                 generateRandomRRSetwithCountMod(randomVertex, i);
                 if (i == 10) cout << "Completed " << i << " RR Sets" << endl;
                 if ((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
@@ -643,18 +647,105 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         int t = (int) activatedSet.size();
         int doneRR = 1;
         int randomVertex;
+        uniform_int_distribution<> dis(0, n-1);
         for (int i = 0; i < R; i++) {
             if (i == doneRR * 10000) {
                 cout << "\n" << i << " " << flush;
                 doneRR++;
             }
-
             randomGenStart = clock();
-            randomVertex = activatedSet[rand() % t];
+            randomVertex = dis(gen);
             randomNumGen += (clock() - randomGenStart);
-
+            timesThisNodeWasPicked[randomVertex]++;
             generateRRSetsForSubModTopCrit(randomVertex, i);
+            totalSize += rrSets[i].size();
+        }
+        totalNumNodesInRRSets = totalSize;
+    }
+    else if (modular == "subModGivenSeed"){
 
+        dependancyVector = vector<unique_ptr<vector<vector<bool>>>>(R);
+        miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
+        vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
+        indexToVertex = vector<unique_ptr<vector<int>>>(R);
+        dependentOnCritNodesVector = vector<unique_ptr<vector<bool>>>(R);
+        reachableFromSourceVector = vector<unique_ptr<vector<bool>>>(R);
+        isSeedVector = vector<unique_ptr<vector<bool>>>(R);
+        isCriticalVector = vector<unique_ptr<vector<bool>>>(R);
+        visitMark = vector<int>(n);
+        inRRSet = vector<vector<int>>(n);
+        uniform_int_distribution<> dis(0, n-1);
+        //Datastructures being used in the code:
+        /* Datstructures:
+         *
+         *  vertexToIndex: Stores the vector of pointers to unordered_maps which stores mapping of each vertex to an index
+         *  At index 10 of vertexToIndex is the mapping of RRSetId number 10
+         *  At index 10: inside the unordered_map
+         *  Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+         *
+         *  indexToVertex: Stores a vector of pointers to vector<int>. Vector at index i corresponds to RRSetID i.
+         *  Inside RRSetID i bucket: each vector is -
+         *  Trying to map - index 0 contains 24 means that 0 corresponds to vertex 24
+         *
+         *  miniRRGraphsVector: Stores a vector of pointers to the miniRRGraph (vector<vector<int>>) created in each RRSet Generation
+         *  Inside RRSetID i bucket: each vector<vector<int>> is -
+         *  The graph created by mapping each vertex of the original graph through the vertexToIndex datastructure
+         *
+         *  miniRRGraphsVector: Stores the miniRRGraph vector<vector<int>>
+         *  miniRRGraph at rrSetId i corresponds to the miniRRGraph generated in rrSetId number i
+         *  miniRRgraph is different from normal RRGraph in the sense that each vertex has been mapped to index
+         *  using the vertexToIndex[rrSetId] datastructure
+         *
+         *  dependentOnSeedSetVector: stores a vector<vector<bool>> Stores a vector of unique_pointer to vector<bool>
+         *  Inside RRSetID i bucket: each vector is -
+         *  if the entry at index 3 is TRUE, it means that the reachability of node 3 depends upon some node in the seedSetNodes
+         *  It thus keeps track of the set of nodes that are reachable from every seedSetNode seen so far.
+         *  Nodes are mapped through the vertexToIndex datastructure
+         *
+         *  dependentOnCritNodesVector: stores a vector<vector<bool>>(R) Stores a vector of unique_pointer to vector<bool>
+         *  Inside RRSetID i bucket: each vector is -
+         *  if the entry at index 3 is TRUE, it means that the reachability of node 3 depends on some node in the critNodesSet
+         *  It thus keeps track of the set of nodes whose reachability depends upon some node in the critNodesSet
+         *
+         *  reachableFromSourceVector: stores a vector<vector<bool>>(R)
+         *  Inside RRSetid i bucket, each vector is a representation of the nodes that are reachable from the source AFTER removing all of the
+         *  seedSetNodes that occur in the miniRRGraph at rrSetId index i.
+         *  eg. So for rrSetID i, the if the vector is <1, 1, 0, 0, 1>
+         *  It means that after removing all of the seedSetNodes in the miniRRGraph at index i, vertices 2 and 3 were no longer reachable
+         *  from the source, i.e. vertex 0.
+         *
+         *  inRRSets: vector<vector<int>>(n). For every vertex, it stores the rrSets that that vertex occurs in.
+         *  So if vector at index 4 contains <1,5,7> it means that the vertex 4 occurs in the rrSets numbered 1,5,7.
+         *
+         * dependancyVector: Stores an Array of Matrices.
+         * Matrix at index i is the dependancyMatrix of RRSet number i
+         * How to read them? Consider the following graph and Matrix:
+         *  0 -> 1 -> 2 -> 3
+         *
+         * Dependence of reachability of 2 starting from 0 given that 1 has been removed is:
+         *
+         *   0  1 (2)  3
+         * 0 1  1  1  1
+         * 1 0  1  1  1
+         * 2 0  0  1  1
+         * 3 0  0  0  1
+         *
+         *
+         * */
+        modImpactTime = 0;
+
+        int t = (int) activatedSet.size();
+        int doneRR = 1;
+        int randomVertex;
+        for (int i = 0; i < R; i++) {
+            if (i == doneRR * 10000) {
+                cout << "\n" << i << " " << flush;
+                doneRR++;
+            }
+            randomGenStart = clock();
+            randomVertex = dis(gen);
+            randomNumGen += (clock() - randomGenStart);
+            generateRRSetsForSubModGivenSeedSet(randomVertex, i);
             totalSize += rrSets[i].size();
         }
         totalNumNodesInRRSets = totalSize;
@@ -717,17 +808,15 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         int t = (int) activatedSet.size();
         int doneRR = 1;
         int randomVertex;
+        uniform_int_distribution<> dis(0, n-1);
         for (int i = 0; i < R; i++) {
             if (i == doneRR * 10000) {
                 cout << "\n" << i << " " << flush;
                 doneRR++;
             }
-
             randomGenStart = clock();
-            randomVertex = activatedSet[rand() % t];
+            randomVertex = dis(gen);
             randomNumGen += (clock() - randomGenStart);
-
-//            randomVertex = distr(eng);
             generateRandomRRSetwithRRgraphs_Interleaved(randomVertex, i);
             totalSize += rrSets[i].size();
         }
@@ -1020,7 +1109,7 @@ void Graph::generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID){
         visitMark[i] = -1;//WARNING-Doing this because I want to check if this node is ever visited. Code should crash and burn.
     }
 
-    assertDependencyMatrixIsCorrect(miniRRGraphsVector[rrSetID], dependancyVector[rrSetID], rrSetID);
+//    assertDependencyMatrixIsCorrect(miniRRGraphsVector[rrSetID], dependancyVector[rrSetID], rrSetID);
 }
 
 void Graph::calcDependancyMatrixForSubModTopCrit(const unique_ptr<vector<vector<int>>> &ptrToMiniRRGraph,
@@ -1047,6 +1136,92 @@ void Graph::calcDependancyMatrixForSubModTopCrit(const unique_ptr<vector<vector<
     dependancyVector[rrSetID] = move(dependancyMatrix);
 }
 
+void Graph::generateRRSetsForSubModGivenSeedSet(int randomVertex, int rrSetID){
+
+    outerWhileLoopStart = clock();
+
+    q.clear();
+    int nVisitMark = 0;
+    int vertexCount = 0;//vertexCount Counts the number of unique vertices seen in the loop
+
+    //mappedIndex: Trying to map - <int, int> => <24, 0> means that vertex 24 is mapped to index 0.
+    unique_ptr<unordered_map<int, int>> mappedIndex = make_unique<unordered_map<int, int>>();
+    mappedIndex->reserve(8);//Reserve the memory size to be sth around average RRSetSize to prevent rehashing
+
+    //revMappedIndex: Trying to map - index 0 contains 24 means that index 0 corresponds to vertex 24
+    unique_ptr<vector<int>> revMappedIndex = make_unique<vector<int>>();
+
+    //ptrToMiniRRGraph: Stores the RRGraph but with mappedVertices instead of original vertices
+    unique_ptr<vector<vector<int>>> ptrToMiniRRGraph = make_unique<vector<vector<int>>>();
+
+    rrSets[rrSetID].push_back(randomVertex);
+    inRRSet[randomVertex].push_back(rrSetID);
+    q.push_back(randomVertex);
+    visitMark[nVisitMark++] = randomVertex;
+    visited[randomVertex] = true;
+
+    mappedIndex->insert(make_pair(randomVertex, vertexCount++));
+    revMappedIndex->push_back(randomVertex);
+
+    endOfInit = clock();
+    initTime += (endOfInit - outerWhileLoopStart);
+
+    //Simultaneously creating RRGraph and miniRRGraph
+    int v;
+    int expand;
+    while (!q.empty()) {
+        expand = q.front();
+        q.pop_front();
+        ptrToMiniRRGraph->emplace_back(vector<int>());
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            v = graphTranspose[expand][j];
+            if (!this->flipCoinOnEdge(v, expand)){
+                continue;
+            }
+            if (visited[v]) {
+                (*ptrToMiniRRGraph)[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                continue;
+            }
+            if (!visited[v]) {
+                visitMark[nVisitMark++] = v;
+                visited[v] = true;
+                mappedIndex->insert(make_pair(v, vertexCount++));
+                revMappedIndex->push_back(v);
+                (*ptrToMiniRRGraph)[mappedIndex->at(expand)].push_back(mappedIndex->at(v));
+                inRRSet[v].push_back(rrSetID);
+            }
+            q.push_back(v);
+            rrSets[rrSetID].push_back(v);
+        }
+    }
+
+    unique_ptr<vector<bool>> reachableNodesFromCritNode = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+    unique_ptr<vector<bool>> reachableNodesFromSource   = make_unique<vector<bool>>(rrSets[rrSetID].size(), true);
+    unique_ptr<vector<bool>> isCritical                 = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+
+    vertexToIndex[rrSetID]              = move(mappedIndex);
+    indexToVertex[rrSetID]              = move(revMappedIndex);
+    miniRRGraphsVector[rrSetID]         = move(ptrToMiniRRGraph);
+    dependentOnCritNodesVector[rrSetID] = move(reachableNodesFromCritNode);
+    reachableFromSourceVector[rrSetID]  = move(reachableNodesFromSource);
+    isCriticalVector[rrSetID]           = move(isCritical);
+
+    matrixStart = clock();
+    whileLoopTime += (matrixStart - outerWhileLoopStart);
+    onlyLoopTime += (matrixStart - endOfInit);
+
+//    calcDependancyMatrixForSubModTopCrit(miniRRGraphsVector[rrSetID], randomVertex, rrSetID, rrSets[rrSetID].size(),
+//                                         vertexToIndex[rrSetID]);
+    matrixTime += (clock() - matrixStart);
+
+    //Freeing and clearing the memory
+    for (int i = 0; i < nVisitMark; i++) {
+        visited[visitMark[i]] = false;
+        visitMark[i] = -1;//WARNING-Doing this because I want to check if this node is ever visited. Code should crash and burn.
+    }
+
+//    assertDependencyMatrixIsCorrect(miniRRGraphsVector[rrSetID], dependancyVector[rrSetID], rrSetID);
+}
 
 //********** Function only for the influenced graph with modular property********
 void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
