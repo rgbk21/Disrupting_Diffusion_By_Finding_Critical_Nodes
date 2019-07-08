@@ -80,6 +80,8 @@ double removeCritNodeFromDependencyVectorTopCritTime = 0;
 double reComputeDependencyValuesTime = 0;
 double repopulateDependencyMatrixAfterCritNodeRemovalTime = 0;
 int nodeNumBeingRemovedGlobal = 20;
+
+double numOfRRSetsThatContainSeed = 0;
 //Global variables for testing end here
 
 /*List of warnings:
@@ -93,7 +95,11 @@ int nodeNumBeingRemovedGlobal = 20;
  * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually runnning.
  * 5) generateRRSetsForSubModTopCrit() has an assert statement that has been commented out. Reintroduce if testing code.
  * 6) removed a bunch of testMethods from the subModTopCrit method. Reintroduce if testing the code?
+ * 7) if(influencedGraph->rrSetContainsSeed[rrSetId]) Search for this: WARNING!!! We are adding this condition because we want to now look at only those rrSets that actually contain some seedSetNode
+ *    For the same reason we also changed the subModTopCrit algo. Search for this: This is because of the same reason why we changed the modImpact algorithm.
+ *    checkIfDependencyValuesAreCorrect() test was commented out due to the above chagne. Uncomment it later.
  *
+ * 8)
  * */
 
 
@@ -2039,6 +2045,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     tshootingFile << "---- Removing critNode: " << critNode << endl;
     testCritNodesRemovedSoFar.push_back(critNode);//Global variable that stores the critNodes removed so far. Used for testing.
 
+    /*
     tshootingFile << "Number of rrSets in which critNode " << critNode << " was in:" << influencedGraph->inRRSet[critNode].size() << endl;
     tshootingFile << "dValue | totalValue " << endl;
     int dValue = 0;//Counts the actual dValue (add to final values only if reachableFromSource)
@@ -2059,174 +2066,178 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     tshootingFile << "Actual dependencyValue: " << dependencyValues[critNode] << endl;
 
     tshootingFile << " -------------------------- " << endl;
+    */
 
     for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains node)
         int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
-        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);          //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
-        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the critNode being removed
-            if(nodeNumBeingRemovedGlobal < 5){
-                tshootingFile << "--------" << endl;
-                tshootingFile << "\nPre Values in rrSet: " << rrSetId << endl;
-                printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
-            }
-            if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){                                   //this if condition is triggered if the critNode was reachable From Source
-                tshootingFile << "rrSetId: " <<rrSetId << " - critNode reachable from Source" << endl;
-                //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
-                for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){             //for every vertex v in the row M[critNode]
-                    if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second){              //if M[critNode][v] == 1 and v != critNode
-                        dependencyValues[critNode] -= 1;                                                                //dependencyValue[critNode] -= 1
-                        if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if (reachableFromSource[v])
-                            for(int w = 0; w < (*influencedGraph->dependancyVector[rrSetId])[v].size(); w++){           //for every vertex w in the row M[v]
-                                if((*influencedGraph->dependancyVector[rrSetId])[v][w]){                                //if M[v][w] == 1
-                                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[v]] -= 1;               //dependencyValue[v] -= 1
-                                }else{
-                                    //don't do anything
+        //WARNING: This is because of the same reason why we changed the modImpact algorithm.
+        if(influencedGraph->rrSetContainsSeed[rrSetId]){
+            unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);          //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
+            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the critNode being removed
+                if(nodeNumBeingRemovedGlobal < 5){
+                    tshootingFile << "--------" << endl;
+                    tshootingFile << "\nPre Values in rrSet: " << rrSetId << endl;
+                    printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
+                }
+                if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){                                   //this if condition is triggered if the critNode was reachable From Source
+                    tshootingFile << "rrSetId: " <<rrSetId << " - critNode reachable from Source" << endl;
+                    //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
+                    for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){             //for every vertex v in the row M[critNode]
+                        if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second){              //if M[critNode][v] == 1 and v != critNode
+                            dependencyValues[critNode] -= 1;                                                                //dependencyValue[critNode] -= 1
+                            if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if (reachableFromSource[v])
+                                for(int w = 0; w < (*influencedGraph->dependancyVector[rrSetId])[v].size(); w++){           //for every vertex w in the row M[v]
+                                    if((*influencedGraph->dependancyVector[rrSetId])[v][w]){                                //if M[v][w] == 1
+                                        dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[v]] -= 1;               //dependencyValue[v] -= 1
+                                    }else{
+                                        //don't do anything
+                                    }
                                 }
+                            }else{
+                                //don't do anything because
+                                //j is no longer reachable from the source, i.e. reachableFromSource[j] = FALSE
+                                //which can mean either of the following 2 things:
+                                //a) j was either a seedSetNode or a node whose reachability depended on the seed(s) and the node j got disconnected
+                                //when the seedSetNodes were being removed during the computationof the modImpact nodes
+                                //b) j was either a critNode or a node whose reachability depended on the critNode.
+                                //reachableFromSource[j] was set ot FALSE when the outgoing edges from v were deleted. Since j has NO outgoing edges
+                                //removal of critNode is not going to affect the vertices whose reachability depend on j, since j has no outgoing edges.
                             }
-                        }else{
-                            //don't do anything because
-                            //j is no longer reachable from the source, i.e. reachableFromSource[j] = FALSE
-                            //which can mean either of the following 2 things:
-                            //a) j was either a seedSetNode or a node whose reachability depended on the seed(s) and the node j got disconnected
-                            //when the seedSetNodes were being removed during the computationof the modImpact nodes
-                            //b) j was either a critNode or a node whose reachability depended on the critNode.
-                            //reachableFromSource[j] was set ot FALSE when the outgoing edges from v were deleted. Since j has NO outgoing edges
-                            //removal of critNode is not going to affect the vertices whose reachability depend on j, since j has no outgoing edges.
-                        }
-                        (*influencedGraph->reachableFromSourceVector[rrSetId])[v] = false;                              //reachableFromSource[v] = FALSE
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[v].clear();                                     //miniRRGraph[v].clear()
-                        (*influencedGraph->dependentOnCritNodesVector[rrSetId])[v] = true;                              //dependentOnCrit[v] = TRUE
-                    }
-                }
-                //doing this because of the (... && v != got->second) condition
-                dependencyValues[critNode] -= 1;                                                                        //dependencyValue[critNode] -= 1
-                (*influencedGraph->reachableFromSourceVector[rrSetId])[got->second] = false;
-                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
-                (*influencedGraph->dependentOnCritNodesVector[rrSetId])[got->second] = true;
-
-                //for every vertex v in the row of M[critNode] for which M[critNode][v] == 0
-                for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){
-                    if(!(*influencedGraph->dependancyVector[rrSetId])[got->second][v]){
-                        if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if reachableFromSource[v], we have to update the dependencyValue for v as well as the row of M[v]
-                            repopulateMatrixRowWithDependencyValueUpdate(influencedGraph,
-                                                                         influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                         influencedGraph->dependentOnCritNodesVector[rrSetId],
-                                                                         rrSetId, got->second, v,
-                                                                         dependencyValues);
-                        }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                          //else reachableFromSource[v] = FALSE, meaning  v does not make any contribution to the dependencyValue of v and we only need to update the Matrix row M[v]
-                            repopulateOnlyMatrixRowWithoutDependencyValueUpdate(influencedGraph,
-                                                                                influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                                influencedGraph->dependentOnCritNodesVector[rrSetId],
-                                                                                rrSetId, got->second, v,
-                                                                                dependencyValues);
+                            (*influencedGraph->reachableFromSourceVector[rrSetId])[v] = false;                              //reachableFromSource[v] = FALSE
+                            (*influencedGraph->miniRRGraphsVector[rrSetId])[v].clear();                                     //miniRRGraph[v].clear()
+                            (*influencedGraph->dependentOnCritNodesVector[rrSetId])[v] = true;                              //dependentOnCrit[v] = TRUE
                         }
                     }
-                }
-            }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){//critNode was NOT reachable From Source
-                /*critNode might be not reachable from source in 2 cases:
-                 * i) the reachability of critNode depended on the seedSetNode(s) that were removed earlier.
-                 * As a result, removing the seedSetNodes also disconnected the critNode from the source.
-                 * The critNode will still have outgoing edges in this case.
-                 * Its dependencyValue will not be considered though.
-                 * ii) the reachability of the critNode depended on some critNode that was deleted earlier.
-                 * In this case, the critNode will have no outgoing edges.
-                 * And its dependencyValues will not be considered in this case either.
-                 * */
-                tshootingFile << "rrSetId: " <<rrSetId << " - critNode NOT reachable from Source" << endl;
-                //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
-                for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
-                    if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second) {             //if M[critNode][v] == 1 and v != critNode
-                        (*influencedGraph->miniRRGraphsVector[rrSetId])[v].clear();                                     //miniRRGraph[v].clear()
-                        (*influencedGraph->dependentOnCritNodesVector[rrSetId])[v] = true;                              //dependentOnCrit[v] = TRUE
-                        (*influencedGraph->reachableFromSourceVector[rrSetId])[v] = false;                              //reachableFromSource[v] = FALSE
+                    //doing this because of the (... && v != got->second) condition
+                    dependencyValues[critNode] -= 1;                                                                        //dependencyValue[critNode] -= 1
+                    (*influencedGraph->reachableFromSourceVector[rrSetId])[got->second] = false;
+                    (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();
+                    (*influencedGraph->dependentOnCritNodesVector[rrSetId])[got->second] = true;
+
+                    //for every vertex v in the row of M[critNode] for which M[critNode][v] == 0
+                    for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){
+                        if(!(*influencedGraph->dependancyVector[rrSetId])[got->second][v]){
+                            if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if reachableFromSource[v], we have to update the dependencyValue for v as well as the row of M[v]
+                                repopulateMatrixRowWithDependencyValueUpdate(influencedGraph,
+                                                                             influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                             influencedGraph->dependentOnCritNodesVector[rrSetId],
+                                                                             rrSetId, got->second, v,
+                                                                             dependencyValues);
+                            }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                          //else reachableFromSource[v] = FALSE, meaning  v does not make any contribution to the dependencyValue of v and we only need to update the Matrix row M[v]
+                                repopulateOnlyMatrixRowWithoutDependencyValueUpdate(influencedGraph,
+                                                                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                                    influencedGraph->dependentOnCritNodesVector[rrSetId],
+                                                                                    rrSetId, got->second, v,
+                                                                                    dependencyValues);
+                            }
+                        }
+                    }
+                }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){//critNode was NOT reachable From Source
+                    /*critNode might be not reachable from source in 2 cases:
+                     * i) the reachability of critNode depended on the seedSetNode(s) that were removed earlier.
+                     * As a result, removing the seedSetNodes also disconnected the critNode from the source.
+                     * The critNode will still have outgoing edges in this case.
+                     * Its dependencyValue will not be considered though.
+                     * ii) the reachability of the critNode depended on some critNode that was deleted earlier.
+                     * In this case, the critNode will have no outgoing edges.
+                     * And its dependencyValues will not be considered in this case either.
+                     * */
+                    tshootingFile << "rrSetId: " <<rrSetId << " - critNode NOT reachable from Source" << endl;
+                    //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
+                    for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
+                        if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second) {             //if M[critNode][v] == 1 and v != critNode
+                            (*influencedGraph->miniRRGraphsVector[rrSetId])[v].clear();                                     //miniRRGraph[v].clear()
+                            (*influencedGraph->dependentOnCritNodesVector[rrSetId])[v] = true;                              //dependentOnCrit[v] = TRUE
+                            (*influencedGraph->reachableFromSourceVector[rrSetId])[v] = false;                              //reachableFromSource[v] = FALSE
+                        }
+                    }
+                    (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();                                   //miniRRGraph[v].clear()
+                    (*influencedGraph->dependentOnCritNodesVector[rrSetId])[got->second] = true;                            //dependentOnCrit[v] = TRUE
+
+                    //for every vertex v in the row of M[critNode] for which M[critNode][v] == 0
+                    for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
+                        if(!(*influencedGraph->dependancyVector[rrSetId])[got->second][v]) {                                //if M[critNode][v] == 0
+                            if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if reachableFromSource[v], we have to update the dependencyValue for v as well as the row of M[v]
+                                repopulateMatrixRowWithDependencyValueUpdate(influencedGraph,
+                                                                             influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                             influencedGraph->dependentOnCritNodesVector[rrSetId],
+                                                                             rrSetId, got->second, v,
+                                                                             dependencyValues);
+                            }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                          //else reachableFromSource[v] = FALSE, meaning  v does not make any contribution to the dependencyValue of v and we only need to update the Matrix row M[v]
+                                repopulateOnlyMatrixRowWithoutDependencyValueUpdate(influencedGraph,
+                                                                                    influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                                    influencedGraph->dependentOnCritNodesVector[rrSetId],
+                                                                                    rrSetId, got->second, v,
+                                                                                    dependencyValues);
+                            }
+                        }
                     }
                 }
-                (*influencedGraph->miniRRGraphsVector[rrSetId])[got->second].clear();                                   //miniRRGraph[v].clear()
-                (*influencedGraph->dependentOnCritNodesVector[rrSetId])[got->second] = true;                            //dependentOnCrit[v] = TRUE
+            } else {
+                assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
+            }
 
-                //for every vertex v in the row of M[critNode] for which M[critNode][v] == 0
-                for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
-                    if(!(*influencedGraph->dependancyVector[rrSetId])[got->second][v]) {                                //if M[critNode][v] == 0
-                        if((*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                                  //if reachableFromSource[v], we have to update the dependencyValue for v as well as the row of M[v]
-                            repopulateMatrixRowWithDependencyValueUpdate(influencedGraph,
-                                                                         influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                         influencedGraph->dependentOnCritNodesVector[rrSetId],
-                                                                         rrSetId, got->second, v,
-                                                                         dependencyValues);
-                        }else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[v]){                          //else reachableFromSource[v] = FALSE, meaning  v does not make any contribution to the dependencyValue of v and we only need to update the Matrix row M[v]
-                            repopulateOnlyMatrixRowWithoutDependencyValueUpdate(influencedGraph,
-                                                                                influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                                influencedGraph->dependentOnCritNodesVector[rrSetId],
-                                                                                rrSetId, got->second, v,
-                                                                                dependencyValues);
+            //Updating the dependencyMatrix for the vertices that were deleted since they either they were the critNode or
+            //vertices whose reachability depended on the critNode
+            for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
+                if((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second){
+                    for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
+                        if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
+                            (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
                         }
                     }
                 }
             }
-        } else {
-            assert(("node to be removed was not found in the RRSet. This shouldnt have happened!", false));
-        }
-
-        //Updating the dependencyMatrix for the vertices that were deleted since they either they were the critNode or
-        //vertices whose reachability depended on the critNode
-        for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
-            if((*influencedGraph->dependancyVector[rrSetId])[got->second][j] && j != got->second){
-                for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
-                    if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
-                        (*influencedGraph->dependancyVector[rrSetId])[j][k] = false;
-                    }
+            for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
+                if((*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
+                    (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
                 }
             }
-        }
-        for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
-            if((*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
-                (*influencedGraph->dependancyVector[rrSetId])[got->second][j] = false;
-            }
-        }
 
-        /*
-        We have removed seedSetNodes and critNode at this point. There might have been a vertex v that had an edge from a seedSetNode and critNode.
-        Therefore, the reachability of vertex v would not have been dependent on critNode.
-        Hence, deleting critNode would not have changed reachableFromSource[v] to FALSE.
-        However, v now only has an edge from seedSetNode. Hence it is no longer reachable from the source. So we have an error, and we need to correct it.
-        This is what checkForNewVerticesNotReachableFromSource() method does.
-         */
+            /*
+            We have removed seedSetNodes and critNode at this point. There might have been a vertex v that had an edge from a seedSetNode and critNode.
+            Therefore, the reachability of vertex v would not have been dependent on critNode.
+            Hence, deleting critNode would not have changed reachableFromSource[v] to FALSE.
+            However, v now only has an edge from seedSetNode. Hence it is no longer reachable from the source. So we have an error, and we need to correct it.
+            This is what checkForNewVerticesNotReachableFromSource() method does.
+             */
 
-        vector<bool> newRFS = checkForNewVerticesNotReachableFromSource(influencedGraph,
-                                                                       influencedGraph->miniRRGraphsVector[rrSetId],
-                                                                       influencedGraph->dependentOnCritNodesVector[rrSetId],
-                                                                       influencedGraph->reachableFromSourceVector[rrSetId],
-                                                                       rrSetId, got->second,
-                                                                       dependencyValues);
-        for(int j = 0; j < newRFS.size(); j++){
-            if((*influencedGraph->reachableFromSourceVector[rrSetId])[j] && !newRFS[j]){
-                for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
-                    if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
+            vector<bool> newRFS = checkForNewVerticesNotReachableFromSource(influencedGraph,
+                                                                            influencedGraph->miniRRGraphsVector[rrSetId],
+                                                                            influencedGraph->dependentOnCritNodesVector[rrSetId],
+                                                                            influencedGraph->reachableFromSourceVector[rrSetId],
+                                                                            rrSetId, got->second,
+                                                                            dependencyValues);
+            for(int j = 0; j < newRFS.size(); j++){
+                if((*influencedGraph->reachableFromSourceVector[rrSetId])[j] && !newRFS[j]){
+                    for(int k = 0; k < (*influencedGraph->dependancyVector[rrSetId])[j].size(); k++){
+                        if((*influencedGraph->dependancyVector[rrSetId])[j][k]){
 //                        cout << "Triggerred" << endl;
-                        dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;                           //dependencyValue[v] -= 1
+                            dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[j]] -= 1;                           //dependencyValue[v] -= 1
+                        }
                     }
-                }
-                (*influencedGraph->reachableFromSourceVector[rrSetId])[j] = false;
-            } /* else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[j] && newRFS[j]){
+                    (*influencedGraph->reachableFromSourceVector[rrSetId])[j] = false;
+                } /* else if (!(*influencedGraph->reachableFromSourceVector[rrSetId])[j] && newRFS[j]){
                 assert(("Didn't see that coming, did you?" , false));
             }*/
-        }
+            }
 
 //        assertDependencyMatrixIsCorrect(influencedGraph, copyOfDependencyVector[rrSetId],
 //                                        copyOfMiniRRGraphsVector[rrSetId], influencedGraph->dependancyVector[rrSetId],
 //                                        rrSetId, critNode);
 
-        if(nodeNumBeingRemovedGlobal < 5){
-            tshootingFile << "\nPost Values in rrSet: " << rrSetId << endl;
-            printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
-            tshootingFile << "--------" << endl;
+            if(nodeNumBeingRemovedGlobal < 5){
+                tshootingFile << "\nPost Values in rrSet: " << rrSetId << endl;
+                printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
+                tshootingFile << "--------" << endl;
+            }
         }
+
 
     }
     reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
-
     inSanityCheck(influencedGraph, dependencyValues);
-    checkIfDependencyValuesAreCorrect(influencedGraph, dependencyValues);
+//    checkIfDependencyValuesAreCorrect(influencedGraph, dependencyValues);
     assert(("Woohoo!!!", dependencyValues[critNode] == 0));
     nodeNumBeingRemovedGlobal++;
 }
@@ -2275,18 +2286,26 @@ void computeDependencyValuesForModImpact(vector<int> &dependencyValues, unique_p
     bool tshoot = true;//prints values to file
     cout << "Calculating Dependency Values For ModImpact" << endl;
 
-    for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                              //for each RRSet in dependancyVector
-        for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId]->size(); rowIdx++) {                   //for each row in the dependancyMatrix
-            if((*influencedGraph->reachableFromSourceVector[rrSetId])[rowIdx]){                                         //if the rowIdx (vertex) was reachable from the source after removing all of the seedSetNodes from the miniRRGraphVector[rrSetId]
-                int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                        //find the vertex that was mapped to that index
-                for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) { //for each col in that row
-                    if ((*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx]) {
-                        dependencyValues[vertex] += 1;                                                                  //Add the value to the existing dependencyValues of that vertex
+    int count = 0;
+    for (int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++) {                                      //for each RRSet in dependancyVector
+        //WARNING!!! We are adding this condition because we want to now look at only those rrSets that actually contain some seedSetNode
+        //Remove this condition later because this is only a test
+        if(influencedGraph->rrSetContainsSeed[rrSetId]) {
+            count++;
+            for (int rowIdx = 0; rowIdx < influencedGraph->dependancyVector[rrSetId]->size(); rowIdx++) {                       //for each row in the dependancyMatrix
+                if ((*influencedGraph->reachableFromSourceVector[rrSetId])[rowIdx]) {                                           //if the rowIdx (vertex) was reachable from the source after removing all of the seedSetNodes from the miniRRGraphVector[rrSetId]
+                    int vertex = (*influencedGraph->indexToVertex[rrSetId])[rowIdx];                                            //find the vertex that was mapped to that index
+                    for (int colIdx = 0; colIdx < (*influencedGraph->dependancyVector[rrSetId])[rowIdx].size(); colIdx++) {     //for each col in that row
+                        if ((*influencedGraph->dependancyVector[rrSetId])[rowIdx][colIdx]) {
+                                dependencyValues[vertex] += 1;                                                                  //Add the value to the existing dependencyValues of that vertex
+                        }
                     }
                 }
             }
         }
     }
+
+    assert(("modImpact is being calculated for more rrSets than that contain seedSetNode", count == numOfRRSetsThatContainSeed));
 
 
     for (int i = 0; i < dependencyValues.size(); i++) {
@@ -2446,16 +2465,18 @@ void removeSeedSetNodesFromAllRRGraphs(unique_ptr<Graph> &influencedGraph, const
         unordered_map<int, int>::const_iterator got;   //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
         vector<vector<int>> myMiniRRGraph = (*influencedGraph->miniRRGraphsVector[rrSetId]);
         vector<bool> isSeed = vector<bool>(myMiniRRGraph.size(), false);//isSeed <1,1,0,0,1> : This means in this particular miniRRGraph, vertices 0,1,4 have been selected as the overall seed
-        bool rrSetContainsSeed = false;
+        bool thisRRSetContainsSeed = false;
         for (int seedSetNode : maxSeedSet) {
             got = influencedGraph->vertexToIndex[rrSetId]->find(seedSetNode);
             if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
                 myMiniRRGraph[got->second].clear();
                 isSeed[got->second] = true;
-                rrSetContainsSeed = true;
+                thisRRSetContainsSeed = true;
             }
         }
-        if(rrSetContainsSeed){
+        if(thisRRSetContainsSeed){
+            numOfRRSetsThatContainSeed++;
+            influencedGraph->rrSetContainsSeed[rrSetId] = true;
             //Initialize the reachableFromSource[rrSetId] datastructure
             for(int i = 0; i < (*influencedGraph->reachableFromSourceVector[rrSetId]).size(); i++){
                 (*influencedGraph->reachableFromSourceVector[rrSetId])[i] = false;
@@ -2546,7 +2567,6 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 
     computeDependencyValuesWithoutASdegree(dependencyValues, subModTopCritGraph);
     testDependencyValues = dependencyValues;
-
     clock_t timeToComputeInitialDependencyValues = clock();
     clock_t timeToRemoveSeedSetNodesStart = clock();
 
@@ -2662,6 +2682,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     cout << "Time for recomputing dependencyValues:" << double(reComputeDependencyValuesTime) / (CLOCKS_PER_SEC * 60) << endl;
 
     myfile << totalAlgorithmTime << " <-NEW_SubModTime\n";
+
     return subModTopCritNodesToRemove;
 }
 

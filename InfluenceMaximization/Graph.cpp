@@ -584,6 +584,8 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         labels = vector<bool>(n, true);//to delete
+        rrSetContainsSeed = vector<bool>(R, false);
+
         //Datastructures being used in the code:
         /* Datstructures:
          *

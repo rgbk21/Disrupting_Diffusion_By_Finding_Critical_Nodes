@@ -91,6 +91,7 @@ public:
     vector<unique_ptr<vector<vector<int>>>> miniRRGraphsVector;//Stores the RRGraph generated in each RRSet generation
 
     vector<bool> labels;
+    vector<bool> rrSetContainsSeed;
     deque<int> q;
     deque<int> countingNodes_Q;
     vector<bool> countingNodes_Visited;
