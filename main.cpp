@@ -2881,7 +2881,7 @@ void computeDependencyValuesGivenSeedSet(unique_ptr<Graph> &influencedGraph, vec
         }
     }
 
-
+    dependValues << "\nDependency values for modImpactGivenSeed method" << endl;
     for (int i = 0; i < dependencyValues.size(); i++) {
         if (tshoot) {
             dependValues << dependencyValues[i] << endl;
@@ -3061,7 +3061,6 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
     clock_t timeToComputeDependencyValues = clock();
 
     cout << "\nComputing nodes to remove by the modImpactGivenSeed method" << endl;
-    dependValues << "\nPopulating dependency values for modImpactGivenSeed method" << endl;
 
     computeModImpactGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
                                    envelopedNodes, modImpactGivenSeedNodesToRemove,
