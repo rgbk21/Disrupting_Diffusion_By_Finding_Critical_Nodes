@@ -744,7 +744,7 @@ int calcIntersection(const set<int> &set1, const set<int> &set2){
 
 void newDiffusion(unique_ptr<Graph> &newModGraph,
                   unique_ptr<Graph> &tGraph, unique_ptr<Graph> &subModtopKInflGraph,
-                  unique_ptr<Graph> &subModImpactTopCritGraph,
+                  unique_ptr<Graph> &modImpactTopCritGraph,
                   unique_ptr<Graph> &subModTopCritGraphNew, unique_ptr<Graph> &modImpactGivenSeedGraph,
                   unique_ptr<Graph> &subModGivenSeedGraph,
                   set<int> modNodes, set<int> tGraphNodes,
@@ -765,7 +765,7 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
     vector<int> countGraphResults;
     vector<int> topKInflGraphResults;
     vector<int> subModTopKInflResults;
-    vector<int> subModImpactTopCritResults;
+    vector<int> modImpactTopCritResults;
     vector<int> subModTopCritResults;
     vector<int> modImpactGivenSeedResults;
     vector<int> subModGivenSeedResults;
@@ -780,7 +780,7 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
     removingNodesFromGraph(subModtopKInflGraph, subModTopKInflNodesRemove);
 
     set<int> subModImpactTopCritNodesRemove;
-    removingNodesInSubModImpactTopCritGraph(subModImpactTopCritGraph, subModImpactNodesToRemove,
+    removingNodesInSubModImpactTopCritGraph(modImpactTopCritGraph, subModImpactNodesToRemove,
                                             subModImpactTopCritNodesRemove);
     cout << "\nnodes to remove in subModTopCritGraphNew: ";
     removingNodesFromGraph(subModTopCritGraphNew, subModTopCritNodesToRemove);
@@ -847,9 +847,9 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
     cout << "\nintersection of SubModTopKInfl and subModTopCrit nodes to remove "           << calcIntersection(subModTopKInflNodesRemove, subModTopCritNodesToRemove);
     cout << "\nintersection of SubModTopKInfl and modImpactGivenSeed nodes to remove "      << calcIntersection(subModTopKInflNodesRemove, modImpactGivenSeedNodesToRemove);
     cout << "\nintersection of SubModTopKInfl and subModGivenSeed nodes to remove "         << calcIntersection(subModTopKInflNodesRemove, subModGivenSeedNodesToRemove);
-    cout << "\nintersection of subModImpactTopCrit and subModTopCrit nodes to remove "      << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove);
-    cout << "\nintersection of subModImpactTopCrit and modImpactGivenSeed nodes to remove " << calcIntersection(subModImpactTopCritNodesRemove, modImpactGivenSeedNodesToRemove);
-    cout << "\nintersection of subModImpactTopCrit and subModGivenSeed nodes to remove "    << calcIntersection(subModImpactTopCritNodesRemove, subModGivenSeedNodesToRemove);
+    cout << "\nintersection of modImpactTopCrit and subModTopCrit nodes to remove "         << calcIntersection(subModImpactTopCritNodesRemove, subModTopCritNodesToRemove);
+    cout << "\nintersection of modImpactTopCrit and modImpactGivenSeed nodes to remove "    << calcIntersection(subModImpactTopCritNodesRemove, modImpactGivenSeedNodesToRemove);
+    cout << "\nintersection of modImpactTopCrit and subModGivenSeed nodes to remove "       << calcIntersection(subModImpactTopCritNodesRemove, subModGivenSeedNodesToRemove);
     cout << "\nintersection of subModTopCrit and modImpactGivenSeed nodes to remove "       << calcIntersection(subModTopCritNodesToRemove, modImpactGivenSeedNodesToRemove);
     cout << "\nintersection of subModTopCrit and subModGivenSeed nodes to remove "          << calcIntersection(subModTopCritNodesToRemove, subModGivenSeedNodesToRemove);
     cout << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "     << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove);
@@ -883,17 +883,17 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
     resultLogFile << "\nRR sets are: " << R << "\n";
 
     cout << "\nCalculating the ModImpactStrength using the NEW method: " << endl;
-    subModImpactTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
+    modImpactTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
     int modImapactStrength = 0;
-    for (int i = 0; i < subModImpactTopCritGraph->NodeinRRsetsWithCounts.size(); i++) {
-        modImapactStrength += subModImpactTopCritGraph->NodeinRRsetsWithCounts[i];
+    for (int i = 0; i < modImpactTopCritGraph->NodeinRRsetsWithCounts.size(); i++) {
+        modImapactStrength += modImpactTopCritGraph->NodeinRRsetsWithCounts[i];
     }
     cout << "\n\nAfter removing (NEW_METHOD) mod Impact Modular Strength is " << modImapactStrength << "\n";
     resultLogFile << "\n\nAfter removing mod Impact Modular Strength is " << modImapactStrength << "\n";
 
     myfile << modImapactStrength << " <- NEW_ModImpact_Strength\n";
-    vector<vector<int>>().swap(subModImpactTopCritGraph->rrSets);
-    vector<int>().swap(subModImpactTopCritGraph->NodeinRRsetsWithCounts);
+    vector<vector<int>>().swap(modImpactTopCritGraph->rrSets);
+    vector<int>().swap(modImpactTopCritGraph->NodeinRRsetsWithCounts);
 
     set<int> maxInfluenceSeed = set<int>();
     int maxInfluenceNum = 0;
@@ -970,9 +970,9 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
             myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nNew_Mod Impact Results: " << endl;
-            infNum = oldNewIntersection(subModImpactTopCritGraph, maxSeed, activatedSet, resultLogFile);
-            vector<vector<int>>().swap(subModImpactTopCritGraph->rrSets);
-            subModImpactTopCritResults.push_back(infNum);
+            infNum = oldNewIntersection(modImpactTopCritGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(modImpactTopCritGraph->rrSets);
+            modImpactTopCritResults.push_back(infNum);
             myfile << infNum << "\t\t ";
 
             cout << k << "---" << "\nModImpactGivenSeed Results: " << endl;
@@ -1067,8 +1067,8 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
     double subModGivenSeedGain = 0;
     for (int i = 0; i < k; i++) {
         newSubModGain           += float(subModTopKInflResults[i] - subModTopCritResults[i]) / float(subModTopKInflResults[i]);
-        newImpactGain           += float(subModTopKInflResults[i] - subModImpactTopCritResults[i]) / float(subModTopKInflResults[i]);
-        modImpactGivenSeedGain  += float(subModImpactTopCritResults[i] - modImpactGivenSeedResults[i]) / float(subModImpactTopCritResults[i]);
+        newImpactGain           += float(subModTopKInflResults[i] - modImpactTopCritResults[i]) / float(subModTopKInflResults[i]);
+        modImpactGivenSeedGain  += float(modImpactTopCritResults[i] - modImpactGivenSeedResults[i]) / float(modImpactTopCritResults[i]);
         subModGivenSeedGain     += float(subModTopCritResults[i] - subModGivenSeedResults[i]) / float(subModTopCritResults[i]);
     }
 
@@ -3171,7 +3171,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    resultLogFile << "\n\n******* Node removed in all four approaches ********\n" << flush;
+    resultLogFile << "\n\n******* Node removed in all approaches ********\n" << flush;
 
     unique_ptr<Graph> modNewGraph = make_unique<Graph>();
     modNewGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
@@ -3191,10 +3191,10 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         subModtopKInflGraph->setPropogationProbability(probability);
     }
 
-    unique_ptr<Graph> subModImpactTopCritGraph = make_unique<Graph>();
-    subModImpactTopCritGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    unique_ptr<Graph> modImpactTopCritGraph = make_unique<Graph>();
+    modImpactTopCritGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
-        subModImpactTopCritGraph->setPropogationProbability(probability);
+        modImpactTopCritGraph->setPropogationProbability(probability);
     }
 
     unique_ptr<Graph> subModTopCritGraphNew = make_unique<Graph>();
@@ -3219,7 +3219,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
             "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
             graphFileName;
     newDiffusion(modNewGraph, tGraph, subModtopKInflGraph,
-                 subModImpactTopCritGraph, subModTopCritGraphNew, modImpactGivenSeedGraph, subModGivenSeedGraph,
+                 modImpactTopCritGraph, subModTopCritGraphNew, modImpactGivenSeedGraph, subModGivenSeedGraph,
                  modNodesToremove, tGraphNodesToremove,
                  subModTopKInflNodesRemove, subModImpactTopCritNodesToRemove, subModTopCritNodesToRemove,
                  modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove,
