@@ -742,6 +742,179 @@ int calcIntersection(const set<int> &set1, const set<int> &set2){
     return count;
 }
 
+void generateRRSetsFromSpecificNode(unique_ptr<Graph> &combinedGraph, int node, set<int> &nodesRchbl){
+
+    int R = 10000;
+    std::random_device rd;  // obtain a random number from hardware
+    std::mt19937 eng(rd()); // seed the generator
+//    std::uniform_int_distribution<> distr(0, n-1);
+    deque<int> q = deque<int>();
+    vector<int> visitMark = vector<int>(combinedGraph->n);
+    vector<bool> visited = vector<bool>(combinedGraph->n, false);
+
+    for (int i = 0; i < R; i++) {
+        q.clear();
+        q.push_back(node);
+        int nVisitMark = 0;
+        visitMark[nVisitMark++] = node;
+        visited[node] = true;
+        while (!q.empty()) {
+            int expand = q.front();
+            q.pop_front();
+            for (int j = 0; j < (int) combinedGraph->graphTranspose[expand].size(); j++) {
+                int v = combinedGraph->graphTranspose[expand][j];
+                uniform_int_distribution<> dis(1, combinedGraph->inDegree[expand]);// define the range
+                int randomNumber = dis(eng);
+                if (randomNumber != 1) continue;
+                if (visited[v]) continue;
+                if (!visited[v]) {
+                    visitMark[nVisitMark++] = v;
+                    visited[v] = true;
+                }
+                q.push_back(v);
+                nodesRchbl.insert(v);
+            }
+        }
+        for (int j = 0; j < nVisitMark; j++) {
+            visited[visitMark[j]] = false;
+        }
+    }
+}
+
+void validationCheck(set<int> *modImpactNodesToRemove, set<int> &subModTopCritNodesToRemove,
+                     float percentageTargetsFloat) {
+
+    //Initialising the Graph
+    unique_ptr<Graph> combinedGraph = make_unique<Graph>();//combinedGraph is the Graph from which the common nodes from the subMod and the mod method will be removed
+    combinedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        combinedGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(combinedGraph->n);
+    for (int i = 0; i < combinedGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+
+    //Finding the common nodes as selected by the subMod and the mod algorithms
+    set<int> commonNodes = set<int>();
+    set<int> nodesOnlyInSubMod = set<int>();
+    set<int> nodesOnlyInMod = set<int>();
+
+    for(int node : subModTopCritNodesToRemove){
+        if(modImpactNodesToRemove->count(node) > 0){
+            commonNodes.insert(node);
+        }else{
+            nodesOnlyInSubMod.insert(node);
+        }
+    }
+    for(int node : *modImpactNodesToRemove){
+        if(subModTopCritNodesToRemove.count(node) == 0){
+            nodesOnlyInMod.insert(node);
+        }
+    }
+    myfile << "\nValidating the influences obtained by subModTopCrit and modTopCrit" << endl;
+    cout << "\nValidating the influences obtained by subModTopCrit and modTopCrit" << endl;
+    cout << "Common nodes: ";
+    myfile << "Common nodes: ";
+    for(int node : commonNodes){
+        cout << node << " ";
+        myfile << node << " ";
+    }
+    cout << endl;
+    myfile << endl;
+    cout << "Nodes only in subMod: ";
+    myfile << "Nodes only in subMod: ";
+    for(int node : nodesOnlyInSubMod){
+        cout << node << " ";
+        myfile << node << " ";
+    }
+    cout << endl;
+    myfile << endl;
+    cout << "Nodes only in mod: ";
+    myfile << "Nodes only in mod: ";
+    for(int node : nodesOnlyInMod){
+        cout << node << " ";
+        myfile << node << " ";
+    }
+    cout << endl;
+    myfile << endl;
+
+    removingNodesFromGraph(combinedGraph, commonNodes);
+
+    //Calculating nodes reached from the nodes in nodesOnlyInSubMod in G_T - by generating rrSets.
+    set<int> nodesRchblFrmNodesOnlyInSubMod = set<int>();
+    for(int node : nodesOnlyInSubMod){
+        generateRRSetsFromSpecificNode(combinedGraph, node, nodesRchblFrmNodesOnlyInSubMod);
+    }
+    //Calculating nodes reached from the nodes in nodesOnlyInMod in G_T - by generating rrSets.
+    set<int> nodesRchblFrmNodesOnlyInMod = set<int>();
+    for(int node : nodesOnlyInMod){
+        generateRRSetsFromSpecificNode(combinedGraph, node, nodesRchblFrmNodesOnlyInMod);
+    }
+
+    cout << "Nodes reachable only in subMod: ";
+    myfile << "Nodes reachable only in subMod: ";
+    for(int node : nodesRchblFrmNodesOnlyInSubMod){
+        cout << node << " ";
+        myfile << node << " ";
+    }
+
+    cout << endl;
+    myfile << endl;
+    cout << "Nodes reachable only in mod: ";
+    myfile << "Nodes reachable only in mod: ";
+    for(int node : nodesRchblFrmNodesOnlyInMod){
+        cout << node << " ";
+        myfile << node << " ";
+    }
+    cout << endl;
+    myfile << endl;
+
+    //Find influence of the nodes in nodesRchblFrmNodesOnlyInSubMod and nodesRchblFrmNodesOnlyInMod
+    int k = 0;
+    vector<int> subModResults = vector<int>();
+    vector<int> modResults = vector<int>();
+    int subModInflValue = 0;
+    int modInflValue = 0;
+
+    myfile << "SubModResults ModResults" << endl;
+    while (k < 5) {
+
+        cout << "\n********** k = " << k << " **********" << endl;
+
+        int infNum = 0;
+
+        cout << k << "---" << "\nNew_SubMod Results: " << endl;
+        infNum = oldNewIntersection(combinedGraph, nodesRchblFrmNodesOnlyInSubMod, activatedSet, resultLogFile);
+        vector<vector<int>>().swap(combinedGraph->rrSets);
+        subModResults.push_back(infNum);
+        myfile << infNum << "\t\t\t ";
+
+        cout << k << "---" << "\nNew_Mod Impact Results: " << endl;
+        infNum = oldNewIntersection(combinedGraph, nodesRchblFrmNodesOnlyInMod, activatedSet, resultLogFile);
+        vector<vector<int>>().swap(combinedGraph->rrSets);
+        modResults.push_back(infNum);
+        myfile << infNum << "\n";
+
+        k++;
+    }
+
+    for (int i = 0; i < k; i++) {
+        subModInflValue += subModResults[i];
+        modInflValue += modResults[i];
+    }
+
+    subModInflValue = subModInflValue/5;
+    modInflValue = modInflValue/5;
+
+    cout << endl;
+    myfile << endl;
+    cout << "SubModInfl Value: " << subModInflValue << endl;
+    cout << "modInfl Value: " << modInflValue << endl;
+    myfile << "SubModInfl Value: " << subModInflValue << endl;
+    myfile << "modInfl Value: " << modInflValue << endl;
+}
+
 void newDiffusion(unique_ptr<Graph> &newModGraph,
                   unique_ptr<Graph> &tGraph, unique_ptr<Graph> &subModtopKInflGraph,
                   unique_ptr<Graph> &modImpactTopCritGraph,
@@ -3214,10 +3387,10 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     if (!useIndegree) {
         subModGivenSeedGraph->setPropogationProbability(probability);
     }
+    validationCheck(subModImpactTopCritNodesToRemove, subModTopCritNodesToRemove, percentageTargetsFloat);
 
-    string convertedFile =
-            "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
-            graphFileName;
+    string convertedFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + graphFileName;
+
     newDiffusion(modNewGraph, tGraph, subModtopKInflGraph,
                  modImpactTopCritGraph, subModTopCritGraphNew, modImpactGivenSeedGraph, subModGivenSeedGraph,
                  modNodesToremove, tGraphNodesToremove,
