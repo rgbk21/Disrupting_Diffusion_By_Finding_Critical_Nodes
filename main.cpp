@@ -781,6 +781,16 @@ void generateRRSetsFromSpecificNode(unique_ptr<Graph> &combinedGraph, int node, 
     }
 }
 
+/*
+ * The problem is: removing nodes as per the subMod algorithm, in some cases, gives a higher influence value as compared to removing nodes by the mod method
+ * The logic behind the below validationCheck() is as follows:
+ * Suppose 10 nodes were being removed. There will be some nodes that will be selected by both subMod and mod algos for removal.
+ * Let C be the common nodes
+ * Let the nodes removed only by the subMod be S1
+ * Let the nodes removed only by the Mod be S2
+ * What we are going to do is this:
+ * Starting from every node in S1, do a reverse reachabilty test in the
+ * */
 void validationCheck(set<int> *modImpactNodesToRemove, set<int> &subModTopCritNodesToRemove,
                      float percentageTargetsFloat) {
 
@@ -888,7 +898,7 @@ void validationCheck(set<int> *modImpactNodesToRemove, set<int> &subModTopCritNo
         infNum = oldNewIntersection(combinedGraph, nodesRchblFrmNodesOnlyInSubMod, activatedSet, resultLogFile);
         vector<vector<int>>().swap(combinedGraph->rrSets);
         subModResults.push_back(infNum);
-        myfile << infNum << "\t\t\t ";
+        myfile << infNum << "\t\t";
 
         cout << k << "---" << "\nNew_Mod Impact Results: " << endl;
         infNum = oldNewIntersection(combinedGraph, nodesRchblFrmNodesOnlyInMod, activatedSet, resultLogFile);
@@ -2849,8 +2859,9 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
     clock_t sumModGivenSeedTimeStart = clock();
 
     computeSubModGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
-                                   envelopedNodes,
-                                   subModGivenSeedNodesToRemove, subModGivenSeedNodesToRemoveUnsorted, alreadyinSeed);
+                                        envelopedNodes,
+                                        subModGivenSeedNodesToRemove, subModGivenSeedNodesToRemoveUnsorted,
+                                        alreadyinSeed);
 
     assert(("Mismatch - subModNodesToremove and removeNodes", subModGivenSeedNodesToRemove.size() == removalNum));
     clock_t sumModGivenSeedTimeEnd = clock();

@@ -11,7 +11,6 @@ include_directories(InfluenceMaximization/sfmt/jump)
 include_directories(InfluenceMaximization/TIM-Models)
 
 add_executable(PrettyCode_SeedEffectors_master_changed_sfmt
-
         InfluenceMaximization/IMResults/IMResults.h
         InfluenceMaximization/sfmt/SFMT-alti.h
         InfluenceMaximization/sfmt/SFMT-common.h
