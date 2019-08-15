@@ -11932,3 +11932,178 @@ modTopK SubModTopK New_SubMod New_ModImpact ModImpactGivenSeed SubModGivenSeed T
 -0.0667923 <-newImpactGain
 0.0858077 <-modImpactGivenSeedGain
 0.079331 <-subModGivenSeedGain
+
+10 <-SeedSetSize
+5 <-removeNodes
+Max influence Seed Set in the original graph: 
+4 0 392 92 510 19 998 557 861 355 
+1904 <-MaxInfluence Num
+1572463 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+0 4 
+1279233 <-ModStrength
+0.0372333 <-ModStrengthTime
+597827 <-InitialStrength of transposedGraph
+Printing nodes already present in the seed Set that were not added to tGraphRemoveVertices set: 
+0 4 
+1269376 <-transposedGraph Strength
+0.0286333 <-transposedGraph Time
+1170220 <-InitialStrength of subModTopkInfl
+Printing the nodes already in seed that were not added to removeNodes (should be empty):
+
+1256805 <-SubModTopKInflStrength
+0.0369833 <-subModtopKInfl Time
+Printing nodes not added to modImpactGivenSeed method because they were in seedSet: 
+
+0.280983 <-modImpactGivenSeed_Time
+Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:
+
+1568667 <-subModStrengthGivenSeed Init Strength
+1292768 <-subModStrengthGivenSeed
+0.30625 <- subModGivenSeed Time
+
+
+nodes To remove in mod graph:	 23 47 802 15 2 
+nodes To remove in subModTopKInfl graph: 23 47 802 15 20 
+nodes To remove in transposedGraph: 23 9 47 15 802 
+nodes To remove in modImpactGivenSeedGraph graph: 23 47 802 15 20 
+nodes To remove in subModGivenSeedGraph graph: 23 15 20 6 17 
+
+intersection of modTopKInfl and transposedGraph nodes to remove 4
+intersection of modTopKInfl and SubModTopKInfl nodes to remove 4
+intersection of modTopKInfl and modImpactGivenSeed nodes to remove 4
+intersection of modTopKInfl and subModGivenSeed nodes to remove 2
+intersection of SubModTopKInfl and modImpactGivenSeed nodes to remove 5
+intersection of SubModTopKInfl and subModGivenSeed nodes to remove 3
+intersection of modImpactGivenSeed and subModGivenSeed nodes to remove 3
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+0 4 19 92 355 392 510 557 861 998 
+Using the best seed found at the start of the experiment
+
+
+modTopK SubModTopK ModImpactGivenSeed SubModGivenSeed Transposed 
+1355		 1245		 1237		 1088		 1360
+1371		 1239		 1246		 1089		 1360
+1362		 1242		 1240		 1094		 1358
+0 <-newSubModGain
+0 <-newImpactGain
+0.0892778 <-modImpactGivenSeedGain
+0.199836 <-subModGivenSeedGain
+
+10 <-SeedSetSize
+5 <-removeNodes
+Max influence Seed Set in the original graph: 
+4 0 392 92 510 19 998 557 2546 355 
+1910 <-MaxInfluence Num
+1577821 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+0 4 
+1274525 <-ModStrength
+0.0283833 <-ModStrengthTime
+Printing nodes not added to modImpactGivenSeed method because they were in seedSet: 
+
+0.196083 <-modImpactGivenSeed_Time
+Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:
+
+1567561 <-subModStrengthGivenSeed Init Strength
+1299141 <-subModStrengthGivenSeed
+0.213783 <- subModGivenSeed Time
+
+
+nodes To remove in mod graph:	 23 47 802 15 9 
+nodes To remove in modImpactGivenSeedGraph graph: 23 47 802 15 20 
+nodes To remove in subModGivenSeedGraph graph: 23 15 20 6 17 
+
+intersection of modTopKInfl and modImpactGivenSeed nodes to remove 4
+intersection of modTopKInfl and subModGivenSeed nodes to remove 2
+intersection of modImpactGivenSeed and subModGivenSeed nodes to remove 3
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+0 4 19 92 355 392 510 557 998 2546 
+Using the best seed found at the start of the experiment
+
+
+modTopInfl ModImpactGivenSeed SubModGivenSeed
+1339		 1222		 1065		 1350		 1220		 1070		 1344		 1222		 1066		 0.0914829 <-modImpactGivenSeedGain
+0.206294 <-subModGivenSeedGain
+
+10 <-SeedSetSize
+5 <-removeNodes
+Max influence Seed Set in the original graph: 
+4 0 392 92 510 19 998 557 2546 355 
+1904 <-MaxInfluence Num
+1571706 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+0 4 
+1275155 <-ModStrength
+0.0281333 <-ModStrengthTime
+Printing nodes not added to modImpactGivenSeed method because they were in seedSet: 
+
+0.19505 <-modImpactGivenSeed_Time
+Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:
+
+1574216 <-subModStrengthGivenSeed Init Strength
+1297482 <-subModStrengthGivenSeed
+0.212767 <- subModGivenSeed Time
+
+
+nodes To remove in mod graph:	 23 47 802 15 9 
+nodes To remove in modImpactGivenSeedGraph graph: 23 47 802 15 20 
+nodes To remove in subModGivenSeedGraph graph: 23 15 20 6 17 
+
+intersection of modTopKInfl and modImpactGivenSeed nodes to remove 4
+intersection of modTopKInfl and subModGivenSeed nodes to remove 2
+intersection of modImpactGivenSeed and subModGivenSeed nodes to remove 3
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+0 4 19 92 355 392 510 557 998 2546 
+Using the best seed found at the start of the experiment
+
+
+modTopInfl ModImpactGivenSeed SubModGivenSeed
+1346		 1226		 1069
+ 1346		 1235		 1076
+ 1346		 1221		 1073
+ 0.0881625 <-modImpactGivenSeedGain
+0.203071 <-subModGivenSeedGain
+
+10 <-SeedSetSize
+5 <-removeNodes
+Max influence Seed Set in the original graph: 
+4 0 392 92 510 19 998 557 2546 355 
+1904 <-MaxInfluence Num
+1574167 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+0 4 
+1271369 <-ModStrength
+0.02735 <-ModStrengthTime
+Printing nodes not added to modImpactGivenSeed method because they were in seedSet: 
+
+0.197917 <-modImpactGivenSeed_Time
+Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:
+
+1575409 <-subModStrengthGivenSeed Init Strength
+1296844 <-subModStrengthGivenSeed
+0.215617 <- subModGivenSeed Time
+
+
+nodes To remove in mod graph:	 23 47 802 15 9 
+nodes To remove in modImpactGivenSeedGraph graph: 23 47 802 15 20 
+nodes To remove in subModGivenSeedGraph graph: 23 15 20 6 17 
+
+intersection of modTopKInfl and modImpactGivenSeed nodes to remove 4
+intersection of modTopKInfl and subModGivenSeed nodes to remove 2
+intersection of modImpactGivenSeed and subModGivenSeed nodes to remove 3
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+0 4 19 92 355 392 510 557 998 2546 
+Using the best seed found at the start of the experiment
+
+
+modTopInfl ModImpactGivenSeed SubModGivenSeed
+1344		1219		1066
+1338		1217		1068
+1337		1228		1068
+0.0883217 <-modImpactGivenSeedGain
+0.203279 <-subModGivenSeedGain
