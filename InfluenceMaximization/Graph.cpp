@@ -668,13 +668,12 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
-        dependentOnCritNodesVector = vector<unique_ptr<vector<bool>>>(R);
-        reachableFromSourceVector = vector<unique_ptr<vector<bool>>>(R);
         isSeedVector = vector<unique_ptr<vector<bool>>>(R);
         isCriticalVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
         inRRSet = vector<vector<int>>(n);
         uniform_int_distribution<> dis(0, n-1);
+
         //Datastructures being used in the code:
         /* Datstructures:
          *
@@ -695,24 +694,6 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
          *  miniRRGraph at rrSetId i corresponds to the miniRRGraph generated in rrSetId number i
          *  miniRRgraph is different from normal RRGraph in the sense that each vertex has been mapped to index
          *  using the vertexToIndex[rrSetId] datastructure
-         *
-         *  dependentOnSeedSetVector: stores a vector<vector<bool>> Stores a vector of unique_pointer to vector<bool>
-         *  Inside RRSetID i bucket: each vector is -
-         *  if the entry at index 3 is TRUE, it means that the reachability of node 3 depends upon some node in the seedSetNodes
-         *  It thus keeps track of the set of nodes that are reachable from every seedSetNode seen so far.
-         *  Nodes are mapped through the vertexToIndex datastructure
-         *
-         *  dependentOnCritNodesVector: stores a vector<vector<bool>>(R) Stores a vector of unique_pointer to vector<bool>
-         *  Inside RRSetID i bucket: each vector is -
-         *  if the entry at index 3 is TRUE, it means that the reachability of node 3 depends on some node in the critNodesSet
-         *  It thus keeps track of the set of nodes whose reachability depends upon some node in the critNodesSet
-         *
-         *  reachableFromSourceVector: stores a vector<vector<bool>>(R)
-         *  Inside RRSetid i bucket, each vector is a representation of the nodes that are reachable from the source AFTER removing all of the
-         *  seedSetNodes that occur in the miniRRGraph at rrSetId index i.
-         *  eg. So for rrSetID i, the if the vector is <1, 1, 0, 0, 1>
-         *  It means that after removing all of the seedSetNodes in the miniRRGraph at index i, vertices 2 and 3 were no longer reachable
-         *  from the source, i.e. vertex 0.
          *
          *  inRRSets: vector<vector<int>>(n). For every vertex, it stores the rrSets that that vertex occurs in.
          *  So if vector at index 4 contains <1,5,7> it means that the vertex 4 occurs in the rrSets numbered 1,5,7.
@@ -1195,15 +1176,10 @@ void Graph::generateRRSetsForSubModGivenSeedSet(int randomVertex, int rrSetID){
         }
     }
 
-    unique_ptr<vector<bool>> reachableNodesFromCritNode = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
-    unique_ptr<vector<bool>> reachableNodesFromSource   = make_unique<vector<bool>>(rrSets[rrSetID].size(), true);
-    unique_ptr<vector<bool>> isCritical                 = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
-
+    unique_ptr<vector<bool>> isCritical = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
     vertexToIndex[rrSetID]              = move(mappedIndex);
     indexToVertex[rrSetID]              = move(revMappedIndex);
     miniRRGraphsVector[rrSetID]         = move(ptrToMiniRRGraph);
-    dependentOnCritNodesVector[rrSetID] = move(reachableNodesFromCritNode);
-    reachableFromSourceVector[rrSetID]  = move(reachableNodesFromSource);
     isCriticalVector[rrSetID]           = move(isCritical);
 
     matrixStart = clock();
