@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Last Updated: 16thAugust 11:55am
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -316,7 +317,6 @@ int calcIntersection(const set<int> &set1, const set<int> &set2){
     for (int i:set1) {
         if (set2.count(i) == 1) count++;
     }
-
     return count;
 }
 
@@ -470,13 +470,191 @@ removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<in
     return nodesToRemove;
 }
 
-void newDiffusion(unique_ptr<Graph> &newModGraph,
+set<int> topKInflWithSeed_RemoveNodes(unique_ptr<Graph> &topKInflWithSeedGraph, const vector<int> &activatedSet, int removeNodes,
+                                    const set<int> &maxInfluenceSeed, const set<int> &envelopedNodes,
+                                    vector<int> &topKInflWithSeed_NodesToRemove_Unsorted) {
+
+    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
+    bool tshoot1 = true;//Controls the assert statements
+    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
+    bool tshoot3 = false;//Prints the NodeinRRsetsWithCounts values for ALL of the nodes
+
+    //Random RR sets
+    set<int> alreadyinSeed = set<int>();
+    int n = (int) activatedSet.size();
+    double epsilon = (double) EPSILON;
+    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
+    cout << "R = " << R << endl;
+    topKInflWithSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "topKInflWithSeed", resultLogFile);
+    cout << "\n RRsets done " << flush;
+    resultLogFile << "\n RRsets done " << flush;
+
+    int modStrength = 0;
+    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
+        modStrength += topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
+    }
+    cout << "\n\nInitial Strength of topKInflWithSeed: " << modStrength << endl;
+    myfile << modStrength << " <-InitialStrength_topKInflWithSeed" << endl;
+
+    if (tshoot3) {
+        dependValues << "Printing modular values for all of the nodes:" << endl;
+        for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
+            dependValues << topKInflWithSeedGraph->NodeinRRsetsWithCounts[i] << endl;
+        }
+        dependValues << "-----DONE PRINTING------" << endl;
+    }
+
+    //Find nodes to be removed
+    //We will consider only those rrSets that contains some seedSetNode and store it in NodeinRRsetsWithCounts
+    vector<int>().swap(topKInflWithSeedGraph->NodeinRRsetsWithCounts);
+    topKInflWithSeedGraph->NodeinRRsetsWithCounts = vector<int>(n, 0);
+    for(int rrSetId = 0; rrSetId < topKInflWithSeedGraph->rrSets.size(); rrSetId++){
+        bool rrSetContainsSeed = false;
+        for(int node : topKInflWithSeedGraph->rrSets[rrSetId]){
+            if (maxInfluenceSeed.find(node) != maxInfluenceSeed.end()){
+                rrSetContainsSeed = true;
+                break;
+            }
+        }
+        if(rrSetContainsSeed){
+            for(int node : topKInflWithSeedGraph->rrSets[rrSetId]){
+                topKInflWithSeedGraph->NodeinRRsetsWithCounts[node]++;
+            }
+        }
+    }
+    vector<pair<int, int>> SortedNodeidCounts = vector<pair<int, int>>();
+    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
+        pair<int, int> node = pair<int, int>();
+        node.first = i;
+        node.second = topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
+        SortedNodeidCounts.push_back(node);
+    }
+
+    std::sort(SortedNodeidCounts.begin(), SortedNodeidCounts.end(), sortbysecdesc);
+    assert(SortedNodeidCounts.at(0).second >= SortedNodeidCounts.at(1).second);
+//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+
+    set<int> nodesToRemove;
+    int count = 0;
+    int j = 0;
+    while (j < removeNodes && j < SortedNodeidCounts.size()) {
+        int nodeid = SortedNodeidCounts.at(count).first;
+        if (nodesToRemove.count(nodeid) == 0 && maxInfluenceSeed.count(nodeid) == 0 && envelopedNodes.count(nodeid) == 0) {
+            nodesToRemove.insert(nodeid);
+            topKInflWithSeed_NodesToRemove_Unsorted.push_back(nodeid);//topKInflWithSeed_NodesToRemove_Unsorted: for printing out the nodes that are being removed in the order that they were added
+            j++;
+        } else {
+            alreadyinSeed.insert(nodeid);
+        }
+        count++;
+    }
+    if (tshoot2 && useEnvelop) {
+        cout << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+             << endl;
+        myfile << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
+               << endl;
+        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxInfluenceSeed, envelopedNodes);
+    }
+
+    vector<pair<int, int>>().swap(SortedNodeidCounts);
+    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
+    cout << "Printing the nodes already in seed that were not added to modNodes" << endl;
+    myfile << "Printing the nodes already in seed that were not added to removeNodes" << endl;
+    printSet(alreadyinSeed);
+
+    int numEdgesAtStart = topKInflWithSeedGraph->m;
+    int totalNumEdgesToDelete = 0;
+
+    for (int nodeToRemove:nodesToRemove) {
+
+        int totalEdgesInTransGraphPre = 0;
+        int totalEdgesInOrigGraphPre = 0;
+        int numEdgesToDelete = 0;
+
+        if (tshoot1) {
+            for (int k = 0; k < topKInflWithSeedGraph->graphTranspose.size(); k++) {
+                totalEdgesInTransGraphPre += topKInflWithSeedGraph->graphTranspose[k].size();
+                if (k == nodeToRemove) {
+                    numEdgesToDelete += topKInflWithSeedGraph->graphTranspose[k].size();
+                }
+            }
+            for (int k = 0; k < topKInflWithSeedGraph->graph.size(); k++) {
+                totalEdgesInOrigGraphPre += topKInflWithSeedGraph->graph[k].size();
+                if (k == nodeToRemove) {
+                    numEdgesToDelete += topKInflWithSeedGraph->graph[k].size();
+                }
+            }
+        }
+
+        totalNumEdgesToDelete += numEdgesToDelete;
+        topKInflWithSeedGraph->removeOutgoingEdges(nodeToRemove);
+        assert(("Here . .. .", topKInflWithSeedGraph->graph[nodeToRemove].size() == 0));
+        assert(("Here . .. .", topKInflWithSeedGraph->graphTranspose[nodeToRemove].size() == 0));
+        topKInflWithSeedGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre,
+                                                      totalEdgesInTransGraphPre);
+    }
+    assert(("Mismatch in modNodesToRemove", nodesToRemove.size() == removeNodes));
+
+
+    if (tshoot1) {
+        int totalNumOfEdges = 0;
+        for (int k = 0; k < topKInflWithSeedGraph->graph.size(); k++) {
+            totalNumOfEdges += topKInflWithSeedGraph->graph[k].size();
+        }
+        assert(("removeVertices() Divergence betn something", totalNumOfEdges ==
+                                                              numEdgesAtStart - totalNumEdgesToDelete));
+    }
+
+    if (tshoot) {
+        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
+        print2DVector(topKInflWithSeedGraph->graphTranspose);
+    }
+
+    vector<int>().swap(topKInflWithSeedGraph->NodeinRRsetsWithCounts);
+    topKInflWithSeedGraph->NodeinRRsetsWithCounts = vector<int>(n, 0);
+    topKInflWithSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
+    modStrength = 0;
+    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
+        modStrength += topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
+    }
+    cout << "\n \n After removing Modular Strength is " << modStrength;
+    resultLogFile << "\n \n After removing Modular Strength is " << modStrength;
+    myfile << modStrength << " <-ModStrength\n";
+    vector<vector<int>>().swap(topKInflWithSeedGraph->rrSets);
+//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
+    return nodesToRemove;
+}
+
+void runTopKInflWithSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &topKInflWithSeed_NodesToRemove,
+                                                 vector<int> &topKInflWithSeed_NodesToRemove_Unsorted){
+
+    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
+
+    unique_ptr<Graph> topKInflWithSeedGraph = make_unique<Graph>();
+    topKInflWithSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        topKInflWithSeedGraph->setPropogationProbability(probability);
+    }
+    vector<int> activatedSet = vector<int>(topKInflWithSeedGraph->n);
+    for (int i = 0; i < topKInflWithSeedGraph->n; i++) {
+        activatedSet[i] = i;
+    }
+    topKInflWithSeed_NodesToRemove = topKInflWithSeed_RemoveNodes(topKInflWithSeedGraph, activatedSet, removeNodes,
+                                                              maxInfluenceSeed, envelopedNodes,
+                                                              topKInflWithSeed_NodesToRemove_Unsorted);
+
+    vector<vector<int>>().swap(topKInflWithSeedGraph->rrSets);
+    topKInflWithSeedGraph.reset();
+}
+
+void newDiffusion(unique_ptr<Graph> &newModGraph, unique_ptr<Graph> &topKInflGivenSeedGraph,
                   unique_ptr<Graph> &modImpactGivenSeedGraph,
                   unique_ptr<Graph> &subModGivenSeedGraph,
-                  set<int> modNodes,
+                  set<int> modNodes, set<int> &topKInflWithSeed_NodesToRemove,
                   set<int> &modImpactGivenSeedNodesToRemove, set<int> &subModGivenSeedNodesToRemove,
                   vector<int> &activatedSet, int newSeed, float percentageTargetsFloat, string convertedFile,
-                  set<int> &prevSelectSeed,
+                  set<int> &prevSelectSeed, vector<int> &topKInflWithSeed_NodesToRemove_Unsorted,
                   vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
                   vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
 
@@ -484,11 +662,15 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
 
     //Stores the influence values calculated finally in each of the k number of iterations
     vector<int> modResults;
+    vector<int> topKInflGivenSeedResults;
     vector<int> modImpactGivenSeedResults;
     vector<int> subModGivenSeedResults;
 
     cout << "\nnodes To remove in mod graph: ";
     removingNodesFromGraph(newModGraph, modNodes);
+
+    cout << "\nnodes To remove in topKInflGivenSeed graph: ";
+    removingNodesFromGraph(topKInflGivenSeedGraph, topKInflWithSeed_NodesToRemove);
 
     cout << "\nnodes to remove in modImpactGivenSeedGraph: ";
     removingNodesFromGraph(modImpactGivenSeedGraph, modImpactGivenSeedNodesToRemove);
@@ -507,6 +689,11 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
             myfile << i << " ";
         }
         cout << flush;
+        myfile << "\n\nnodes To remove in topKInflGivenSeed graph:\t ";
+        for (int i:topKInflWithSeed_NodesToRemove_Unsorted) {
+            myfile << i << " ";
+        }
+        cout << flush;
         myfile << "\nnodes To remove in modImpactGivenSeedGraph graph: ";
         for (int i:modImpactGivenSeedNodesToRemoveUnsorted) {
             myfile << i << " ";
@@ -522,14 +709,20 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
 
     cout << endl;
     myfile << endl;
-    cout << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "         << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove);
-    cout << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "            << calcIntersection(modNodes, subModGivenSeedNodesToRemove);
-    cout << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "     << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove);
+    cout << "\nintersection of modTopKInfl and topKInflWithSeedGraph nodes to remove "          << calcIntersection(modNodes, topKInflWithSeed_NodesToRemove);
+    cout << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "             << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove);
+    cout << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "                << calcIntersection(modNodes, subModGivenSeedNodesToRemove);
+    cout << "\nintersection of topKInflGivenSeedGraph and modImpactGivenSeed nodes to remove "  << calcIntersection(topKInflWithSeed_NodesToRemove, modImpactGivenSeedNodesToRemove);
+    cout << "\nintersection of topKInflGivenSeedGraph and subModGivenSeed nodes to remove "     << calcIntersection(topKInflWithSeed_NodesToRemove, subModGivenSeedNodesToRemove);
+    cout << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "         << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove);
 
 
     cout << endl;
-    myfile << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "         << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove);
-    myfile << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "            << calcIntersection(modNodes, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of modTopKInfl and topKInflWithSeedGraph nodes to remove "        << calcIntersection(modNodes, topKInflWithSeed_NodesToRemove);
+    myfile << "\nintersection of modTopKInfl and modImpactGivenSeed nodes to remove "           << calcIntersection(modNodes, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of modTopKInfl and subModGivenSeed nodes to remove "              << calcIntersection(modNodes, subModGivenSeedNodesToRemove);
+    myfile << "\nintersection of topKInflGivenSeedGraph and modImpactGivenSeed nodes to remove "<< calcIntersection(topKInflWithSeed_NodesToRemove, modImpactGivenSeedNodesToRemove);
+    myfile << "\nintersection of topKInflGivenSeedGraph and subModGivenSeed nodes to remove " << calcIntersection(topKInflWithSeed_NodesToRemove, subModGivenSeedNodesToRemove);
     myfile << "\nintersection of modImpactGivenSeed and subModGivenSeed nodes to remove "     << calcIntersection(modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove);
 
     myfile << endl;
@@ -573,7 +766,7 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
          *      - or using the random seed as the seed set
          *
         */
-        myfile << "\n\nmodTopInfl ModImpactGivenSeed SubModGivenSeed\n";
+        myfile << "\n\nmodTopInfl topKInflGivenSeed ModImpactGivenSeed SubModGivenSeed\n";
         while (k < 3) {
 
             cout << "\n********** k = " << k << " **********" << endl;
@@ -591,6 +784,12 @@ void newDiffusion(unique_ptr<Graph> &newModGraph,
             infNum = oldNewIntersection(newModGraph, maxSeed, activatedSet, resultLogFile);
             vector<vector<int>>().swap(newModGraph->rrSets);
             modResults.push_back(infNum);
+            myfile << infNum << "\t\t";
+
+            cout <<"\n" << k << "---" << "\ntopKInflGivenSeed Results: " << endl;
+            infNum = oldNewIntersection(topKInflGivenSeedGraph, maxSeed, activatedSet, resultLogFile);
+            vector<vector<int>>().swap(topKInflGivenSeedGraph->rrSets);
+            topKInflGivenSeedResults.push_back(infNum);
             myfile << infNum << "\t\t";
 
             cout << k << "---" << "\nModImpactGivenSeed Results: " << endl;
@@ -897,7 +1096,7 @@ void computeModImpactGivenSeedNodesToRemove(unique_ptr<Graph> &subModGivenSeedGr
 void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
                                     vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
 
-    bool tshoot = true;//WARNING:controls assert statement
+    bool tshoot = false;//WARNING:controls assert statement
     bool tshoot1 = false;//Controls PAUUUUUZZZE
 
     cout << "Removing critNode: " << critNode << endl;
@@ -1230,6 +1429,24 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
+    set<int> topKInflWithSeed_NodesToRemove;
+    vector<int> topKInflWithSeed_NodesToRemove_Unsorted;
+
+    cout << "\n ******* Running topKInflWithSeed approach ******** \n" << endl;
+
+    clock_t topKInflWithSeedStartTime = clock();
+    runTopKInflWithSeed(maxInfluenceSeed, envelopedNodes, topKInflWithSeed_NodesToRemove,
+                        topKInflWithSeed_NodesToRemove_Unsorted);
+
+    clock_t topKInflWithSeedEndTime = clock();
+    double topKInflWithSeed_TotalAlgoTime = double(topKInflWithSeedEndTime - topKInflWithSeedStartTime) / (CLOCKS_PER_SEC * 60);
+    cout << "\n topKInflWithSeed algorithm time in minutes \n" << topKInflWithSeed_TotalAlgoTime << flush;
+    resultLogFile << "\n topKInflWithSeed algorithm time in minutes \n" << topKInflWithSeed_TotalAlgoTime;
+
+    myfile << topKInflWithSeed_TotalAlgoTime << " <-topKInflWithSeedTime\n";
+
+    //******************************************************************************************************************
+
     cout << "\n ******* Running the subModular algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
 
     set<int> subModGivenSeedNodesToRemove;
@@ -1250,6 +1467,12 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         modNewGraph->setPropogationProbability(probability);
     }
 
+    unique_ptr<Graph> topKInflGivenSeedGraph = make_unique<Graph>();
+    topKInflGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
+    if (!useIndegree) {
+        topKInflGivenSeedGraph->setPropogationProbability(probability);
+    }
+
     unique_ptr<Graph> modImpactGivenSeedGraph = make_unique<Graph>();
     modImpactGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
     if (!useIndegree) {
@@ -1264,11 +1487,11 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     string convertedFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + graphFileName;
 
-    newDiffusion(modNewGraph,
+    newDiffusion(modNewGraph, topKInflGivenSeedGraph,
                  modImpactGivenSeedGraph, subModGivenSeedGraph,
-                 modNodesToremove,
+                 modNodesToremove, topKInflWithSeed_NodesToRemove,
                  modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove,
-                 activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed,
+                 activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed, topKInflWithSeed_NodesToRemove_Unsorted,
                  modImpactGivenSeedNodesToRemoveUnsorted, subModGivenSeedNodesToRemoveUnsorted);
 
     clock_t executionTimeEnd = clock();

@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Last Updated: 16thAugust 11:55am
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -521,6 +522,34 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
 //                randomVertex = activatedSet[rand() % t];
                 randomVertex = dis(gen);
                 generateRandomRRSetwithCountMod(randomVertex, i);
+                if (i == 10) cout << "Completed " << i << " RR Sets" << endl;
+                if ((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
+                totalSize += rrSets[i].size();
+            }
+        }
+    }
+    else if (modular == "topKInflWithSeed") {
+        NodeinRRsetsWithCounts = vector<int>(n, 0);
+        uniform_int_distribution<> dis(0, n-1);
+        if (activatedSet.empty()) {
+            assert(("NOPE!NOPE!NOPE!", false));
+            for (int i = 0; i < R; i++) {
+                int randomVertex;
+                randomVertex = rand() % n;
+                while (!labels[randomVertex]) {
+                    randomVertex = rand() % n;
+                }
+                generateRandomRRSetwithCountMod(randomVertex, i);
+                totalSize += rrSets[i].size();
+            }
+        }
+        else {
+            int t = (int) activatedSet.size();
+            for (int i = 0; i < R; i++) {
+                int randomVertex;
+//                randomVertex = activatedSet[rand() % t];
+                randomVertex = dis(gen);
+                generateRRSetForTopKInflWithSeed(randomVertex, i);
                 if (i == 10) cout << "Completed " << i << " RR Sets" << endl;
                 if ((i % 100000) == 0) cout << "Completed " << i << " RR Sets" << endl;
                 totalSize += rrSets[i].size();
@@ -1225,6 +1254,40 @@ void Graph::generateRandomRRSetwithCountMod(int randomVertex, int rrSetID) {
             q.push_back(v);
             rrSets[rrSetID].push_back(v);
 
+            NodeinRRsetsWithCounts[v]++;
+        }
+    }
+    for (int i = 0; i < nVisitMark; i++) {
+        visited[visitMark[i]] = false;
+    }
+}
+
+//So far this method is the same as generateRandomRRSetwithCountMod(). So why the extra methods you ask?
+//HA HA HA
+void Graph::generateRRSetForTopKInflWithSeed(int randomVertex, int rrSetID) {
+
+    NodeinRRsetsWithCounts[randomVertex]++;
+    q.clear();
+    rrSets[rrSetID].push_back(randomVertex);
+    q.push_back(randomVertex);
+    int nVisitMark = 0;
+    visitMark[nVisitMark++] = randomVertex;
+    visited[randomVertex] = true;
+    while (!q.empty()) {
+        int expand = q.front();
+        q.pop_front();
+        for (int j = 0; j < (int) graphTranspose[expand].size(); j++) {
+            int v = graphTranspose[expand][j];
+            if (!this->flipCoinOnEdge(v, expand))
+                continue;
+            if (visited[v])
+                continue;
+            if (!visited[v]) {
+                visitMark[nVisitMark++] = v;
+                visited[v] = true;
+            }
+            q.push_back(v);
+            rrSets[rrSetID].push_back(v);
             NodeinRRsetsWithCounts[v]++;
         }
     }

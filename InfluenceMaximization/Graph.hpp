@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Last Updated: 16thAugust 11:55am
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -118,6 +119,7 @@ public:
     void calcDependancyMatrix(int randomVertex, int rrSetID, int rrSetSize, const vector<int> &verticesVisited);
     void generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID);
     void generateRRSetsForSubModGivenSeedSet(int randomVertex, int rrSetID);
+    void generateRRSetForTopKInflWithSeed(int randomVertex, int rrSetID);
     void generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID);
     void generateRandomRRSetCountingNodes(int randomVertex, int rrSetID);
     int BFSCountingNodes(int startVertex);
