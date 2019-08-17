@@ -578,7 +578,7 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
         miniRRGraphsVector = vector<unique_ptr<vector<vector<int>>>>(R);
         vertexToIndex = vector<unique_ptr<unordered_map<int, int>>>(R);
         indexToVertex = vector<unique_ptr<vector<int>>>(R);
-        dependentOnSeedSetVector = vector<unique_ptr<vector<bool>>>(R);//to delete
+//        dependentOnSeedSetVector = vector<unique_ptr<vector<bool>>>(R);//to delete
         dependentOnCritNodesVector = vector<unique_ptr<vector<bool>>>(R);
         reachableFromSourceVector = vector<unique_ptr<vector<bool>>>(R);
         visitMark = vector<int>(n);
@@ -955,9 +955,9 @@ void Graph::BFS(vector<vector<int>> &myGraph, const unique_ptr<vector<vector<boo
                 int vertexRemoved) {
 
     vector<bool> visitedBFS = vector<bool>(rrSetSize, false);           //Mark all the vertices as not visited
-    deque<int> queue;                                                   //Create a queue for BFS
-    visitedBFS[startVertex] = true;                                     //Mark the current node as visited
-    queue.push_back(startVertex);                                       //And add it to the queue
+    deque<int> queue;                                                       //Create a queue for BFS
+    visitedBFS[startVertex] = true;                                         //Mark the current node as visited
+    queue.push_back(startVertex);                                           //And add it to the queue
     (*dependancyMatrix)[vertexRemoved][startVertex] = false;
 
     while (!queue.empty()) {
@@ -1084,14 +1084,14 @@ void Graph::generateRRSetsForSubModTopCrit(int randomVertex, int rrSetID){
         }
     }
 
-    unique_ptr<vector<bool>> reachableNodesFromSeed     = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
+//    unique_ptr<vector<bool>> reachableNodesFromSeed     = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
     unique_ptr<vector<bool>> reachableNodesFromCritNode = make_unique<vector<bool>>(rrSets[rrSetID].size(), false);
     unique_ptr<vector<bool>> reachableNodesFromSource   = make_unique<vector<bool>>(rrSets[rrSetID].size(), true);
 
     vertexToIndex[rrSetID]              = move(mappedIndex);
     indexToVertex[rrSetID]              = move(revMappedIndex);
     miniRRGraphsVector[rrSetID]         = move(ptrToMiniRRGraph);
-    dependentOnSeedSetVector[rrSetID]   = move(reachableNodesFromSeed);
+//    dependentOnSeedSetVector[rrSetID]   = move(reachableNodesFromSeed);
     dependentOnCritNodesVector[rrSetID] = move(reachableNodesFromCritNode);
     reachableFromSourceVector[rrSetID]  = move(reachableNodesFromSource);
 
