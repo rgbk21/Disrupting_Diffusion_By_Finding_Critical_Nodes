@@ -83,12 +83,14 @@ int nodeNumBeingRemovedGlobal = 20;
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
  * are going to run those experiments.
- * 2) In subModTopCritNodesRemove, boolean tshoot controls checkIfModImpactValuesWereCorrect()
+ * 2) In subModTopCritNodesRemove,
+ *      boolean tshoot controls checkIfModImpactValuesWereCorrect()
  * 3) In removeSeedSetNodeFromDependencyVector() there is an assert statement. Set tshoot to false when actually running the program.
  * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually runnning.
  * 5) generateRRSetsForSubModTopCrit() has an assert statement that has been commented out. Reintroduce if testing code.
  * 6) removed a bunch of testMethods from the subModTopCrit method. Reintroduce if testing the code?
- *
+ * 7) Because in this version we are not finding inlfuence from a specific seed, we have this line: assert(maxInfluenceSeed.empty());
+ * 8) In removeCritNodeWithMatrixUpdate tshoot controls the assert statements. Currecntly they have been set to false
  * */
 
 
@@ -651,13 +653,14 @@ void validationCheck(set<int> *modImpactNodesToRemove, set<int> &subModTopCritNo
 
     //Find influence of the nodes in nodesRchblFrmNodesOnlyInSubMod and nodesRchblFrmNodesOnlyInMod
     int k = 0;
+    int numOfIterations = 3;//Change this variable only
     vector<int> subModResults = vector<int>();
     vector<int> modResults = vector<int>();
     int subModInflValue = 0;
     int modInflValue = 0;
 
     myfile << "SubModResults ModResults" << endl;
-    while (k < 5) {
+    while (k < numOfIterations) {
 
         cout << "\n********** k = " << k << " **********" << endl;
 
@@ -683,8 +686,8 @@ void validationCheck(set<int> *modImpactNodesToRemove, set<int> &subModTopCritNo
         modInflValue += modResults[i];
     }
 
-    subModInflValue = subModInflValue/5;
-    modInflValue = modInflValue/5;
+    subModInflValue = subModInflValue/numOfIterations;
+    modInflValue = modInflValue/numOfIterations;
 
     cout << endl;
     myfile << endl;
@@ -1673,8 +1676,10 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     }
     reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
 
-    inSanityCheck(influencedGraph, dependencyValues);
-    checkIfDependencyValuesAreCorrect(influencedGraph, dependencyValues);
+    if(tshoot){
+        inSanityCheck(influencedGraph, dependencyValues);
+        checkIfDependencyValuesAreCorrect(influencedGraph, dependencyValues);
+    }
     assert(("Woohoo!!!", dependencyValues[critNode] == 0));
     nodeNumBeingRemovedGlobal++;
 }
@@ -1949,7 +1954,7 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
                                   vector<int> &modImpactTopCritNodesToRemoveUnsorted,
                                   vector<int> &subModTopCritNodesToRemoveUnsorted) {
 
-    bool tshoot = true;//Controls checkIfModImpactValuesWereCorrect()
+    bool tshoot = true;//Controls checkIfModImpactValuesWereCorrect() and the precomputation of dependencyValues
     bool tshoot1 = true;//Prints the node being removed in each iteration
     bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
 
@@ -1988,18 +1993,23 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 //    }
 
     //This is for testing to see what are the dependencyValues that we are starting with
-    cout << "\nPopulating dependency values BEFORE removing the seedSet Nodes:" << endl;
-    dependValues << "\nsubModTopCritNodesRemove()-Populating dependency values BEFORE removing the seedSet Nodes:"
-                 << endl;
-
-    computeDependencyValuesWithoutASdegree(dependencyValues, subModTopCritGraph);
-    testDependencyValues = dependencyValues;
+    if(tshoot){
+        cout << "\nPopulating dependency values BEFORE removing the seedSet Nodes:" << endl;
+        dependValues << "\nsubModTopCritNodesRemove()-Populating dependency values BEFORE removing the seedSet Nodes:"
+                     << endl;
+        computeDependencyValuesWithoutASdegree(dependencyValues, subModTopCritGraph);
+        testDependencyValues = dependencyValues;
+    }
 
     clock_t timeToComputeInitialDependencyValues = clock();
     clock_t timeToRemoveSeedSetNodesStart = clock();
 
 //    countingSeedSetNodesInEachRRGraph(subModTopCritGraph, maxSeedSet);//You said this was a test method only?
-    removeSeedSetNodesFromAllRRGraphs(subModTopCritGraph, maxSeedSet);
+
+    //Because in this version of the branch, we are sometimes not checking the influence from a specific source, we do not want to run this
+    if (!maxSeedSet.empty()){
+        removeSeedSetNodesFromAllRRGraphs(subModTopCritGraph, maxSeedSet);
+    }
 
     clock_t timeToRemoveSeedSetNodesEnd = clock();
     clock_t modImpactTimeStart = clock();
@@ -2149,457 +2159,8 @@ void runSubModTopCrit(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<
 
 /************************************************ SUB MODULAR GIVEN THE SEED SET NODES STARTS *******************************************************/
 
-//This check validates that every vertex does in fact have its dependencyValue equal to the sum of
-//all its rows of the dependencyMatrices.
-void checkIfDValuesAreCorrectForGivenSeedMethod(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues){
-
-    vector<int> testDValues = vector<int>(influencedGraph->n, 0);
-    for(int rrSetId = 0; rrSetId < influencedGraph->isCriticalVector.size(); rrSetId++){
-        for(int i = 0; i < (*influencedGraph->isCriticalVector[rrSetId]).size(); i++){
-            if((*influencedGraph->isCriticalVector[rrSetId])[i]){
-                testDValues[(*influencedGraph->indexToVertex[rrSetId])[i]]++;
-            }
-        }
-    }
-
-    for(int i = 0; i < dependencyValues.size(); i++){
-        assert(("Mismatch in dependencyValues", dependencyValues[i] == testDValues[i]));
-    }
-}
-
-//This method checks if every vertex that has been removed because it was the critNode infact does have all the values in its dependencyMatrix
-//to be FALSE.
-void
-inSanityCheck_22(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues, vector<int> &nodesToRemoveUnsorted) {
-
-    for(int rrSetId = 0; rrSetId < influencedGraph->rrSets.size(); rrSetId++){                                          //For every rrSet
-        for(int i = 0; i < nodesToRemoveUnsorted.size(); i++) {                                                         //for every critNode c that has been removed
-            int critNode = nodesToRemoveUnsorted[i];
-            unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
-            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                //if the current rrSet contains c
-                bool rrSetContainsSeed = false;
-                for(int j = 0; j < (*influencedGraph->isSeedVector[rrSetId]).size(); j++){                              //if that rrSet also contained some seedSetNode
-                    if ((*influencedGraph->isSeedVector[rrSetId])[j]) rrSetContainsSeed = true;
-                }
-                if (rrSetContainsSeed){
-                    for(int j = 0; j < (*influencedGraph->isCriticalVector[rrSetId]).size(); j++){                      //every entry in the isCritical of that particular rrSet is FALSE
-                        assert(("Removed critNode but entry in isCritical still TRUE", !(*influencedGraph->isCriticalVector[rrSetId])[j]));
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-    for(int rrSetId = 0; rrSetId < influencedGraph->rrSets.size(); rrSetId++){
-        vector<bool> isCritNode = vector<bool>(influencedGraph->rrSets[rrSetId].size(), false);
-        for(int i = 0; i < nodesToRemoveUnsorted.size(); i++) {
-            int critNode = nodesToRemoveUnsorted[i];
-            unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
-            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
-                copyOfMiniRRGraphsVector[rrSetId][got->second].clear();
-                isCritNode[got->second] = true;
-            }
-        }
-        for(int i = 0; i < copyOfMiniRRGraphsVector[rrSetId].size(); i++){
-            vector<vector<int>> myMiniRRGraph = copyOfMiniRRGraphsVector[rrSetId];
-            myMiniRRGraph[i].clear();
-            vector<bool> dependencyRow = vector<bool>(copyOfMiniRRGraphsVector[rrSetId].size());
-            //Initialization
-            for(int j = 0; j < dependencyRow.size(); j++){
-                if(isCritNode[j]){
-                    dependencyRow[j] = false;
-                }else{
-                    dependencyRow[j] = true;
-                }
-            }
-
-        }
-    }
-    */
-
-    //WE want to validate that every vertex that does have not have a non zero entry in the dependencyValueVector does in fact have the value equal to
-    //the sum of the rows or whatever it is you are summing up this time.
-    vector<int> testDValues = vector<int>(influencedGraph->n, 0);
-    for(int rrSetId = 0; rrSetId < influencedGraph->dependancyVector.size(); rrSetId++){
-        for(int i = 0; i < (*influencedGraph->dependancyVector[rrSetId]).size(); i++){
-            if((*influencedGraph->reachableFromSourceVector[rrSetId])[i]){
-                for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[i].size(); j++){
-                    if((*influencedGraph->dependancyVector[rrSetId])[i][j]){
-                        testDValues[(*influencedGraph->indexToVertex[rrSetId])[i]]++;
-                    }
-                }
-            }
-        }
-    }
-
-    for(int i = 0; i < dependencyValues.size(); i++){
-        assert(("Final Mismatch in dependencyValues", dependencyValues[i] == testDValues[i] ));
-    }
-
-}
-
-
-//This method removes all the outgoing edges from the nodeBeingRemoved. Then we do a BFS from the source, and check if the seedSetNode is still reachable
-//If it is, it means the nodeBeingRemoved is not critical and hence we return FALSE.
-//If no seedSetNodes can be reached, it means the nodeBeingRemoved was critical, in which case we return TRUE.
-bool isVertexCritical(unique_ptr<Graph> &influencedGraph, int nodeBeingRemoved, int rrSetId, vector<vector<int>> myMiniRRGraph,
-                      unique_ptr<vector<bool>> &isSeed) {
-
-    if((*isSeed)[0]) return false;
-    myMiniRRGraph[nodeBeingRemoved].clear();                                        //Remove all outgoing edges from the nodeBeingRemoved
-    vector<bool> visitedBFS = vector<bool>(myMiniRRGraph.size(), false);            //Mark all the vertices as not visited
-    deque<int> queue;                                                               //Create a queue for BFS
-    visitedBFS[0] = true;                                                           //Mark the current node as visited
-    queue.push_back(0);                                                             //And add it to the queue
-
-    while (!queue.empty()) {
-        int u = queue.front();
-        queue.pop_front();
-        for (int i = 0; i < myMiniRRGraph[u].size(); i++) {
-            int v = myMiniRRGraph[u][i];
-            if (!visitedBFS[v]) {
-                visitedBFS[v] = true;
-                queue.push_back(v);
-                if((*isSeed)[v]){
-                    return false;
-                }
-            }
-        }
-    }
-
-    return true;
-}
-
-void populateCriticalityVector(unique_ptr<Graph> &subModGivenSeedGraph, vector<int> &dependencyValues, const set<int> &maxSeedSet){
-
-    for(int rrSetId = 0; rrSetId < subModGivenSeedGraph->dependancyVector.size(); rrSetId++){
-        unordered_map<int, int>::const_iterator got;
-        unique_ptr<vector<bool>> isSeed = make_unique<vector<bool>>((*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]).size(), false);//isSeed <1,1,0,0,1> : This means in this particular miniRRGraph, vertices 0,1,4 have been selected as the overall seed
-        bool rrSetContainsSeed = false;
-        for (int seedSetNode : maxSeedSet) {
-            got = subModGivenSeedGraph->vertexToIndex[rrSetId]->find(seedSetNode);                                      //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the seedSetNode
-            if (got != subModGivenSeedGraph->vertexToIndex[rrSetId]->end()) {
-                (*isSeed)[got->second] = true;
-                rrSetContainsSeed = true;
-            }
-        }
-        subModGivenSeedGraph->isSeedVector[rrSetId] = move(isSeed);
-        if(rrSetContainsSeed){
-            vector<vector<int>> myMiniRRGraph = (*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]);
-            for(int i = 0; i < (*subModGivenSeedGraph->miniRRGraphsVector[rrSetId]).size(); i++){
-                if (isVertexCritical(subModGivenSeedGraph, i, rrSetId, myMiniRRGraph, subModGivenSeedGraph->isSeedVector[rrSetId])) {
-                    (*subModGivenSeedGraph->isCriticalVector[rrSetId])[i] = true;
-                }
-            }
-        }
-    }
-
-}
-
-void computeDependencyValuesGivenSeedSet(unique_ptr<Graph> &influencedGraph, vector<int> &dependencyValues,
-                                         vector<pair<int, int>> &ASdegree){
-
-    bool tshoot = true;//prints values to file
-    cout << "Calculating Dependency Values Given SeedSet" << endl;
-
-    for (int rrSetId = 0; rrSetId < influencedGraph->isCriticalVector.size(); rrSetId++) {                              //for each RRSet in isCriticalVector
-        for (int index = 0; index < influencedGraph->isCriticalVector[rrSetId]->size(); index++) {                      //for each index in the isCriticalVector
-            if ((*influencedGraph->isCriticalVector[rrSetId])[index]) {                                                 //if the index (vertex) was critical to the reachability of the seedSet nodes
-                int vertex = (*influencedGraph->indexToVertex[rrSetId])[index];                                         //find the vertex that was mapped to that index
-                dependencyValues[vertex] += 1;                                                                          //Add the value to the existing dependencyValues of that vertex
-            }
-        }
-    }
-
-    dependValues << "\nPopulating dependency values for modImpactGivenSeed method" << endl;
-    for (int i = 0; i < dependencyValues.size(); i++) {
-        if (tshoot) {
-            dependValues << dependencyValues[i] << endl;
-        }
-    }
-    if (tshoot) dependValues << "------------------------------------------------------------" << endl;
-
-    ASdegree = vector<pair<int, int>>();
-    for (int i = 0; i < dependencyValues.size(); i++) {
-        pair<int, int> node = pair<int, int>();
-        node.first = i;
-        node.second = dependencyValues[i];
-        ASdegree.push_back(node);
-    }
-
-    std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
-    assert(ASdegree.at(0).second >= ASdegree.at(1).second);
-    cout << "Impact Nodes Sorted!" << endl;
-}
-
-//Newer version of the method. Use this method only if the dependencyValues have been already updated,
-//and all you have to do is sort them in orfder to find out the top-k nodes to be removed by the subModImpactTopCrit method.
-void computeModImpactGivenSeedNodesToRemove(unique_ptr<Graph> &subModGivenSeedGraph, int removeNodes, vector<int> &dependencyValues,
-                                  vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
-                                  const set<int> &envelopedNodes,
-                                  set<int> &removalModImpact, vector<int> &nodesToRemoveUnsorted) {
-
-    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
-
-    set<int> alreadyinSeed = set<int>();
-
-    cout << "Selected modImpactGivenSeed Nodes to remove: " << endl;
-
-    int index = 0;
-    for (int i = 0; i < removeNodes;) {
-        int node = ASdegree.at(index).first;
-        if (maxSeedSet.count(node) == 0 && envelopedNodes.count(node) == 0) {
-            i++;
-            removalModImpact.insert(node);
-            nodesToRemoveUnsorted.push_back(node);
-            cout << node << endl;
-        } else {
-            alreadyinSeed.insert(node);
-        }
-        index++;
-    }
-
-    if (tshoot2 && useEnvelop) {
-        cout    << "ModImpact Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-                << endl;
-        myfile  << "ModImpact Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-                << endl;
-        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
-    }
-
-    assert(("Mismatch - removalModImpact and removeNodes", removalModImpact.size() == removeNodes));
-
-//    cout << "Node to be removed by the mod Impact process" << endl;
-//    printVector(modImpactNodesToRemoveUnsorted);
-
-    cout << "\nassociated value is: " << alreadyinSeed.size() << endl;
-    cout << "Number of nodes for (modImpactGivenSeed method) already present in seed set = " << alreadyinSeed.size() << endl;
-
-    cout << "Printing nodes not added to modImpactGivenSeed method because they were in seedSet: " << endl;
-    myfile << "Printing nodes not added to modImpactGivenSeed method because they were in seedSet: " << endl;
-    printSet(alreadyinSeed);
-
-    //Clearing alreadyinSeed because it contains the modImpact nodes at this point
-    alreadyinSeed.clear();
-}
-
-void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
-                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
-
-    bool tshoot = false;//WARNING:controls assert statement
-    bool tshoot1 = false;//Controls PAUUUUUZZZE
-
-    cout << "Removing critNode: " << critNode << endl;
-    dependValues << "Removing critNode: " << critNode << endl;
-    tshootingFile << " -------------------------- " << endl;
-
-    for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains critNode)
-        int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
-        bool rrSetContainsSeed = false;
-        for(int j = 0; j < (*influencedGraph->isSeedVector[rrSetId]).size(); j++){                                      //First we need to check if this rrSet actually contains some seedSetNode or not.
-            if((*influencedGraph->isSeedVector[rrSetId])[j]){
-                rrSetContainsSeed = true;
-                break;
-            }
-        }
-        if(rrSetContainsSeed){                                                                                          //Reduce the dependencyValue of the nodes in this rrSet only if they contains some seed
-            for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
-                if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
-                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[index]] -= 1;                           //..and should have their dependencyValue reduced
-                    (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
-                }
-            }
-        }
-    }
-    assert(("WELL. FUCKING. DONE.", dependencyValues[critNode] == 0));
-    reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
-    inSanityCheck(influencedGraph, dependencyValues);
-    checkIfDValuesAreCorrectForGivenSeedMethod(influencedGraph, dependencyValues);
-    nodeNumBeingRemovedGlobal++;
-}
-
-void computeSubModGivenSeedNodesToRemove(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
-                                    vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
-                                    const set<int> &envelopedNodes, set<int> &subModNodesToremove,
-                                    vector<int> &nodesToRemoveUnsorted, set<int> &alreadyinSeed) {
-
-    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
-
-    int index = 0;
-    testCritNodesRemovedSoFar.clear();
-    for (int i = 0; i < removeNodes;) {
-        int node = ASdegree.at(index).first;
-        if (maxSeedSet.count(node) == 0 && envelopedNodes.count(node) == 0) {
-            i++;
-            subModNodesToremove.insert(node);
-            nodesToRemoveUnsorted.push_back(node);
-            if (i <= removeNodes) {//WARNING --- Dont call if final vertex to be removed has been found
-                removeCritNodeWithCriticalityUpdate(node, influencedGraph, dependencyValues, ASdegree);
-            }
-            index = 0;
-        } else {
-            alreadyinSeed.insert(node);
-            index++;
-        }
-    }
-
-//    inSanityCheck_22(influencedGraph, dependencyValues, nodesToRemoveUnsorted);//write this method!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    if (tshoot2 && useEnvelop) {
-        cout << "SubMod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-             << endl;
-        myfile
-                << "SubMod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-                << endl;
-        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
-    }
-}
-
-
-set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
-                                  const set<int> &maxSeedSet, const set<int> &envelopedNodes,
-                                  set<int> &modImpactGivenSeedNodesToRemove,
-                                  vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
-                                  vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
-
-    bool tshoot = true;//Prints the dependency values for before the seedSetNodes are removed to the file
-    bool tshoot1 = true;//Prints the node being removed in each iteration
-    bool tshoot2 = false;//Prints the outdegree values for the modNodes removed in Algo1
-
-    clock_t subModReverseStartTime = clock();
-
-    set<int> alreadyinSeed = set<int>();
-    set<int> subModGivenSeedNodesToRemove;
-    vector<pair<int, int>> ASdegree;
-    int removalNum = removeNodes;
-    vector<int> dependencyValues = vector<int>(subModGivenSeedGraph->n, 0);
-    vector<int> testDependencyValues = vector<int>(subModGivenSeedGraph->n, 0);
-
-    //Random RR sets
-    int n = (int) activatedSet.size();
-    double epsilon = (double) EPSILON;
-    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
-    cout << "\nRR sets are: " << R << endl;
-    resultLogFile << "\nRR sets are: " << R << endl;
-    subModGivenSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModGivenSeed", resultLogFile);
-
-    clock_t timeForGeneratingRRSets = clock();
-    populateCriticalityVector(subModGivenSeedGraph, dependencyValues, maxSeedSet);
-    clock_t timeToPopulateCriticalityVector = clock();
-    computeDependencyValuesGivenSeedSet(subModGivenSeedGraph, dependencyValues, ASdegree);
-    testDependencyValues = dependencyValues;
-    clock_t timeToComputeDependencyValues = clock();
-
-    cout << "\nComputing nodes to remove by the modImpactGivenSeed method" << endl;
-
-    computeModImpactGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
-                                   envelopedNodes, modImpactGivenSeedNodesToRemove,
-                                   modImpactGivenSeedNodesToRemoveUnsorted);
-
-    clock_t ModImpactEndTime = clock();
-
-//    checkIfModImpactValuesWereCorrect(subModTopCritGraph, maxSeedSet, dependencyValues, testDependencyValues);
-
-    double totalModImpactTime = double(
-            (timeForGeneratingRRSets - subModReverseStartTime) +
-            (timeToPopulateCriticalityVector - timeForGeneratingRRSets) +
-            (timeToComputeDependencyValues - timeToPopulateCriticalityVector) +
-            (ModImpactEndTime - timeToComputeDependencyValues))
-                                / (CLOCKS_PER_SEC * 60);
-
-    cout << "modImpactGivenSeed algorithm time in minutes " << totalModImpactTime << endl;
-    myfile << totalModImpactTime << " <-modImpactGivenSeed_Time\n";
-
-    cout << "Breakup of time taken: " << endl;
-    cout << "Time for generating RRSets: " << double (timeForGeneratingRRSets - subModReverseStartTime) / (CLOCKS_PER_SEC * 60) << endl;
-    cout << "Time for populating criticalityVector: " << double (timeToPopulateCriticalityVector - timeForGeneratingRRSets) / (CLOCKS_PER_SEC * 60) << endl;
-    cout << "Time to compute dValue by iterating over all RRSets: " << double(timeToComputeDependencyValues - timeToPopulateCriticalityVector) / (CLOCKS_PER_SEC * 60) << endl;
-    cout << endl;
-
-    cout << "******* Completed modImpactGivenSeed approach ********" << endl;
-    cout << endl;
-    cout << endl;
-
-    dependValues << "\n\n******* Completed modImpactGivenSeed approach ********" << endl;
-
-
-
-    cout << "******* Running SubMod GivenSeed approach ********" << endl;
-    dependValues << "******* Running SubMod GivenSeed approach ********" << endl;
-
-    alreadyinSeed = set<int>();
-    clock_t sumModGivenSeedTimeStart = clock();
-
-    computeSubModGivenSeedNodesToRemove(subModGivenSeedGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
-                                   envelopedNodes,
-                                   subModGivenSeedNodesToRemove, subModGivenSeedNodesToRemoveUnsorted, alreadyinSeed);
-
-    assert(("Mismatch - subModNodesToremove and removeNodes", subModGivenSeedNodesToRemove.size() == removalNum));
-    clock_t sumModGivenSeedTimeEnd = clock();
-
-    vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
-    cout << endl;
-    cout << "Removed subModTopCrit Nodes from Graph: ";
-    removingNodesFromGraph(subModGivenSeedGraph, subModGivenSeedNodesToRemove);
-    cout << endl;
-
-    cout << endl;
-    subModGivenSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
-    int subModStrength = 0;
-    for (int i = 0; i < subModGivenSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        subModStrength += subModGivenSeedGraph->NodeinRRsetsWithCounts[i];
-    }
-
-    cout << "\nRecalculated Initial strength was = " << subModGivenSeedGraph->totalNumNodesInRRSets << endl;
-    cout << "\nNumber of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    cout << "Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:" << endl;
-    myfile << "Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:" << endl;
-    printSet(alreadyinSeed);
-    cout << "\nsubModStrengthGivenSeed = " << subModStrength;
-
-    myfile << subModGivenSeedGraph->totalNumNodesInRRSets << " <-subModStrengthGivenSeed Init Strength\n";
-    myfile << subModStrength << " <-subModStrengthGivenSeed\n";
-
-    double totalAlgorithmTime = totalModImpactTime + (double(sumModGivenSeedTimeEnd - sumModGivenSeedTimeStart)/ (CLOCKS_PER_SEC * 60));
-    cout << "\nsubModGivenSeed algorithm time in minutes " << totalAlgorithmTime << endl;
-    cout << "Breakup of time taken: " << endl;
-    cout << "modImpact Time: " << totalModImpactTime << endl;
-    cout << "subMod Time: " << (double (sumModGivenSeedTimeEnd - sumModGivenSeedTimeStart) / (CLOCKS_PER_SEC * 60)) << endl;
-
-    myfile << totalAlgorithmTime << " <- subModGivenSeed Time\n";
-    return subModGivenSeedNodesToRemove;
-}
-
-void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
-                      set<int> &modImpactGivenSeedNodesToRemove,
-                      vector<int> &subModGivenSeedNodesToRemoveUnsorted,
-                      vector<int> &modImpactGivenSeedNodesToRemoveUnsorted){
-
-    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
-
-    unique_ptr<Graph> subModGivenSeedGraph = make_unique<Graph>();
-    subModGivenSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
-    if (!useIndegree) {
-        subModGivenSeedGraph->setPropogationProbability(probability);
-    }
-    vector<int> activatedSet = vector<int>(subModGivenSeedGraph->n);
-    for (int i = 0; i < subModGivenSeedGraph->n; i++) {
-        activatedSet[i] = i;
-    }
-    subModGivenSeedNodesToRemove = subModGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
-                                                            maxInfluenceSeed, envelopedNodes,
-                                                            modImpactGivenSeedNodesToRemove,
-                                                            modImpactGivenSeedNodesToRemoveUnsorted,
-                                                            subModGivenSeedNodesToRemoveUnsorted);
-
-    vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
-    subModGivenSeedGraph->dependancyVector.clear();
-    subModGivenSeedGraph->vertexToIndex.clear();
-    subModGivenSeedGraph->indexToVertex.clear();
-    subModGivenSeedGraph.reset();
-}
-
+    //THIS BRANCH DOES NOT CONTAIN THIS CODE BECAUSE THIS BRANCH IS ONLY FOR THE EXPERIMENT 2
+    //FOR ONLY THIS CODE AND THE OTHER CODE WRITTEN FOR EXPERIMENT 1, LOOK AT CodeContainingOnlyThe_GIVEN_SEED_Method
 
 /************************************************ SUB MODULAR GIVEN THE SEED SET NODES ENDS *******************************************************/
 
@@ -2636,7 +2197,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     set<int> envelopedNodes;//These are the nodes that should not be removed but are not a part of the seed
     int maxInfluenceNum;
 
-    if (someCondition) {
+    if (someCondition && budget > 0) {
 
         unique_ptr<Graph> maxSeedGraph = make_unique<Graph>();
         maxSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
@@ -2669,7 +2230,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
             myfile << maxInfluenceNum << " <-Influence of chosen random seed on the original Graph G" << endl;
             cout << "\n \n******* Calculating randomSeed to be used ends ******** \n" << endl;
 
-        } else {
+        }
+        else {
             myfile << "Max influence Seed Set in the original graph: " << endl;
             cout << "Max influence Seed Set in the original graph: " << endl;
 
@@ -2700,21 +2262,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     }
 
-    //******************************************************************************************************************
-
-    set<int> modNodesToremove;
-    cout << "\n ******* Running modular approach ******** \n" << flush;
-    resultLogFile << "\n ******* Running modular approach ******** \n";
-
-    clock_t ModReverseStartTime = clock();
-    modNodesToremove = removeVertices(influencedGraph, removeNodes, maxInfluenceSeed, envelopedNodes, activatedSet,
-                                      "modular");
-    clock_t ModReverseEndTime = clock();
-    double totalAlgorithmTime = double(ModReverseEndTime - ModReverseStartTime) / (CLOCKS_PER_SEC * 60);
-    cout << "\n Reverse algorithm time in minutes \n" << totalAlgorithmTime << flush;
-    resultLogFile << "\n Reverse algorithm time in minutes \n" << totalAlgorithmTime;
-
-    myfile << totalAlgorithmTime << " <-ModStrengthTime\n";
+    assert(maxInfluenceSeed.empty());
 
     //******************************************************************************************************************
 
