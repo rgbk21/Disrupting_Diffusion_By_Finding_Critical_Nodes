@@ -1059,7 +1059,10 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
                                     vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
 
     bool tshoot = false;//WARNING:controls assert statement
-    bool tshoot1 = false;//Controls PAUUUUUZZZE
+    bool tshoot1 = true;//Controls the count from C1 through to C4
+    int countC2 = 0;//in how many of C1 was the critNode being removed present with a seedSetNode (C2)
+    int countC3 = 0;//in how many of C2 was it a critical node (C3)
+    int countC4 = 0;//in how many of C2 was it a non critical node (C4)
 
     cout << "Removing critNode: " << critNode << endl;
     dependValues << "Removing critNode: " << critNode << endl;
@@ -1068,6 +1071,7 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
     int critNodeMappedToIndex = -1;
 
     for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains critNode)
+
         int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
         bool rrSetContainsSeed = false;
         for(int j = 0; j < (*influencedGraph->isSeedVector[rrSetId]).size(); j++){                                      //First we need to check if this rrSet actually contains some seedSetNode or not.
@@ -1077,7 +1081,7 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
             }
         }
         if(rrSetContainsSeed){                                                                                          //Reduce the dependencyValue of the nodes in this rrSet only if they contains some seed
-
+            countC2++;//for testing only
             got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);                                              //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the seedSetNode
             if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
                 critNodeMappedToIndex = got->second;
@@ -1085,6 +1089,7 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
             if(checkReachabilityOfSeedFromSource(influencedGraph, critNodeMappedToIndex, rrSetId, (*influencedGraph->miniRRGraphsVector[rrSetId]),
                     influencedGraph->isSeedVector[rrSetId])){
 
+                countC4++;//for testing only
                 //Reset the dependencyValues
                 for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
                     if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
@@ -1103,6 +1108,7 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
                     }
                 }
             }else{
+                countC3++;//for testing only
                 //The seedSet was no longer reachable
                 for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
                     if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
@@ -1114,6 +1120,14 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
             }
         }
     }
+
+    if(tshoot1){
+        cout << "number of rrSets in which critNode occurred (C1): " << influencedGraph->inRRSet[critNode].size() << endl;
+        cout << "in how many of C1 was the critNode being removed present with a seedSetNode (C2): " << countC2 << endl;
+        cout << "in how many of C2 was it a critical node (C3): " << countC3 << endl;
+        cout << "in how many of C2 was it a non critical node (C4): " << countC4 << endl;
+    }
+
     assert(("Check dependency values.", dependencyValues[critNode] == 0));
     reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
     if(tshoot){
@@ -1435,10 +1449,10 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
     string convertedFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + graphFileName;
 
     newDiffusion(
-                 modImpactGivenSeedGraph, subModGivenSeedGraph,
-                 modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove,
-                 activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed,
-                 modImpactGivenSeedNodesToRemoveUnsorted, subModGivenSeedNodesToRemoveUnsorted);
+            modImpactGivenSeedGraph, subModGivenSeedGraph,
+            modImpactGivenSeedNodesToRemove, subModGivenSeedNodesToRemove,
+            activatedSet, newSeed, percentageTargetsFloat, convertedFile, maxInfluenceSeed,
+            modImpactGivenSeedNodesToRemoveUnsorted, subModGivenSeedNodesToRemoveUnsorted);
 
     clock_t executionTimeEnd = clock();
     double totalExecutionTime = double(executionTimeEnd - executionTimeBegin) / (CLOCKS_PER_SEC * 60) ;
