@@ -85,8 +85,9 @@ int nodeNumBeingRemovedGlobal = 20;
 
 /*List of warnings:
  *
- * This branch only contains the modTopInfl and the GIVEN_SEED methods. Other methods have been deleted. This is the code that we use for running the
- * Experiment 1 that has been discussed in the meetings.
+ * This branch only contains the GIVEN_SEED methods. Other methods have been deleted. This is the updated code.
+ * In this version we are allowing the increase of the dependencyValue of a node from 0 to 1.
+ * We were not doing this earlier.
  *
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
@@ -320,334 +321,6 @@ int calcIntersection(const set<int> &set1, const set<int> &set2){
     return count;
 }
 
-set<int>
-removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<int> &maxSeedSet,
-               const set<int> &envelopedNodes, vector<int> activatedSet, string modular) {
-
-    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
-    bool tshoot1 = true;//Controls the assert statements
-    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
-    bool tshoot3 = false;//Prints the NodeInRRSets values for ALL of the nodes
-
-    //Random RR sets
-    set<int> alreadyinSeed = set<int>();
-    int n = (int) activatedSet.size();
-    double epsilon = (double) EPSILON;
-    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
-    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
-    cout << "R = " << R << endl;
-    influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, modular, resultLogFile);
-    cout << "\n RRsets done " << flush;
-    resultLogFile << "\n RRsets done " << flush;
-
-
-    int modStrength = 0;
-    for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        modStrength += influencedGraph->NodeinRRsetsWithCounts[i];
-    }
-    cout << "\n \n Initial Strength is " << modStrength << endl;
-    resultLogFile << "\n \n Initial Strength is " << modStrength << endl;
-    myfile << modStrength << " <-InitialStrength" << endl;
-
-    if (tshoot3) {
-        dependValues << "Printing modular values for all of the nodes:" << endl;
-        for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-            dependValues << influencedGraph->NodeinRRsetsWithCounts[i] << endl;
-        }
-        dependValues << "-----DONE PRINTING------" << endl;
-    }
-
-    //clearing the memory
-//    vector<vector<int>>().swap(influencedGraph->rrSets);
-
-    //Find nodes to be removed
-    vector<pair<int, int>> SortedNodeidCounts = vector<pair<int, int>>();
-    for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        pair<int, int> node = pair<int, int>();
-        node.first = i;
-        node.second = influencedGraph->NodeinRRsetsWithCounts[i];
-        SortedNodeidCounts.push_back(node);
-    }
-
-    //We need to store this initial influencedGraph->NodeinRRsetsWithCounts for the transposedGraph method
-    influencedGraph->initialNodeinRRsetsWithCounts = vector<int>(n, 0);
-    for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        influencedGraph->initialNodeinRRsetsWithCounts[i] = influencedGraph->NodeinRRsetsWithCounts[i];
-    }
-
-
-    std::sort(SortedNodeidCounts.begin(), SortedNodeidCounts.end(), sortbysecdesc);
-    assert(SortedNodeidCounts.at(0).second >= SortedNodeidCounts.at(1).second);
-//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
-
-    set<int> nodesToRemove;
-    int count = 0;
-    int j = 0;
-    while (j < removeNodes && j < SortedNodeidCounts.size()) {
-        int nodeid = SortedNodeidCounts.at(count).first;
-        if (nodesToRemove.count(nodeid) == 0 && maxSeedSet.count(nodeid) == 0 && envelopedNodes.count(nodeid) == 0) {
-            nodesToRemove.insert(nodeid);
-            modNodesToRemoveUnsorted.push_back(nodeid);//modNodesToRemoveUnsorted: for printing out the nodes that are being removed in the order that they were added
-            j++;
-        } else {
-            alreadyinSeed.insert(nodeid);
-        }
-        count++;
-    }
-    if (tshoot2 && useEnvelop) {
-        cout << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-             << endl;
-        myfile << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-               << endl;
-        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxSeedSet, envelopedNodes);
-    }
-
-    vector<pair<int, int>>().swap(SortedNodeidCounts);
-    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    cout << "Printing the nodes already in seed that were not added to modNodes" << endl;
-    myfile << "Printing the nodes already in seed that were not added to removeNodes" << endl;
-    printSet(alreadyinSeed);
-
-    int numEdgesAtStart = influencedGraph->m;
-    int totalNumEdgesToDelete = 0;
-
-    for (int nodeToRemove:nodesToRemove) {
-
-        int totalEdgesInTransGraphPre = 0;
-        int totalEdgesInOrigGraphPre = 0;
-        int numEdgesToDelete = 0;
-
-        if (tshoot1) {
-            for (int k = 0; k < influencedGraph->graphTranspose.size(); k++) {
-                totalEdgesInTransGraphPre += influencedGraph->graphTranspose[k].size();
-                if (k == nodeToRemove) {
-                    numEdgesToDelete += influencedGraph->graphTranspose[k].size();
-                }
-            }
-            for (int k = 0; k < influencedGraph->graph.size(); k++) {
-                totalEdgesInOrigGraphPre += influencedGraph->graph[k].size();
-                if (k == nodeToRemove) {
-                    numEdgesToDelete += influencedGraph->graph[k].size();
-                }
-            }
-        }
-
-        totalNumEdgesToDelete += numEdgesToDelete;
-        influencedGraph->removeOutgoingEdges(nodeToRemove);
-        assert(("Here . .. .", influencedGraph->graph[nodeToRemove].size() == 0));
-        assert(("Here . .. .", influencedGraph->graphTranspose[nodeToRemove].size() == 0));
-        influencedGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre,
-                                                      totalEdgesInTransGraphPre);
-    }
-    assert(("Mismatch in modNodesToRemove", nodesToRemove.size() == removeNodes));
-
-
-    if (tshoot1) {
-        int totalNumOfEdges = 0;
-        for (int k = 0; k < influencedGraph->graph.size(); k++) {
-            totalNumOfEdges += influencedGraph->graph[k].size();
-        }
-        assert(("removeVertices() Divergence betn something", totalNumOfEdges ==
-                                                              numEdgesAtStart - totalNumEdgesToDelete));
-    }
-
-    if (tshoot) {
-        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
-        print2DVector(influencedGraph->graphTranspose);
-    }
-
-    influencedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
-    modStrength = 0;
-    for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        modStrength += influencedGraph->NodeinRRsetsWithCounts[i];
-    }
-    cout << "\n \n After removing Modular Strength is " << modStrength;
-    resultLogFile << "\n \n After removing Modular Strength is " << modStrength;
-    myfile << modStrength << " <-ModStrength\n";
-    vector<vector<int>>().swap(influencedGraph->rrSets);
-//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
-    return nodesToRemove;
-}
-
-set<int> topKInflWithSeed_RemoveNodes(unique_ptr<Graph> &topKInflWithSeedGraph, const vector<int> &activatedSet, int removeNodes,
-                                    const set<int> &maxInfluenceSeed, const set<int> &envelopedNodes,
-                                    vector<int> &topKInflWithSeed_NodesToRemove_Unsorted) {
-
-    bool tshoot = false;//Prints the graphTranspose after the nodes have been deleted
-    bool tshoot1 = true;//Controls the assert statements
-    bool tshoot2 = true;//Prints the nodes that are in the envelopedNodes but not in the maxSeedSet
-    bool tshoot3 = false;//Prints the NodeinRRsetsWithCounts values for ALL of the nodes
-
-    //Random RR sets
-    set<int> alreadyinSeed = set<int>();
-    int n = (int) activatedSet.size();
-    double epsilon = (double) EPSILON;
-    int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
-    cout << "R = " << R << endl;
-    topKInflWithSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "topKInflWithSeed", resultLogFile);
-    cout << "\n RRsets done " << flush;
-    resultLogFile << "\n RRsets done " << flush;
-
-    int modStrength = 0;
-    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        modStrength += topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
-    }
-    cout << "\n\nInitial Strength of topKInflWithSeed: " << modStrength << endl;
-    myfile << modStrength << " <-InitialStrength_topKInflWithSeed" << endl;
-
-    if (tshoot3) {
-        dependValues << "Printing modular values for all of the nodes:" << endl;
-        for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
-            dependValues << topKInflWithSeedGraph->NodeinRRsetsWithCounts[i] << endl;
-        }
-        dependValues << "-----DONE PRINTING------" << endl;
-    }
-
-    //Find nodes to be removed
-    //We will consider only those rrSets that contains some seedSetNode and store it in NodeinRRsetsWithCounts
-    vector<int>().swap(topKInflWithSeedGraph->NodeinRRsetsWithCounts);
-    topKInflWithSeedGraph->NodeinRRsetsWithCounts = vector<int>(n, 0);
-    for(int rrSetId = 0; rrSetId < topKInflWithSeedGraph->rrSets.size(); rrSetId++){
-        bool rrSetContainsSeed = false;
-        for(int node : topKInflWithSeedGraph->rrSets[rrSetId]){
-            if (maxInfluenceSeed.find(node) != maxInfluenceSeed.end()){
-                rrSetContainsSeed = true;
-                break;
-            }
-        }
-        if(rrSetContainsSeed){
-            for(int node : topKInflWithSeedGraph->rrSets[rrSetId]){
-                topKInflWithSeedGraph->NodeinRRsetsWithCounts[node]++;
-            }
-        }
-    }
-    vector<pair<int, int>> SortedNodeidCounts = vector<pair<int, int>>();
-    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        pair<int, int> node = pair<int, int>();
-        node.first = i;
-        node.second = topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
-        SortedNodeidCounts.push_back(node);
-    }
-
-    std::sort(SortedNodeidCounts.begin(), SortedNodeidCounts.end(), sortbysecdesc);
-    assert(SortedNodeidCounts.at(0).second >= SortedNodeidCounts.at(1).second);
-//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
-
-    set<int> nodesToRemove;
-    int count = 0;
-    int j = 0;
-    while (j < removeNodes && j < SortedNodeidCounts.size()) {
-        int nodeid = SortedNodeidCounts.at(count).first;
-        if (nodesToRemove.count(nodeid) == 0 && maxInfluenceSeed.count(nodeid) == 0 && envelopedNodes.count(nodeid) == 0) {
-            nodesToRemove.insert(nodeid);
-            topKInflWithSeed_NodesToRemove_Unsorted.push_back(nodeid);//topKInflWithSeed_NodesToRemove_Unsorted: for printing out the nodes that are being removed in the order that they were added
-            j++;
-        } else {
-            alreadyinSeed.insert(nodeid);
-        }
-        count++;
-    }
-    if (tshoot2 && useEnvelop) {
-        cout << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-             << endl;
-        myfile << "Mod Method: Printing nodes chosen for removal that are in the envelopedNodes but not in the seedSet"
-               << endl;
-        printNodesInEnvelopeButNotInSeedSet(alreadyinSeed, maxInfluenceSeed, envelopedNodes);
-    }
-
-    vector<pair<int, int>>().swap(SortedNodeidCounts);
-    cout << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    resultLogFile << "\n Number of nodes Already present in seed set = " << alreadyinSeed.size() << endl;
-    cout << "Printing the nodes already in seed that were not added to modNodes" << endl;
-    myfile << "Printing the nodes already in seed that were not added to removeNodes" << endl;
-    printSet(alreadyinSeed);
-
-    int numEdgesAtStart = topKInflWithSeedGraph->m;
-    int totalNumEdgesToDelete = 0;
-
-    for (int nodeToRemove:nodesToRemove) {
-
-        int totalEdgesInTransGraphPre = 0;
-        int totalEdgesInOrigGraphPre = 0;
-        int numEdgesToDelete = 0;
-
-        if (tshoot1) {
-            for (int k = 0; k < topKInflWithSeedGraph->graphTranspose.size(); k++) {
-                totalEdgesInTransGraphPre += topKInflWithSeedGraph->graphTranspose[k].size();
-                if (k == nodeToRemove) {
-                    numEdgesToDelete += topKInflWithSeedGraph->graphTranspose[k].size();
-                }
-            }
-            for (int k = 0; k < topKInflWithSeedGraph->graph.size(); k++) {
-                totalEdgesInOrigGraphPre += topKInflWithSeedGraph->graph[k].size();
-                if (k == nodeToRemove) {
-                    numEdgesToDelete += topKInflWithSeedGraph->graph[k].size();
-                }
-            }
-        }
-
-        totalNumEdgesToDelete += numEdgesToDelete;
-        topKInflWithSeedGraph->removeOutgoingEdges(nodeToRemove);
-        assert(("Here . .. .", topKInflWithSeedGraph->graph[nodeToRemove].size() == 0));
-        assert(("Here . .. .", topKInflWithSeedGraph->graphTranspose[nodeToRemove].size() == 0));
-        topKInflWithSeedGraph->assertCorrectNodesAreDeleted(nodeToRemove, numEdgesToDelete, totalEdgesInOrigGraphPre,
-                                                      totalEdgesInTransGraphPre);
-    }
-    assert(("Mismatch in modNodesToRemove", nodesToRemove.size() == removeNodes));
-
-
-    if (tshoot1) {
-        int totalNumOfEdges = 0;
-        for (int k = 0; k < topKInflWithSeedGraph->graph.size(); k++) {
-            totalNumOfEdges += topKInflWithSeedGraph->graph[k].size();
-        }
-        assert(("removeVertices() Divergence betn something", totalNumOfEdges ==
-                                                              numEdgesAtStart - totalNumEdgesToDelete));
-    }
-
-    if (tshoot) {
-        cout << "Printing the transposed graph after the nodes have been deleted: " << endl;
-        print2DVector(topKInflWithSeedGraph->graphTranspose);
-    }
-
-    vector<int>().swap(topKInflWithSeedGraph->NodeinRRsetsWithCounts);
-    topKInflWithSeedGraph->NodeinRRsetsWithCounts = vector<int>(n, 0);
-    topKInflWithSeedGraph->generateRandomRRSetsFromTargets(R, activatedSet, "modular", resultLogFile);
-    modStrength = 0;
-    for (int i = 0; i < topKInflWithSeedGraph->NodeinRRsetsWithCounts.size(); i++) {
-        modStrength += topKInflWithSeedGraph->NodeinRRsetsWithCounts[i];
-    }
-    cout << "\n \n After removing Modular Strength is " << modStrength;
-    resultLogFile << "\n \n After removing Modular Strength is " << modStrength;
-    myfile << modStrength << " <-ModStrength\n";
-    vector<vector<int>>().swap(topKInflWithSeedGraph->rrSets);
-//    vector<int>().swap(influencedGraph->NodeinRRsetsWithCounts);
-    return nodesToRemove;
-}
-
-void runTopKInflWithSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &topKInflWithSeed_NodesToRemove,
-                                                 vector<int> &topKInflWithSeed_NodesToRemove_Unsorted){
-
-    float percentageTargetsFloat = (float) percentageTargets / (float) 100;
-
-    unique_ptr<Graph> topKInflWithSeedGraph = make_unique<Graph>();
-    topKInflWithSeedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
-    if (!useIndegree) {
-        topKInflWithSeedGraph->setPropogationProbability(probability);
-    }
-    vector<int> activatedSet = vector<int>(topKInflWithSeedGraph->n);
-    for (int i = 0; i < topKInflWithSeedGraph->n; i++) {
-        activatedSet[i] = i;
-    }
-    topKInflWithSeed_NodesToRemove = topKInflWithSeed_RemoveNodes(topKInflWithSeedGraph, activatedSet, removeNodes,
-                                                              maxInfluenceSeed, envelopedNodes,
-                                                              topKInflWithSeed_NodesToRemove_Unsorted);
-
-    vector<vector<int>>().swap(topKInflWithSeedGraph->rrSets);
-    topKInflWithSeedGraph.reset();
-}
-
 void newDiffusion(
                   unique_ptr<Graph> &modImpactGivenSeedGraph, unique_ptr<Graph> &subModGivenSeedGraph,
                   set<int> &modImpactGivenSeedNodesToRemove, set<int> &subModGivenSeedNodesToRemove,
@@ -675,12 +348,12 @@ void newDiffusion(
         //Print out nodes to be removed only for myfile
         //Nodes are printed out in the order that they were added in - so most strength to least strength
         cout << flush;
-        myfile << "\nnodes To remove in modImpactGivenSeedGraph graph: ";
+        myfile << "\nnodes To remove in modImpactGivenSeedGraph graph: " << endl;
         for (int i:modImpactGivenSeedNodesToRemoveUnsorted) {
             myfile << i << " ";
         }
         cout << flush;
-        myfile << "\nnodes To remove in subModGivenSeedGraph graph: ";
+        myfile << "\nnodes To remove in subModGivenSeedGraph graph: " << endl;
         for (int i:subModGivenSeedNodesToRemoveUnsorted) {
             myfile << i << " ";
         }
@@ -762,6 +435,7 @@ void newDiffusion(
             myfile << infNum << "\n";
 
             k++;
+            myfile << endl;
         }
     } else {
         cout << "\n\nUsing the best seed in EACH graph" << endl;
@@ -1226,7 +900,7 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
                                 / (CLOCKS_PER_SEC * 60);
 
     cout << "modImpactGivenSeed algorithm time in minutes " << totalModImpactTime << endl;
-    myfile << totalModImpactTime << " <-modImpactGivenSeed_Time\n";
+    myfile << totalModImpactTime << " <-modImpactGivenSeed_Time\n" << endl;
 
     cout << "Breakup of time taken: " << endl;
     cout << "Time for generating RRSets: " << double (timeForGeneratingRRSets - subModReverseStartTime) / (CLOCKS_PER_SEC * 60) << endl;
@@ -1285,7 +959,7 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
     cout << "modImpact Time: " << totalModImpactTime << endl;
     cout << "subMod Time: " << (double (sumModGivenSeedTimeEnd - sumModGivenSeedTimeStart) / (CLOCKS_PER_SEC * 60)) << endl;
 
-    myfile << totalAlgorithmTime << " <- subModGivenSeed Time\n";
+    myfile << totalAlgorithmTime << " <- subModGivenSeed Time\n" << endl;
     return subModGivenSeedNodesToRemove;
 }
 
