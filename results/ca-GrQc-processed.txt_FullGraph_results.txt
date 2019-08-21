@@ -12207,3 +12207,53 @@ modTopInfl topKInflGivenSeed ModImpactGivenSeed SubModGivenSeed
 1184		1182		958		822
 0.192729 <-modImpactGivenSeedGain
 0.306278 <-subModGivenSeedGain
+
+10 <-SeedSetSize
+10 <-removeNodes
+Max influence Seed Set in the original graph: 
+4 0 392 92 510 19 998 557 2546 355 
+1903 <-MaxInfluence Num
+1567623 <-InitialStrength
+Printing the nodes already in seed that were not added to removeNodes
+0 4 19 92 
+1209247 <-ModStrength
+0.03905 <-ModStrengthTime
+1571656 <-InitialStrength_topKInflWithSeed
+Printing the nodes already in seed that were not added to removeNodes
+0 4 19 92 
+1210149 <-ModStrength
+0.04375 <-topKInflWithSeedTime
+Printing nodes not added to modImpactGivenSeed method because they were in seedSet: 
+
+0.290117 <-modImpactGivenSeed_Time
+Printing nodes in alreadyinSeed that were not added to subModGivenSeedNodesToRemove:
+
+1570588 <-subModStrengthGivenSeed Init Strength
+1217950 <-subModStrengthGivenSeed
+0.488817 <- subModGivenSeed Time
+
+
+nodes To remove in mod graph:	 23 47 802 15 2 9 1 3 20 807 
+
+nodes To remove in topKInflGivenSeed graph:	 23 47 802 15 9 2 1 3 20 807 
+nodes To remove in modImpactGivenSeedGraph graph: 23 47 802 15 20 6 17 145 100 5 
+nodes To remove in subModGivenSeedGraph graph: 23 15 20 6 129 17 5 133 16 823 
+
+intersection of modTopKInfl and topKInflWithSeedGraph nodes to remove 10
+intersection of modTopKInfl and modImpactGivenSeed nodes to remove 5
+intersection of modTopKInfl and subModGivenSeed nodes to remove 3
+intersection of topKInflGivenSeedGraph and modImpactGivenSeed nodes to remove 5
+intersection of topKInflGivenSeedGraph and subModGivenSeed nodes to remove 3
+intersection of modImpactGivenSeed and subModGivenSeed nodes to remove 6
+
+Chosen MaxInfl Seed Set to perform diffusion: 
+0 4 19 92 355 392 510 557 998 2546 
+Using the best seed found at the start of the experiment
+
+
+modTopInfl topKInflGivenSeed ModImpactGivenSeed SubModGivenSeed
+1188		1191		1004		792
+1192		1194		1011		789
+1193		1190		1009		787
+0.153654 <-modImpactGivenSeedGain
+0.337246 <-subModGivenSeedGain

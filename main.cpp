@@ -3,7 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
-//  Last Updated: 16thAugust 11:55am
+//  Updated by: rgbk21
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -85,17 +85,19 @@ int nodeNumBeingRemovedGlobal = 20;
 
 /*List of warnings:
  *
- * This branch only contains the modTopInfl and the GIVEN_SEED methods. Other methods have been deleted. This is the code that we use for running the
- * Experiment 1 that has been discussed in the meetings.
+ * This branch contains the modTopKInfl, modTopKInfl_GivenSeed and the topCrit_GIVEN_SEED methods. Other methods have been deleted.
+ * This will be merged into master as a UNION of all the methods that have been written.
+ * Note that this DOES NOT contain the topCrit methods where we were removing the critNodes when NO SeedSet context was provided to us.
+ * That code is in a spearate branch of its own.
  *
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
  * are going to run those experiments.
  *
- * 2) Uncomment the countGraph and the topKInfl metods if you want to run them
+ * 2) Uncomment the countGraph and the topKInfl methods if you want to run them
  *
  * 3) In removeSeedSetNodeFromDependencyVector() there is an assert statement. Set tshoot to false when actually running the program.
- * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually runnning.
+ * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually running.
  * 5) generateRRSetsForSubModTopCrit() has an assert statement that has been commented out. Reintroduce if testing code.
  * 6) removed a bunch of testMethods from the subModTopCrit method. Reintroduce if testing the code?
  * 7) removeCritNodeWithCriticalityUpdate() contains assert statements that have been disabled/enabled using the tshoot boolean.
@@ -1093,8 +1095,36 @@ void computeModImpactGivenSeedNodesToRemove(unique_ptr<Graph> &subModGivenSeedGr
     alreadyinSeed.clear();
 }
 
+
+bool checkReachabilityOfSeedFromSource(unique_ptr<Graph> &influencedGraph, int nodeBeingRemoved, int rrSetId, vector<vector<int>> &myMiniRRGraph,
+                                       unique_ptr<vector<bool>> &isSeed) {
+
+    myMiniRRGraph[nodeBeingRemoved].clear();                                        //Remove all outgoing edges from the nodeBeingRemoved because it was the critNode that was chosen to be deleted
+    if((*isSeed)[0]) return true;
+    vector<bool> visitedBFS = vector<bool>(myMiniRRGraph.size(), false);            //Mark all the vertices as not visited
+    deque<int> queue;                                                               //Create a queue for BFS
+    visitedBFS[0] = true;                                                           //Mark the current node as visited
+    queue.push_back(0);                                                             //And add it to the queue
+
+    while (!queue.empty()) {
+        int u = queue.front();
+        queue.pop_front();
+        for (int i = 0; i < myMiniRRGraph[u].size(); i++) {
+            int v = myMiniRRGraph[u][i];
+            if (!visitedBFS[v]) {
+                visitedBFS[v] = true;
+                queue.push_back(v);
+                if((*isSeed)[v]){
+                    return true;                                                    //Because the seed was reachble
+                }
+            }
+        }
+    }
+    return false;
+}
+
 void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influencedGraph,
-                                    vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
+                                         vector<int> &dependencyValues, vector<pair<int, int>> &ASdegree) {
 
     bool tshoot = false;//WARNING:controls assert statement
     bool tshoot1 = false;//Controls PAUUUUUZZZE
@@ -1102,6 +1132,8 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
     cout << "Removing critNode: " << critNode << endl;
     dependValues << "Removing critNode: " << critNode << endl;
     tshootingFile << " -------------------------- " << endl;
+    unordered_map<int, int>::const_iterator got;
+    int critNodeMappedToIndex = -1;
 
     for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains critNode)
         int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
@@ -1113,15 +1145,45 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
             }
         }
         if(rrSetContainsSeed){                                                                                          //Reduce the dependencyValue of the nodes in this rrSet only if they contains some seed
-            for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
-                if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
-                    dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[index]] -= 1;                           //..and should have their dependencyValue reduced
-                    (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
+
+            got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);                                              //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the seedSetNode
+            if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
+                critNodeMappedToIndex = got->second;
+            }
+            if(checkReachabilityOfSeedFromSource(influencedGraph, critNodeMappedToIndex, rrSetId, (*influencedGraph->miniRRGraphsVector[rrSetId]),
+                                                 influencedGraph->isSeedVector[rrSetId])){
+
+                //Reset the dependencyValues
+                for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
+                    if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
+                        dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[index]] -= 1;                           //..and should have their dependencyValue reduced
+                        (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
+                    }
                 }
+
+                //Recompute the dependencyValues
+                for(int k = 0; k < (*influencedGraph->miniRRGraphsVector[rrSetId]).size(); k++){
+                    if (isVertexCritical(influencedGraph, k, rrSetId, (*influencedGraph->miniRRGraphsVector[rrSetId]), influencedGraph->isSeedVector[rrSetId])) {
+                        (*influencedGraph->isCriticalVector[rrSetId])[k] = true;
+                        //increment the dependencyValue of k
+                        int vertex = (*influencedGraph->indexToVertex[rrSetId])[k];                                     //find the vertex that was mapped to that index
+                        dependencyValues[vertex] += 1;                                                                  //Add the value to the existing dependencyValues of that vertex
+                    }
+                }
+            }else{
+                //The seedSet was no longer reachable
+                for(int index = 0; index < (*influencedGraph->isCriticalVector[rrSetId]).size(); index++){                  //isCritical for a vertex v was supposed to be TRUE only if removing the vertex v disconnected all the seedSetNodes from the source
+                    if((*influencedGraph->isCriticalVector[rrSetId])[index]){                                               //Now since we are deleting v, all the other vertices in this rrSet for which isCritical was set to TRUE, should now become FALSE.
+                        dependencyValues[(*influencedGraph->indexToVertex[rrSetId])[index]] -= 1;                           //..and should have their dependencyValue reduced
+                        (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
+                    }
+                }
+
             }
         }
     }
-    assert(("WELL. FUCKING. DONE.", dependencyValues[critNode] == 0));
+
+    assert(("Check dependency values.", dependencyValues[critNode] == 0));
     reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
     if(tshoot){
         inSanityCheck(influencedGraph, dependencyValues);
@@ -1129,6 +1191,7 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
     }
     nodeNumBeingRemovedGlobal++;
 }
+
 
 void computeSubModGivenSeedNodesToRemove(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
                                     vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
@@ -1168,11 +1231,11 @@ void computeSubModGivenSeedNodesToRemove(unique_ptr<Graph> &influencedGraph, int
 }
 
 
-set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
-                                  const set<int> &maxSeedSet, const set<int> &envelopedNodes,
-                                  set<int> &modImpactGivenSeedNodesToRemove,
-                                  vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
-                                  vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
+set<int> topCritGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
+                                     const set<int> &maxSeedSet, const set<int> &envelopedNodes,
+                                     set<int> &modImpactGivenSeedNodesToRemove,
+                                     vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
+                                     vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
 
     bool tshoot = true;//Prints the dependency values for before the seedSetNodes are removed to the file
     bool tshoot1 = true;//Prints the node being removed in each iteration
@@ -1282,7 +1345,7 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
     return subModGivenSeedNodesToRemove;
 }
 
-void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
+void runTopCritGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
                       set<int> &modImpactGivenSeedNodesToRemove,
                       vector<int> &subModGivenSeedNodesToRemoveUnsorted,
                       vector<int> &modImpactGivenSeedNodesToRemoveUnsorted){
@@ -1298,11 +1361,11 @@ void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, se
     for (int i = 0; i < subModGivenSeedGraph->n; i++) {
         activatedSet[i] = i;
     }
-    subModGivenSeedNodesToRemove = subModGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
-                                                            maxInfluenceSeed, envelopedNodes,
-                                                            modImpactGivenSeedNodesToRemove,
-                                                            modImpactGivenSeedNodesToRemoveUnsorted,
-                                                            subModGivenSeedNodesToRemoveUnsorted);
+    subModGivenSeedNodesToRemove = topCritGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
+                                                               maxInfluenceSeed, envelopedNodes,
+                                                               modImpactGivenSeedNodesToRemove,
+                                                               modImpactGivenSeedNodesToRemoveUnsorted,
+                                                               subModGivenSeedNodesToRemoveUnsorted);
 
     vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
     subModGivenSeedGraph->dependancyVector.clear();
@@ -1447,14 +1510,14 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    cout << "\n ******* Running the subModular algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
+    cout << "\n ******* Running the topCrit algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
 
     set<int> subModGivenSeedNodesToRemove;
     set<int> modImpactGivenSeedNodesToRemove;
     vector<int> subModGivenSeedNodesToRemoveUnsorted;
     vector<int> modImpactGivenSeedNodesToRemoveUnsorted;
 
-    runSubModGivenSeed(maxInfluenceSeed, envelopedNodes, subModGivenSeedNodesToRemove, modImpactGivenSeedNodesToRemove,
+    runTopCritGivenSeed(maxInfluenceSeed, envelopedNodes, subModGivenSeedNodesToRemove, modImpactGivenSeedNodesToRemove,
                        subModGivenSeedNodesToRemoveUnsorted, modImpactGivenSeedNodesToRemoveUnsorted);
 
     //******************************************************************************************************************
