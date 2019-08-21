@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Updated by: rgbk21
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -1494,18 +1495,23 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     tshootingFile << "dValue | totalValue " << endl;
     int dValue = 0;//Counts the actual dValue (add to final values only if reachableFromSource)
     int value = 0;  //Counts the total number of vertices whose reachability was dependent on critNode
-//    for(int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++){
-//        int rrSetId = influencedGraph->inRRSet[critNode][i];
-//        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);
-//        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
-//            for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
-//                if((*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
-//                    if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]) dValue++;
-//                    value++;
-//                }
-//            }
-//        }
-//    }
+
+    //Doing some stuff for testing probably. No longer remember it now. lol
+    /*
+    for(int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++){
+        int rrSetId = influencedGraph->inRRSet[critNode][i];
+        unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);
+        if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {
+            for(int j = 0; j < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); j++){
+                if((*influencedGraph->dependancyVector[rrSetId])[got->second][j]){
+                    if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]) dValue++;
+                    value++;
+                }
+            }
+        }
+    }
+     */
+
     tshootingFile << dValue << " " << value << endl;
     tshootingFile << "Actual dependencyValue: " << dependencyValues[critNode] << endl;
 
@@ -1977,20 +1983,22 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
 
     clock_t timeForGeneratingRRSets = clock();
 
-//
-//    cout << "Counting the number of times this particular node was picked" << endl;
-//
-//    for(int i = 0; i < subModTopCritGraph->timesThisNodeWasPicked.size(); i++){
-//        cout << i << " " << subModTopCritGraph->timesThisNodeWasPicked[i] << endl;
-//    }
+    //Code for testing some stuff
+    /*
+    cout << "Counting the number of times this particular node was picked" << endl;
 
-//    cout << "Printing All RRSets" << endl;
-//    for(int i = 0; i < subModTopCritGraph->rrSets.size(); i++){
-//        for(int j = 0; j < subModTopCritGraph->rrSets[i].size(); j++){
-//            cout << subModTopCritGraph->rrSets[i][j] << " ";
-//        }
-//        cout << endl;
-//    }
+    for(int i = 0; i < subModTopCritGraph->timesThisNodeWasPicked.size(); i++){
+        cout << i << " " << subModTopCritGraph->timesThisNodeWasPicked[i] << endl;
+    }
+
+    cout << "Printing All RRSets" << endl;
+    for(int i = 0; i < subModTopCritGraph->rrSets.size(); i++){
+        for(int j = 0; j < subModTopCritGraph->rrSets[i].size(); j++){
+            cout << subModTopCritGraph->rrSets[i][j] << " ";
+        }
+        cout << endl;
+    }
+     */
 
     //This is for testing to see what are the dependencyValues that we are starting with
     if(tshoot){
@@ -2058,27 +2066,30 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     alreadyinSeed = set<int>();
     clock_t sumModCritTimeStart = clock();
 
-//    vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
-//    for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
-//        copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
-//        for(int j = 0; j < (*subModTopCritGraph->dependancyVector[rrSetId]).size(); j++){
-//            copyOfDependencyVector[rrSetId][j] = (*subModTopCritGraph->dependancyVector[rrSetId])[j];
-//        }
-//    }
-//
-//    vector<vector<vector<int>>> copyOfMiniRRGraphVector = vector<vector<vector<int>>>(subModTopCritGraph->miniRRGraphsVector.size());
-//    for(int rrSetId = 0; rrSetId < copyOfMiniRRGraphVector.size(); rrSetId++){
-//        copyOfMiniRRGraphVector[rrSetId] = vector<vector<int>>((*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size());
-//        for(int j = 0; j < (*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size(); j++){
-//            copyOfMiniRRGraphVector[rrSetId][j] = (*subModTopCritGraph->miniRRGraphsVector[rrSetId])[j];
-//        }
-//    }
+    //Older stuff that we were suing for testing
     /*
+    vector<vector<vector<bool>>> copyOfDependencyVector = vector<vector<vector<bool>>>(subModTopCritGraph->dependancyVector.size());
+    for(int rrSetId = 0; rrSetId < copyOfDependencyVector.size(); rrSetId++){
+        copyOfDependencyVector[rrSetId] = vector<vector<bool>>((*subModTopCritGraph->dependancyVector[rrSetId]).size());
+        for(int j = 0; j < (*subModTopCritGraph->dependancyVector[rrSetId]).size(); j++){
+            copyOfDependencyVector[rrSetId][j] = (*subModTopCritGraph->dependancyVector[rrSetId])[j];
+        }
+    }
+
+    vector<vector<vector<int>>> copyOfMiniRRGraphVector = vector<vector<vector<int>>>(subModTopCritGraph->miniRRGraphsVector.size());
+    for(int rrSetId = 0; rrSetId < copyOfMiniRRGraphVector.size(); rrSetId++){
+        copyOfMiniRRGraphVector[rrSetId] = vector<vector<int>>((*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size());
+        for(int j = 0; j < (*subModTopCritGraph->miniRRGraphsVector[rrSetId]).size(); j++){
+            copyOfMiniRRGraphVector[rrSetId][j] = (*subModTopCritGraph->miniRRGraphsVector[rrSetId])[j];
+        }
+    }
+
 
     computeSubModNodesUsingTopCrit_old(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
                                envelopedNodes,
                                subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed, copyOfDependencyVector);
     */
+
     computeSubModNodesUsingTopCrit(subModTopCritGraph, removeNodes, dependencyValues, ASdegree, maxSeedSet,
                                    envelopedNodes,
                                    subModTopCritNodesToRemove, subModTopCritNodesToRemoveUnsorted, alreadyinSeed /*,
@@ -2302,7 +2313,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     string convertedFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + graphFileName;
 
-    //We don't need to call this.
+    //We don't need to call this because this branch is the version where we were only doing the Experiment2.
+    //So since we do not have a seed with us, we cannot calculate the influence or anything of that sort.
 //    newDiffusion(modNewGraph,
 //                 modImpactTopCritGraph, subModTopCritGraphNew,
 //                 modNodesToremove, modImpactTopCritNodesToRemove, subModTopCritNodesToRemove,
