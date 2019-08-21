@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Updated by: rgbk21
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -83,6 +84,10 @@ int nodeNumBeingRemovedGlobal = 20;
 //Global variables for testing end here
 
 /*List of warnings:
+ *
+ * topCrit method uses the version where we are trying to find the critNodes without any seedSet context provided to us.
+ *
+ *
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
  * are going to run those experiments.
