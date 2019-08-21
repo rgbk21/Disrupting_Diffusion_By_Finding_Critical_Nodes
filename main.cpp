@@ -1202,11 +1202,11 @@ void computeSubModGivenSeedNodesToRemove(unique_ptr<Graph> &influencedGraph, int
 }
 
 
-set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
-                                  const set<int> &maxSeedSet, const set<int> &envelopedNodes,
-                                  set<int> &modImpactGivenSeedNodesToRemove,
-                                  vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
-                                  vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
+set<int> topCritGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, const vector<int> &activatedSet, int removeNodes,
+                                     const set<int> &maxSeedSet, const set<int> &envelopedNodes,
+                                     set<int> &modImpactGivenSeedNodesToRemove,
+                                     vector<int> &modImpactGivenSeedNodesToRemoveUnsorted,
+                                     vector<int> &subModGivenSeedNodesToRemoveUnsorted) {
 
     bool tshoot = true;//Prints the dependency values for before the seedSetNodes are removed to the file
     bool tshoot1 = true;//Prints the node being removed in each iteration
@@ -1316,10 +1316,10 @@ set<int> subModGivenSeedNodesRemove(unique_ptr<Graph> &subModGivenSeedGraph, con
     return subModGivenSeedNodesToRemove;
 }
 
-void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
-                      set<int> &modImpactGivenSeedNodesToRemove,
-                      vector<int> &subModGivenSeedNodesToRemoveUnsorted,
-                      vector<int> &modImpactGivenSeedNodesToRemoveUnsorted){
+void runTopCritGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<int> &subModGivenSeedNodesToRemove,
+                         set<int> &modImpactGivenSeedNodesToRemove,
+                         vector<int> &subModGivenSeedNodesToRemoveUnsorted,
+                         vector<int> &modImpactGivenSeedNodesToRemoveUnsorted){
 
     float percentageTargetsFloat = (float) percentageTargets / (float) 100;
 
@@ -1332,11 +1332,11 @@ void runSubModGivenSeed(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, se
     for (int i = 0; i < subModGivenSeedGraph->n; i++) {
         activatedSet[i] = i;
     }
-    subModGivenSeedNodesToRemove = subModGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
-                                                            maxInfluenceSeed, envelopedNodes,
-                                                            modImpactGivenSeedNodesToRemove,
-                                                            modImpactGivenSeedNodesToRemoveUnsorted,
-                                                            subModGivenSeedNodesToRemoveUnsorted);
+    subModGivenSeedNodesToRemove = topCritGivenSeedNodesRemove(subModGivenSeedGraph, activatedSet, removeNodes,
+                                                               maxInfluenceSeed, envelopedNodes,
+                                                               modImpactGivenSeedNodesToRemove,
+                                                               modImpactGivenSeedNodesToRemoveUnsorted,
+                                                               subModGivenSeedNodesToRemoveUnsorted);
 
     vector<vector<int>>().swap(subModGivenSeedGraph->rrSets);
     subModGivenSeedGraph->dependancyVector.clear();
@@ -1466,15 +1466,15 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    cout << "\n ******* Running the subModular algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
+    cout << "\n ******* Running the topCrit algo GIVEN THE SEED SET NODES approach ******** \n" << endl;
 
     set<int> subModGivenSeedNodesToRemove;
     set<int> modImpactGivenSeedNodesToRemove;
     vector<int> subModGivenSeedNodesToRemoveUnsorted;
     vector<int> modImpactGivenSeedNodesToRemoveUnsorted;
 
-    runSubModGivenSeed(maxInfluenceSeed, envelopedNodes, subModGivenSeedNodesToRemove, modImpactGivenSeedNodesToRemove,
-                       subModGivenSeedNodesToRemoveUnsorted, modImpactGivenSeedNodesToRemoveUnsorted);
+    runTopCritGivenSeed(maxInfluenceSeed, envelopedNodes, subModGivenSeedNodesToRemove, modImpactGivenSeedNodesToRemove,
+                        subModGivenSeedNodesToRemoveUnsorted, modImpactGivenSeedNodesToRemoveUnsorted);
 
     //******************************************************************************************************************
 
