@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Updated by: rgbk21
 //  Last Updated: 16thAugust 11:55am
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
@@ -85,7 +86,7 @@ int nodeNumBeingRemovedGlobal = 20;
 
 /*List of warnings:
  *
- * This branch only contains the modTopInfl and the GIVEN_SEED methods. Other methods have been deleted. This is the code that we use for running the
+ * This branch only contains the modTopKInfl_GivenSeed and the topCrit_GIVEN_SEED methods. Other methods have been deleted. This is the code that we use for running the
  * Experiment 1 that has been discussed in the meetings.
  *
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
