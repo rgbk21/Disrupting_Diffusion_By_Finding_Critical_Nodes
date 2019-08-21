@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Updated by: rgbk21
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
 
@@ -85,6 +86,14 @@ double numOfRRSetsThatContainSeed = 0;
 //Global variables for testing end here
 
 /*List of warnings:
+ * The newer version of subMod and mod topCrit ahs been modified in this branch.
+ * In this branch we are only looking that those RRSets that contains some SeedSetNode.
+ * i.e. dependencyMatrix of a rrSet is computed only if that particular rrSet contains some seedSetNode.
+ * This was, again, only for testing purposes. This version should not have been used in any of the other branches.
+ *
+ * This branch of code also contains the olderVersion of seubMod algorithm as well, where were supposedly only zeroing out the row and the column containing
+ * the critNode being removed.
+ *
  * 1) If you are trying to find the best seed set for each set of methods and not at the start of the experiment, remember that you have added some additional
  * methods. And you are not passing the removeNode set<> into the getSeed() method for those newly added methods. SO make sure you chagne that if you
  * are going to run those experiments.
@@ -2071,6 +2080,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains node)
         int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
         //WARNING: This is because of the same reason why we changed the modImpact algorithm.
+        //WARNING!!! We are adding this condition because we want to now look at only those rrSets that actually contain some seedSetNode
         if(influencedGraph->rrSetContainsSeed[rrSetId]){
             unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);          //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
             if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the critNode being removed
@@ -2329,7 +2339,7 @@ void computeDependencyValuesForModImpact(vector<int> &dependencyValues, unique_p
 
 
 //Newer version of the method. Use this method only if the dependencyValues have been already updated,
-//and all you have to do is sort them in orfder to find out the top-k nodes to be removed by the subModImpactTopCrit method.
+//and all you have to do is sort them in order to find out the top-k nodes to be removed by the subModImpactTopCrit method.
 void computeModImpactTopCritNodes(unique_ptr<Graph> &influencedGraph, int removeNodes, vector<int> &dependencyValues,
                                   vector<pair<int, int>> &ASdegree, const set<int> &maxSeedSet,
                                   const set<int> &envelopedNodes,
@@ -3572,8 +3582,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    cout << "\n \n ******* Running Sub Modular approach ******** \n" << flush;
-    resultLogFile << "\n \n ******* Running Sub Modular approach ******** \n" << flush;
+    cout << "\n \n ******* Running Older Sub Modular approach ******** \n" << flush;
+    resultLogFile << "\n \n ******* Running Older Sub Modular approach ******** \n" << flush;
 
     unique_ptr<Graph> subInfluencedGraph = make_unique<Graph>();
     subInfluencedGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
