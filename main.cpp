@@ -1,4 +1,4 @@
-//
+// This was the original: IAmSoScrewed - Branch
 //  main.cpp
 //  InfluenceMaximization
 //
