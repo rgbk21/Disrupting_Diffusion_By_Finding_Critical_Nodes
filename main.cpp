@@ -3,6 +3,7 @@
 //  InfluenceMaximization
 //
 //  Created by Madhavan R.P on 8/4/17.
+//  Updated by: rgbk21
 //  Last Updated: 16thAugust 11:55am
 //  Copyright © 2017 Madhavan R.P. All rights reserved.
 //
@@ -790,7 +791,6 @@ void removeCritNodeWithCriticalityUpdate(int critNode, unique_ptr<Graph> &influe
                         (*influencedGraph->isCriticalVector[rrSetId])[index] = false;
                     }
                 }
-
             }
         }
     }
