@@ -834,11 +834,11 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
     cout << "Average size is: " << (float) totalSize / (float) R << endl;
 
 
-    resultLogFile << "\n Generated reverse" << R << " RR sets\n";
-    resultLogFile << "Elapsed time " << elapsed_secs;
-    resultLogFile << " \n Time per RR Set is " << elapsed_secs / R;
-    resultLogFile << "\n Total Size is " << totalSize << flush;
-    resultLogFile << "\n Average size is " << (float) totalSize / (float) R;
+    resultLogFile << "\n Generated reverse" << R << " RR sets\n" << endl;
+    resultLogFile << "Elapsed time " << elapsed_secs << endl;
+    resultLogFile << " \n Time per RR Set is " << elapsed_secs / R << endl;
+    resultLogFile << "\n Total Size is " << totalSize << endl;
+    resultLogFile << "\n Average size is " << (float) totalSize / (float) R << endl;
 }
 
 void Graph::generateRandomRRSetwithRRgraphs_Interleaved(int randomVertex, int rrSetID) {

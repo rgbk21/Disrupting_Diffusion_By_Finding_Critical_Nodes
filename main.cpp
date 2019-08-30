@@ -57,7 +57,7 @@ int initialSeed;
 int newSeed;
 int diffusion;
 ofstream myfile;
-ofstream dependValues;
+ofstream consoleOutput;
 ofstream tshootingFile;
 bool fullgraph = false;
 ofstream resultLogFile;
@@ -283,11 +283,11 @@ removeVertices(unique_ptr<Graph> &influencedGraph, int removeNodes, const set<in
     myfile << modStrength << " <-InitialStrength" << endl;
 
     if (tshoot3) {
-        dependValues << "Printing modular values for all of the nodes:" << endl;
+        consoleOutput << "Printing modular values for all of the nodes:" << endl;
         for (int i = 0; i < influencedGraph->NodeinRRsetsWithCounts.size(); i++) {
-            dependValues << influencedGraph->NodeinRRsetsWithCounts[i] << endl;
+            consoleOutput << influencedGraph->NodeinRRsetsWithCounts[i] << endl;
         }
-        dependValues << "-----DONE PRINTING------" << endl;
+        consoleOutput << "-----DONE PRINTING------" << endl;
     }
 
     //clearing the memory
@@ -955,11 +955,11 @@ void reComputeDependencyValues(vector<int> &dependencyValues, unique_ptr<Graph> 
         node.second = dependencyValues[i];
         ASdegree.push_back(node);
         if (tshoot) {
-            dependValues << dependencyValues[i] << endl;
+            consoleOutput << dependencyValues[i] << endl;
         }
     }
 
-    dependValues << "---------------------------------------" << endl;
+    consoleOutput << "---------------------------------------" << endl;
     std::sort(ASdegree.begin(), ASdegree.end(), sortbysecdesc);
     assert(ASdegree.at(0).second >= ASdegree.at(1).second);
     reComputeDependencyValuesTime += (clock() - startTime);
@@ -1487,7 +1487,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     bool tshoot1 = false;//Controls PAUUUUUZZZE
 
     cout << "Removing critNode: " << critNode << endl;
-    dependValues << "Removing critNode: " << critNode << endl;
+    consoleOutput << "Removing critNode: " << critNode << endl;
     tshootingFile << "---- Removing critNode: " << critNode << endl;
     testCritNodesRemovedSoFar.push_back(critNode);//Global variable that stores the critNodes removed so far. Used for testing.
 
@@ -1512,22 +1512,12 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
     }
      */
 
-    tshootingFile << dValue << " " << value << endl;
-    tshootingFile << "Actual dependencyValue: " << dependencyValues[critNode] << endl;
-
-    tshootingFile << " -------------------------- " << endl;
-
     for (int i = 0; i < influencedGraph->inRRSet[critNode].size(); i++) {                                               //for each RRSet in inRRSet (each RRSet that contains node)
         int rrSetId = influencedGraph->inRRSet[critNode][i];                                                            //get the next RRSet that the node to be removed is in
         unordered_map<int, int>::const_iterator got = influencedGraph->vertexToIndex[rrSetId]->find(critNode);          //get the unordered_map corresp to that rrSetId & in that search for the index assoc. with the vertex/node
         if (got != influencedGraph->vertexToIndex[rrSetId]->end()) {                                                    //if vertex is found. got->second is the critNode being removed
-            if(nodeNumBeingRemovedGlobal < 5){
-                tshootingFile << "--------" << endl;
-                tshootingFile << "\nPre Values in rrSet: " << rrSetId << endl;
-                printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
-            }
             if ((*influencedGraph->reachableFromSourceVector[rrSetId])[got->second]){                                   //this if condition is triggered if the critNode was reachable From Source
-                tshootingFile << "rrSetId: " <<rrSetId << " - critNode reachable from Source" << endl;
+//                tshootingFile << "rrSetId: " <<rrSetId << " - critNode reachable from Source" << endl;
                 //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
                 for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++){             //for every vertex v in the row M[critNode]
                     if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second){              //if M[critNode][v] == 1 and v != critNode
@@ -1589,7 +1579,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                  * In this case, the critNode will have no outgoing edges.
                  * And its dependencyValues will not be considered in this case either.
                  * */
-                tshootingFile << "rrSetId: " <<rrSetId << " - critNode NOT reachable from Source" << endl;
+//                tshootingFile << "rrSetId: " <<rrSetId << " - critNode NOT reachable from Source" << endl;
                 //for every vertex v in the row of M[critNode] for which M[critNode][v] == 1
                 for(int v = 0; v < (*influencedGraph->dependancyVector[rrSetId])[got->second].size(); v++) {            //for every vertex v in the row M[critNode]
                     if((*influencedGraph->dependancyVector[rrSetId])[got->second][v] && v != got->second) {             //if M[critNode][v] == 1 and v != critNode
@@ -1672,13 +1662,6 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
 //        assertDependencyMatrixIsCorrect(influencedGraph, copyOfDependencyVector[rrSetId],
 //                                        copyOfMiniRRGraphsVector[rrSetId], influencedGraph->dependancyVector[rrSetId],
 //                                        rrSetId, critNode);
-
-        if(nodeNumBeingRemovedGlobal < 5){
-            tshootingFile << "\nPost Values in rrSet: " << rrSetId << endl;
-            printStuffToFile(influencedGraph, rrSetId, critNode, dependencyValues);
-            tshootingFile << "--------" << endl;
-        }
-
     }
     reComputeDependencyValues(dependencyValues, influencedGraph, ASdegree);    //Now recalculate the dependencyValues only for those nodes that have changed
 
@@ -1750,10 +1733,10 @@ void computeDependencyValuesForModImpact(vector<int> &dependencyValues, unique_p
 
     for (int i = 0; i < dependencyValues.size(); i++) {
         if (tshoot) {
-            dependValues << dependencyValues[i] << endl;
+            consoleOutput << dependencyValues[i] << endl;
         }
     }
-    if (tshoot) dependValues << "------------------------------------------------------------" << endl;
+    if (tshoot) consoleOutput << "------------------------------------------------------------" << endl;
 
     ASdegree = vector<pair<int, int>>();
     for (int i = 0; i < dependencyValues.size(); i++) {
@@ -1855,15 +1838,15 @@ void countingSeedSetNodesInEachRRGraph(unique_ptr<Graph> &influencedGraph, const
         }
     }
 
-    dependValues << "Counting the number of seedSet nodes in each RRGraph: " << endl;
-    dependValues << "22 1 means - rrSetID 22 had 1 seedSetVertex  " << endl;
+    consoleOutput << "Counting the number of seedSet nodes in each RRGraph: " << endl;
+    consoleOutput << "22 1 means - rrSetID 22 had 1 seedSetVertex  " << endl;
     for(int i = 0; i < numberOfSeedSetNodes.size(); i++){
         if(numberOfSeedSetNodes[i] > 0){
-            dependValues << i << " " << numberOfSeedSetNodes[i] << " : ";
+            consoleOutput << i << " " << numberOfSeedSetNodes[i] << " : ";
             for(int j = 0; j < seedNodesInEachRRSet[i].size(); j++){
-                dependValues << seedNodesInEachRRSet[i][j] << " ";
+                consoleOutput << seedNodesInEachRRSet[i][j] << " ";
             }
-            dependValues << endl;
+            consoleOutput << endl;
         }
     }
 
@@ -1945,12 +1928,12 @@ void computeDependencyValuesWithoutASdegree(vector<int> &dependencyValues, uniqu
 
     for (int i = 0; i < dependencyValues.size(); i++) {
         if (tshoot) {
-            dependValues << dependencyValues[i] << endl;
+            consoleOutput << dependencyValues[i] << endl;
         }
         //The dependencyValue of each vertex must ALTLEAST be the number of rrSets that it occurs in.
         assert(("Ooopsies!!" , dependencyValues[i] >= influencedGraph->inRRSet[i].size()));
     }
-    if (tshoot) dependValues << "------------------------------------------------------------" << endl;
+    if (tshoot) consoleOutput << "------------------------------------------------------------" << endl;
 
 }
 
@@ -1978,7 +1961,6 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     double epsilon = (double) EPSILON;
     int R = (8 + 2 * epsilon) * n * (2 * log(n) + log(2)) / (epsilon * epsilon);
     cout << "\nRR sets are: " << R << endl;
-    resultLogFile << "\nRR sets are: " << R << endl;
     subModTopCritGraph->generateRandomRRSetsFromTargets(R, activatedSet, "subModTopCrit", resultLogFile);
 
     clock_t timeForGeneratingRRSets = clock();
@@ -2003,8 +1985,8 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     //This is for testing to see what are the dependencyValues that we are starting with
     if(tshoot){
         cout << "\nPopulating dependency values BEFORE removing the seedSet Nodes:" << endl;
-        dependValues << "\nsubModTopCritNodesRemove()-Populating dependency values BEFORE removing the seedSet Nodes:"
-                     << endl;
+        consoleOutput << "\nsubModTopCritNodesRemove()-Populating dependency values BEFORE removing the seedSet Nodes:"
+                      << endl;
         computeDependencyValuesWithoutASdegree(dependencyValues, subModTopCritGraph);
         testDependencyValues = dependencyValues;
     }
@@ -2023,7 +2005,6 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     clock_t modImpactTimeStart = clock();
 
     cout << "\nComputing nodes to remove by the NEW_Mod Impact method" << endl;
-    dependValues << "\nsubModTopCritNodesRemove()-Populating dependency values AFTER removing the seedSet Nodes:" << endl;
 
     //Newer method where we calculate the
     dependencyValues = vector<int>(subModTopCritGraph->n, 0);
@@ -2056,12 +2037,12 @@ set<int> subModTopCritNodesRemove(unique_ptr<Graph> &subModTopCritGraph, vector<
     cout << endl;
     cout << endl;
 
-    dependValues << "\n\n******* Completed NEW_Mod Impact approach ********" << endl;
+    consoleOutput << "\n\n******* Completed NEW_Mod Impact approach ********" << endl;
 
     /***************************************************************************************************************************************/
 
     cout << "******* Running NEW_SubMod approach ********" << endl;
-    dependValues << "******* Running NEW_SubMod approach ********" << endl;
+    consoleOutput << "******* Running NEW_SubMod approach ********" << endl;
 
     alreadyinSeed = set<int>();
     clock_t sumModCritTimeStart = clock();
@@ -2171,7 +2152,6 @@ void runSubModTopCrit(set<int> &maxInfluenceSeed, set<int> &envelopedNodes, set<
 /************************************************ SUB MODULAR GIVEN THE SEED SET NODES STARTS *******************************************************/
 
     //THIS BRANCH DOES NOT CONTAIN THIS CODE BECAUSE THIS BRANCH IS ONLY FOR THE EXPERIMENT 2
-    //FOR ONLY THIS CODE AND THE OTHER CODE WRITTEN FOR EXPERIMENT 1, LOOK AT CodeContainingOnlyThe_GIVEN_SEED_Method
 
 /************************************************ SUB MODULAR GIVEN THE SEED SET NODES ENDS *******************************************************/
 
@@ -2273,6 +2253,9 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     }
 
+    //For this branch we are assuming that there are certain nodes that you cannot remove/are not plausible to be affected by the misinformation
+    //How are the criticalNodes detected by the algorithm affected in that case?
+
     assert(maxInfluenceSeed.empty());
 
     //******************************************************************************************************************
@@ -2289,7 +2272,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
     //******************************************************************************************************************
 
-    resultLogFile << "\n\n******* Node removed in all approaches ********\n" << flush;
+    resultLogFile << "\n\n******* Node removed in all approaches ********\n" << endl;
 
     unique_ptr<Graph> modNewGraph = make_unique<Graph>();
     modNewGraph->readGraph(graphFileName, percentageTargetsFloat, resultLogFile);
@@ -2345,7 +2328,6 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
 
 int main(int argc, char **argv) {
 
-    //    freopen("output.txt", "w", stdout);//Output to the file and not the console
     cout << "Starting program\n";
 
     string resultDataFile;
@@ -2403,13 +2385,17 @@ int main(int argc, char **argv) {
     newSeed = result["newSeedset"].as<int>();
     diffusion = result["Diffusion"].as<int>();
 
-    cout << "\n begin execution tim tim ";
+    cout << "\nComputing.." << endl;
     resultDataFile = graphFileName;
     resultDataFile += "_Budget_" + to_string(budget);
     resultDataFile += "_Removal_" + to_string(removeNodes);
-    resultDataFile += "__RRapproach2_Log.txt";
-    resultDataFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\ResultData\\" + resultDataFile;
+    resultDataFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\results\\" + resultDataFile;
     resultLogFile.open(resultDataFile);
+
+    resultDataFile += ".txt";
+    auto oldbuf = cout.rdbuf();//save old streambuf
+    ofstream out(resultDataFile);
+    cout.rdbuf(out.rdbuf());//redirect std::cout to resultDataFile
 
     //  Quest: Why have a separate method for these 4-5 arguments?...
     loadResultsFileFrom(result);
@@ -2471,7 +2457,7 @@ int main(int argc, char **argv) {
     }
 
     string resultFile;
-    string storesResultFile;
+    string storeOpToConsole;
     string tshootingDataFile;
     resultFile = graphFileName;
 
@@ -2480,13 +2466,13 @@ int main(int argc, char **argv) {
         resultFile =
                 "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\results\\" +
                 resultFile;
-        storesResultFile = resultFile + "_values";
+        storeOpToConsole = resultFile + "_consoleOutput";
         tshootingDataFile = resultFile + "_tshootingData";
         myfile.open(resultFile, std::ios::app);
-        dependValues.open(storesResultFile, std::ios::app);
+        consoleOutput.open(storeOpToConsole, std::ios::app);
         tshootingFile.open(tshootingDataFile, std::ios::app);
         myfile << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
-        dependValues << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
+        consoleOutput << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
         tshootingFile << "\n" << budget << " <-SeedSetSize\n" << removeNodes << " <-removeNodes\n";
         executeTIMTIMfullGraph(result);
     } else {
@@ -2498,5 +2484,6 @@ int main(int argc, char **argv) {
         myfile << "\n" << budget << " " << removeNodes << " ";
     }
     disp_mem_usage("");
+    cout.rdbuf(oldbuf);          //restore old streambuf
     return 0;
 }
