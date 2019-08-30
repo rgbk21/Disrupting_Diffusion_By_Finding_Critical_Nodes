@@ -67,7 +67,7 @@ bool useMaxSeed = true;//Applicable if someCondition = false. Set to false if us
 bool someCondition = true;//Set to true if calculating maxSeed BEFORE removing any nodes. Remove nodes ONLY if they arent in maxSeed.
 bool useRandomSeed = false;//Set to true (someCondition should also be set to true) if using random Seed instead of max Seed as the initial seed BEFORE finding the vertices to be removed
 bool useEnvelop = false;//Set to true if someCondition is set to true. Implies you are not removing nodes from the envelopedNodes as well. SeedSet is still fixed.
-
+bool useSeedProvidedAsInput = true;//If this is set to TRUE, instead of calulating the maxSeed and using that as the seed, we use the nodes provided by the user in a text file as the seed. You will have to manually set the file name in the code
 //These are my global variables for testing
 vector<int> modNodesToRemoveUnsorted;
 vector<int> subModTopKInflNodesToRemoveUnsorted;
@@ -1443,7 +1443,8 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
             myfile << maxInfluenceNum << " <-Influence of chosen random seed on the original Graph G" << endl;
             cout << "\n \n******* Calculating randomSeed to be used ends ******** \n" << endl;
 
-        } else {
+        }
+        else {
             myfile << "Max influence Seed Set in the original graph: " << endl;
             cout << "Max influence Seed Set in the original graph: " << endl;
 
@@ -1454,10 +1455,23 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
                                          set<int>(),
                                          NULL);    //Find the top (budget + 100) nodes that will form a part of the envelop
             }
+            if (useSeedProvidedAsInput){
+                string fileName = "Mapped_Seed_To_v2.txt";
+                ifstream myFile("C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\" + fileName);
+                string s;
+                int vertex = 0;
+                if (myFile.is_open()) {
+                    while (myFile >> vertex) {
+                        maxInfluenceSeed.insert(vertex);
+                    }
+                    myFile.close();
+                }
+                assert(("SeedSet read from the User does not contain the same number of nodes as the argument 'budget' ", maxInfluenceSeed.size() == budget));
+            }
+            else{
+                maxInfluenceSeed = getSeed(budget, maxSeedGraph, activatedSet, set<int>(), set<int>(), set<int>(),  set<int>(), NULL);
+            }
 
-            maxInfluenceSeed = getSeed(budget, maxSeedGraph, activatedSet, set<int>(), set<int>(), set<int>(),
-                                       set<int>(),
-                                       NULL);
             vector<vector<int>>().swap(maxSeedGraph->rrSets);
             maxInfluenceNum = oldNewIntersection(maxSeedGraph, maxInfluenceSeed, activatedSet, resultLogFile);
             testMaxInfluenceSeed = vector<int>();

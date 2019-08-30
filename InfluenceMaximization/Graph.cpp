@@ -84,9 +84,7 @@ void Graph::readReverseGraph(string fileName, float percentage) {
     this->percentageTargets = percentage;
     cout << "\n Reading Reverse Influence graph: ";
 
-    ifstream myFile(
-            "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
-            fileName);
+    ifstream myFile("C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + fileName);
     string s;
     if (myFile.is_open()) {
         myFile >> n >> m;
@@ -328,9 +326,7 @@ void Graph::readGraph(string fileName, float percentage, std::ofstream &resultLo
     this->percentageTargets = percentage;
     cout << "\nReading all targets graph: " << endl;
 
-    ifstream myFile(
-            "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" +
-            fileName);
+    ifstream myFile("C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + fileName);
     string s;
     if (myFile.is_open()) {
         myFile >> n >> m;
