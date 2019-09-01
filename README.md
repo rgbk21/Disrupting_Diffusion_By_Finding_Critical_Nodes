@@ -13,6 +13,7 @@ Store the graph file/labels file in the graphs folder. The graph file has the fo
 Update the paths for the graph folder, results folder, and the ResultData folder in the code. These paths need to be updated in the Graph.cpp and main.cpp files.
 
 Set the following Parameters:
+
 Keep these unchanged:
 ```
 algorithm - "timtim"
@@ -37,13 +38,13 @@ Example command:
 
 ## Versions of the Algorithm
 There are 2 versions of the algorithm:
+
 Version 1) Finding the critical nodes in the given graph when no seed set context has been provided
+
 Version 2) Finding the critical nodes in the given graph when seed set has been provided
 
 Version 1 of the algorithm is present in the branch: <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> 
 When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0.
-
-
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
