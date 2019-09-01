@@ -13,6 +13,7 @@ Store the graph file/labels file in the graphs folder. The graph file has the fo
 Update the paths for the graph folder, results folder, and the ResultData folder in the code. These paths need to be updated in the Graph.cpp and main.cpp files.
 
 Set the following Parameters:
+
 Keep these unchanged:
 ```
 algorithm - "timtim"
@@ -37,18 +38,19 @@ Example command:
 
 ## Versions of the Algorithm
 There are 2 versions of the algorithm:
-Version 1) Finding the critical nodes in the given graph when no seed set context has been provided
-Version 2) Finding the critical nodes in the given graph when seed set has been provided
 
-Version 1 of the algorithm is present in the branch: <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> 
-When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0.
+Version 1) Finding the critical nodes in the given graph when no seed set context has been provided <br>
+Version 2) Finding the critical nodes in the given graph when seed set has been provided <br> <br>
 
+Version 1 of the algorithm is present in the branch: <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> <br>
 
+When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network. The results of the execution can be found in the /results/ folder with the particulate graph name. <br><br>
+
+Version 2 of the algorithm is present in the branch: <i>CodeContaining_TopCritGivenSeed</i>. <br>
+When running this version of the algorithm, change the parameter <i>budget</i> according to the seedSet size that youw ant to set. This will select the <i>budget</i> number of nodes that have the highest influence as the seed. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network. The results of the execution can be found in the /results/ folder with the particulate graph name. <br><br>
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
 
 ## Results
-Results file will get created after every execution and can be found in results folder (if budget, graph name, nodeRemove are same then the program will append the exsisting file instead of generating new file). Log file will also get created and can be found in ResultsData folder.
-
-
+Results file will get created after every execution and can be found in results folder (if budget, graph name, nodeRemove are same then the program will append the existing file instead of generating new file).
