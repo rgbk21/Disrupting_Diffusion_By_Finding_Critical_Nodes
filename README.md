@@ -44,7 +44,8 @@ Version 1) Finding the critical nodes in the given graph when no seed set contex
 Version 2) Finding the critical nodes in the given graph when seed set has been provided
 
 Version 1 of the algorithm is present in the branch: <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> 
-When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0.
+
+When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network.
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
