@@ -10,7 +10,7 @@ Store the graph file/labels file in the graphs folder. The graph file has the fo
 	First line: <number of nodes> <number of edges>
 	From second line: <from node> <to node>
 ```
-Update the paths for the graph folder, results folder, and the ResultData folder in the code. These paths need to be updated in the Graph.cpp and main.cpp files.
+Update the paths for the graph folder, results folder, and the ResultData folder in the code. All of the paths that need to be updated are in the Graph.cpp and main.cpp files.
 
 Set the following Parameters:
 
@@ -43,11 +43,11 @@ Version 1) Finding the critical nodes in the given graph when no seed set contex
 Version 2) Finding the critical nodes in the given graph when seed set has been provided <br> <br>
 
 Version 1 of the algorithm is present in the branch: <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> <br>
+When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network. The results of the execution can be found in the /results/ folder with the particular graph name. <br><br>
 
-When running this version of the algorithm, make sure to set the parameter <i>budget</i> to 0. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network. The results of the execution can be found in the /results/ folder with the particulate graph name. <br><br>
-
-Version 2 of the algorithm is present in the branch: <i>CodeContaining_TopCritGivenSeed</i>. <br>
-When running this version of the algorithm, change the parameter <i>budget</i> according to the seedSet size that youw ant to set. This will select the <i>budget</i> number of nodes that have the highest influence as the seed. Change the <i>nodesRemove</i> parameter to control how many critical nodes to you want to find in the network. The results of the execution can be found in the /results/ folder with the particulate graph name. <br><br>
+Version 2 of the algorithm is present in the branch: <i>CodeContaining_TopCritGivenSeed</i> <br>
+When running this version of the algorithm, change the parameter <i>budget</i> according to the seedSet size that you want to set. This will select the <i>budget</i> number of nodes, that have the maximum influence, as the seed. Change the <i>useSeedProvidedAsInput</i> global parameter in the code to false. Change the <i>nodesRemove</i> parameter to control how many critical nodes you want to find in the network. <br>
+You can also use your own seed as an input. Change the <i>useSeedProvidedAsInput</i> global parameter in the code to true. Set the <i>budget</i> parameter to be equal to the number of nodes in the file used as input for the seed.
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
