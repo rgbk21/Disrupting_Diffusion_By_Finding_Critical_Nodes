@@ -2292,7 +2292,7 @@ void executeTIMTIMfullGraph(cxxopts::ParseResult result) {
         subModTopCritGraphNew->setPropogationProbability(probability);
     }
 
-    validationCheck(modImpactTopCritNodesToRemove, subModTopCritNodesToRemove, percentageTargetsFloat);
+//    validationCheck(modImpactTopCritNodesToRemove, subModTopCritNodesToRemove, percentageTargetsFloat);
 
     string convertedFile = "C:\\Semester 3\\Thesis\\COPY_Changed_Path_Another_PrettyCode\\graphs\\" + graphFileName;
 

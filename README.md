@@ -53,7 +53,7 @@ When running this version of the algorithm, change the parameter <i>budget</i> a
 You can also use your own seed as an input. Change the <i>useSeedProvidedAsInput</i> global parameter in the code to true. Set the <i>budget</i> parameter to be equal to the number of nodes in the file used as input for the seed.
 
 ## Reason for Creating this Branch
-This code gives oyu the critical nodes in the graph when no seed set context has been given. This is different from the <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> branch because this does not contain the validationCheck() method that were running in Experiment 2. This code directly gives you the critical nodes in the absence of any seed set context.
+This code gives you the critical nodes in the graph when no seed set context has been given. This is different from the <i>CodeContaining_topCrit_WithoutAnySeedSetContextGiven_Exp2</i> branch because this does not contain the validationCheck() method that we were running in Experiment 2. This also does not contain the newDiffusion() method because there is no seed set to give us the comparison of influence values. This code directly gives you the critical nodes in the absence of any seed set context.
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
