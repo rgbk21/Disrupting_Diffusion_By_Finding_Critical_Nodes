@@ -33,7 +33,7 @@ nodesRemove - number of nodes to be removed (the critical nodes)
 ```
 Example command:
 ```
-./influence --algorithm timtim --fullgraph true --Diffusion 0 --newSeedset 5 --modularity modular2  --seedset 0 --percentage 100 --threshold 10  --graph ca-GrQc-processed.txt --budget 10  --nodesRemove 5
+./yourExecutable --algorithm timtim --fullgraph true --Diffusion 0 --newSeedset 5 --modularity modular2  --seedset 0 --percentage 100 --threshold 10  --graph ca-GrQc-processed.txt --budget 10  --nodesRemove 5
 ```
 
 ## Versions of the Algorithm
@@ -48,6 +48,12 @@ When running this version of the algorithm, make sure to set the parameter <i>bu
 Version 2 of the algorithm is present in the branch: <i>CodeContaining_TopCritGivenSeed</i> <br>
 When running this version of the algorithm, change the parameter <i>budget</i> according to the seedSet size that you want to set. This will select the <i>budget</i> number of nodes, that have the maximum influence, as the seed. Change the <i>useSeedProvidedAsInput</i> global parameter in the code to false. Change the <i>nodesRemove</i> parameter to control how many critical nodes you want to find in the network. <br>
 You can also use your own seed as an input. Change the <i>useSeedProvidedAsInput</i> global parameter in the code to true. Set the <i>budget</i> parameter to be equal to the number of nodes in the file used as input for the seed.
+
+## Reason for Creating this Branch
+This branch contains the other 2 methods that we were using for comparing the output of the GIVEN_SEED method. These 2 methods were <br>
+1) The simple modular approach where for each vertex <i>v</i> we calculated the number of rrSetst that <i>v</i> occurred in, and then removed the vertex that occurred in the maximum number of rrSets in a modular fashion. <br>
+2) For the second approach, we only look at those rrSets that contain some seedSetNode. So, remove all the rrSets that do not contain any seedSetNode. Now run the modular approach described in point 1 on the resulting rrSets. <br>
+Use this code if you want to get the comparison results.
 
 ## Download Graph Data
 The graphs that we have used, along with labels file can be found in "graphs" folder of the code. If you want to use another graph file then place the file in graphs folder before running the program.
