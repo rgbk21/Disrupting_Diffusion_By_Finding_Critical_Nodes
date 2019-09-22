@@ -33,7 +33,7 @@ nodesRemove - number of nodes to be removed (the critical nodes)
 ```
 Example command:
 ```
-./influence --algorithm timtim --fullgraph true --Diffusion 0 --newSeedset 5 --modularity modular2  --seedset 0 --percentage 100 --threshold 10  --graph ca-GrQc-processed.txt --budget 10  --nodesRemove 5
+./yourExecutable --algorithm timtim --fullgraph true --Diffusion 0 --newSeedset 5 --modularity modular2  --seedset 0 --percentage 100 --threshold 10  --graph ca-GrQc-processed.txt --budget 10  --nodesRemove 5
 ```
 
 ## Versions of the Algorithm
