@@ -1104,7 +1104,7 @@ bool checkReachabilityOfSeedFromSource(unique_ptr<Graph> &influencedGraph, int n
     vector<bool> visitedBFS = vector<bool>(myMiniRRGraph.size(), false);            //Mark all the vertices as not visited
     deque<int> queue;                                                               //Create a queue for BFS
     visitedBFS[0] = true;                                                           //Mark the current node as visited
-    queue.push_back(0);                                                             //And add it to the queue
+    queue.push_back(0);                                                         //And add it to the queue
 
     while (!queue.empty()) {
         int u = queue.front();
@@ -1115,7 +1115,7 @@ bool checkReachabilityOfSeedFromSource(unique_ptr<Graph> &influencedGraph, int n
                 visitedBFS[v] = true;
                 queue.push_back(v);
                 if((*isSeed)[v]){
-                    return true;                                                    //Because the seed was reachble
+                    return true;                                                    //Because the seed was reachable
                 }
             }
         }
