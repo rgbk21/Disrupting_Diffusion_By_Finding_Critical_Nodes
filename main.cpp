@@ -87,11 +87,11 @@ int nodeNumBeingRemovedGlobal = 20;
  * 2) In subModTopCritNodesRemove,
  *      boolean tshoot controls checkIfModImpactValuesWereCorrect()
  * 3) In removeSeedSetNodeFromDependencyVector() there is an assert statement. Set tshoot to false when actually running the program.
- * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually runnning.
+ * 4) //WARNING --- Dont call if final vertex to be removed has been found. Removed this for testing. Reintroduce if actually running.
  * 5) generateRRSetsForSubModTopCrit() has an assert statement that has been commented out. Reintroduce if testing code.
  * 6) removed a bunch of testMethods from the subModTopCrit method. Reintroduce if testing the code?
- * 7) Because in this version we are not finding inlfuence from a specific seed, we have this line: assert(maxInfluenceSeed.empty());
- * 8) In removeCritNodeWithMatrixUpdate tshoot controls the assert statements. Currecntly they have been set to false
+ * 7) Because in this version we are not finding influence from a specific seed, we have this line: assert(maxInfluenceSeed.empty());
+ * 8) In removeCritNodeWithMatrixUpdate tshoot controls the assert statements. Currently they have been set to false
  * */
 
 
@@ -1545,7 +1545,7 @@ void removeCritNodeWithMatrixUpdate(int critNode, unique_ptr<Graph> &influencedG
                             //j is no longer reachable from the source, i.e. reachableFromSource[j] = FALSE
                             //which can mean either of the following 2 things:
                             //a) j was either a seedSetNode or a node whose reachability depended on the seed(s) and the node j got disconnected
-                            //when the seedSetNodes were being removed during the computationof the modImpact nodes
+                            //when the seedSetNodes were being removed during the computation of the modImpact nodes
                             //b) j was either a critNode or a node whose reachability depended on the critNode.
                             //reachableFromSource[j] was set ot FALSE when the outgoing edges from v were deleted. Since j has NO outgoing edges
                             //removal of critNode is not going to affect the vertices whose reachability depend on j, since j has no outgoing edges.
