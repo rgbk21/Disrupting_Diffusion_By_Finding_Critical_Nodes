@@ -724,6 +724,13 @@ Graph::generateRandomRRSetsFromTargets(int R, vector<int> activatedSet, string m
          *  inRRSets: vector<vector<int>>(n). For every vertex, it stores the rrSets that that vertex occurs in.
          *  So if vector at index 4 contains <1,5,7> it means that the vertex 4 occurs in the rrSets numbered 1,5,7.
          *
+         *  isSeedVector - For every rrSetId, it stores - isSeed <1,1,0,0,1> :
+         *  This means in this particular miniRRGraph, vertices 0,1,4 have been selected as the overall seed
+         *
+         *  isCriticalVector - For every rrSetId, it stores - isCritical <1,0,0,1,0> :
+         *  This means in this particular miniRRGraph, removing vertices 0 and 3 (separately, not at the same time)
+         *  caused the seedSetNodes to become disconnected from the source
+         *
          * dependancyVector: Stores an Array of Matrices.
          * Matrix at index i is the dependancyMatrix of RRSet number i
          * How to read them? Consider the following graph and Matrix:
